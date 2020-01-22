@@ -5,7 +5,9 @@ with DDS.Request_Reply.Connext_C_Entity_Params;
 with Ada.Unchecked_Deallocation;
 with DDS.Request_Reply.Connext_C_Untyped_Impl;
 with DDS.Request_Reply.Untypedcommon;
+
 package body DDS.Request_Reply.Replier is
+   use DDS.Request_Reply;
    use Connext_C_Replier;
    use Connext_C_Entity_Params;
    use connext_c_untyped_impl;

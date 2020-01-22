@@ -1,5 +1,5 @@
-with "dds-ada.gpr";
-library project Dds_Request_Reply is
+with "dds.gpr";
+library project DDS.Ada.Request_Reply extends "dds-ada.gpr" is
    for Languages use ("Ada");
    for Library_Name use "ddsrequestreply";
    for Source_Dirs use ("src/**");
@@ -15,4 +15,4 @@ library project Dds_Request_Reply is
       for SPEC_Suffix ("gen") use ".gen";
    end Naming;
 
-end Dds_Request_Reply;
+end DDS.Ada.Request_Reply;

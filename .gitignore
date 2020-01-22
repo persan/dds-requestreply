@@ -11,3 +11,5 @@ b__*
 messages.txt
 clang_ref_cache.db
 x.py
+*.d
+/bug

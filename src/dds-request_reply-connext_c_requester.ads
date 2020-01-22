@@ -15,6 +15,27 @@ package DDS.Request_Reply.Connext_C_Requester is
    type RTI_Connext_RequesterUntypedImpl is abstract new  RTI_Connext_EntityUntypedImpl with null record;
    type RTI_Connext_RequesterUntypedImpl_Access is access all RTI_Connext_RequesterUntypedImpl;
    
+   function RTI_Connext_RequesterUntypedImpl_Wait_For_Replies
+     (Self                 : not null access RTI_Connext_RequesterUntypedImpl;
+      Max_Wait             : DDS.Duration_T := DEFAULT_MAX_WAIT;
+      Min_Sample_Count     : DDS.Natural := 1;
+      Related_Request_Info : DDS.SampleIdentity_T) return DDS.ReturnCode_T;
+   
+   function RTI_Connext_RequesterUntypedImpl_get_request_datawriter
+     (Self : not null access RTI_Connext_RequesterUntypedImpl)
+      return DDS.DataWriter.Ref_Access is
+     (DDS.DataWriter.Ref_Access (Self.Writer));
+
+   --  =========================================================================
+   --  =========================================================================
+   --  extern XMQCDllExport
+   --  DDS_DataReader* RTI_Connext_RequesterUntypedImpl_get_request_datareader(
+   --      RTI_Connext_RequesterUntypedImpl * self);
+   function RTI_Connext_RequesterUntypedImpl_Get_Request_Datareader
+     (Self : not null access RTI_Connext_RequesterUntypedImpl) 
+      return DDS.DataReader.Ref_Access is
+     (DDS.DataReader.Ref_Access (Self.Reader));
+   
    
    type RTI_Connext_Requester is abstract new RTI_Connext_RequesterUntypedImpl with record 
       null;
@@ -65,7 +86,7 @@ package DDS.Request_Reply.Connext_C_Requester is
      (Params : RTI_Connext_RequesterParams;
       Request_Type_Name : DDS.String;
       Reply_Type_Name   : DDS.String;
-      reply_size : DDS.Integer) return RTI_Connext_RequesterUntypedImpl;
+      reply_size : DDS.Integer) return RTI_Connext_RequesterUntypedImpl_Access;
                                                      
    -- RTI_Connext_RequesterUntypedImpl_create(
    --      const RTI_Connext_RequesterParams * params,
@@ -90,11 +111,7 @@ package DDS.Request_Reply.Connext_C_Requester is
    --      const struct DDS_Duration_t * max_wait,
    --      int min_sample_count,
    --      const struct DDS_SampleIdentity_t* related_request_info);
-   function RTI_Connext_RequesterUntypedImpl_Wait_For_Replies
-     (Self                 : not null access RTI_Connext_RequesterUntypedImpl;
-      Max_Wait             : DDS.Duration_T := DEFAULT_MAX_WAIT;
-      Min_Sample_Count     : DDS.Natural := 1;
-      Related_Request_Info : DDS.SampleIdentity_T) return DDS.ReturnCode_T;
+
    
    
    
@@ -122,19 +139,5 @@ package DDS.Request_Reply.Connext_C_Requester is
    --  extern XMQCDllExport
    --  DDS_DataWriter* RTI_Connext_RequesterUntypedImpl_get_request_datawriter(
    --      RTI_Connext_RequesterUntypedImpl * self);
-   function RTI_Connext_RequesterUntypedImpl_get_request_datawriter
-     (Self : not null access RTI_Connext_RequesterUntypedImpl)
-      return DDS.DataWriter.Ref_Access is
-     (Self.Writer);
 
-   --  =========================================================================
-   --  =========================================================================
-   --  extern XMQCDllExport
-   --  DDS_DataReader* RTI_Connext_RequesterUntypedImpl_get_request_datareader(
-   --      RTI_Connext_RequesterUntypedImpl * self);
-   function RTI_Connext_RequesterUntypedImpl_Get_Request_Datareader
-     (Self : not null access RTI_Connext_RequesterUntypedImpl) 
-      return DDS.DataReader.Ref_Access is
-     (Self.Reader);
-   
 end DDS.Request_Reply.Connext_C_Requester;

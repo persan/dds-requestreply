@@ -20,29 +20,23 @@ package DDS.Request_Reply.Connext_C_Replier is
    type RTI_Connext_ReplierUntypedImpl_Access is access all RTI_Connext_ReplierUntypedImpl'Class;
    
    type RTI_Connext_Replier is tagged;
+   type RTI_Connext_Replier_Access is access RTI_Connext_Replier'Class;
+   
+   
    type RTI_Connext_ReplierListener is tagged;
-   type RTI_Connext_ReplierListener_Access is access all RTI_Connext_ReplierListener'Class;
+   type RTI_Connext_ReplierListener_Access is access RTI_Connext_ReplierListener'Class;
+   
+   
 
-   type RTI_Connext_SimpleReplierListener is tagged;
+   type RTI_Connext_SimpleReplierListener is interface;
    type RTI_Connext_SimpleReplierListener_Access is access all RTI_Connext_SimpleReplierListener'Class;
-   
-   type RTI_Connext_SimpleReplierListener_OnRequestAvailableCallback is access 
-     procedure (Self    : RTI_Connext_SimpleReplierListener; 
-                Request : Interfaces.C.Extensions.Void_Ptr;
-                Replier :  not null access RTI_Connext_Replier);
-   
-
-   type RTI_Connext_SimpleReplierListener_OnReturnLoanCallback is access 
-     procedure (Self         : RTI_Connext_SimpleReplierListener; 
-                Requreplyest : Interfaces.C.Extensions.Void_Ptr);
+   procedure On_Request_Available (Self    : RTI_Connext_SimpleReplierListener; 
+                                   Request : Interfaces.C.Extensions.Void_Ptr;
+                                   Replier :  not null access RTI_Connext_Replier) is abstract;   
+   procedure (Self         : RTI_Connext_SimpleReplierListener; 
+              Requreplyest : Interfaces.C.Extensions.Void_Ptr) is abstract;
    
    
-
-   type RTI_Connext_SimpleReplierListener is tagged record
-      On_Request_Available : RTI_Connext_SimpleReplierListener_OnRequestAvailableCallback;
-      Return_Loan          : RTI_Connext_SimpleReplierListener_OnReturnLoanCallback;
-      User_Data            : Interfaces.C.Extensions.Void_Ptr;
-   end record;
    
    
    function RTI_Connext_ReplierUntypedImpl_Initialize
@@ -60,16 +54,14 @@ package DDS.Request_Reply.Connext_C_Replier is
       Related_Request_Info : DDS.SampleIdentity_T;
       WriteParams          : DDS.WriteParams_T) return DDS.ReturnCode_T;
    
+   
    type RTI_Connext_Replier is abstract new RTI_Connext_ReplierUntypedImpl with record
       Listener       : RTI_Connext_ReplierListener_Access;
       SimpleListener : RTI_Connext_SimpleReplierListener;
-   end record;   
+   end record;
+   
    type RTI_Connext_Replier_Access is access RTI_Connext_Replier'Class;
    
-   function RTI_Connext_CreateWriterTopicFunc
-     (Self   : access RTI_Connext_Replier;
-      Params : access RTI_Connext_EntityParams;
-      Name   : DDS.String) return DDS.TopicDescription.Ref_Access;
    
    function Create_Writer_Topic
      (Self   : access RTI_Connext_Replier;

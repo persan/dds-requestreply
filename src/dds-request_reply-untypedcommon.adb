@@ -1,5 +1,6 @@
 with DDS.DomainParticipantFactory;
 with DDS.TopicListener;
+with GNAT.Source_Info;
 package body DDS.Request_Reply.Untypedcommon is
 
 
@@ -37,21 +38,6 @@ package body DDS.Request_Reply.Untypedcommon is
    
     
 
-
-   
-   function RTI_Connext_Get_Or_Create_Topic
-     (Participant : DDS.DomainParticipant.Ref_Access;
-      Name        : DDS.String;
-      Type_Name   : DDS.String;
-      Allow_Cft   : DDS.Boolean) return DDS.TopicDescription.Ref_Access is
-   begin
-      return Get_Or_Create_Topic (Participant, Name, Type_Name).As_TopicDescription;
-   end RTI_Connext_Get_Or_Create_Topic;
-   
-   --  =========================================================================
-   --  =========================================================================
-  
-   
    
    
    function RTI_Connext_EntityUntypedImpl_Get_Datawriter_Qos 
@@ -221,6 +207,7 @@ package body DDS.Request_Reply.Untypedcommon is
    --  }
    
 
+   
    --  =========================================================================
    --  =========================================================================
    --  Package
@@ -456,6 +443,7 @@ package body DDS.Request_Reply.Untypedcommon is
    --  
    --      return data_count;
    --  }
+   
    function RTI_Connext_EntityUntypedImpl_Touch_Samples
      (Self           : not null access RTI_Connext_EntityUntypedImpl;
       Max_Count      : DDS.Integer;
@@ -699,13 +687,13 @@ package body DDS.Request_Reply.Untypedcommon is
    function RTI_Connext_EntityUntypedImpl_Get_Sample_Loaned_W_Len
      (Self                    : not null access RTI_Connext_EntityUntypedImpl;
       Received_Data           : System.Address;      
-      Data_Count              : out DDS.Natural;
-      Is_Loan                 : out Boolean;
+      Data_Count              : in out DDS.Natural;
+      Is_Loan                 : in out Boolean;
       DataSeqContiguousBuffer : System.Address;
       Info_Seq                : not null access DDS.SampleInfo_Seq.Sequence;
       Data_Seq_Len            : DDS.long;
       Data_Seq_Max_Len        : DDS.long;
-      Ownership               : DDS.Boolean;
+      Data_Seq_Has_Ownership  : DDS.Boolean;
       Max_Samples             : DDS.long;
       Read_Condition          : DDS.ReadCondition.Ref_Access;
       Take                    : Boolean) return Dds.ReturnCode_T is
@@ -824,8 +812,8 @@ package body DDS.Request_Reply.Untypedcommon is
    function RTI_Connext_EntityUntypedImpl_Get_Sample_Loaned
      (Self                    : not null access RTI_Connext_EntityUntypedImpl;
       Received_Data           : System.Address;      
-      Data_Count              : out DDS.Natural;
-      Is_Loan                 : out Boolean;
+      Data_Count              : in out DDS.Natural;
+      Is_Loan                 : in out Boolean;
       DataSeqContiguousBuffer : System.Address;
       Info_Seq                : not null access DDS.SampleInfo_Seq.Sequence;
       Data_Seq_Len            : DDS.long;
@@ -916,113 +904,60 @@ package body DDS.Request_Reply.Untypedcommon is
    --  =========================================================================
    --  =========================================================================
   
+   function RTI_Connext_EntityUntypedImpl_Send_Sample
+     (Self : not null access  RTI_Connext_EntityUntypedImpl;
+      Data : System.Address;
+      Info : in out WriteParams_T ) return ReturnCode_T is
+      RetCode : ReturnCode_T := RETCODE_OK;
+   begin
+      Info.Identity := DDS.AUTO_SAMPLE_IDENTITY;
+      RetCode := Self.Writer.Write_W_Params (Data, Info);
+      if RetCode /= RETCODE_OK then
+         DDSLog_Exception ("send sample write error");
+      end if;   
+      return RetCode;
+   end;
    
-   --  
-   --  DDS_DataWriter* RTI_Connext_EntityUntypedImpl_get_datawriter(
-   --      struct RTI_Connext_EntityUntypedImpl * self)
-   --  {
-   --      return self->_writer;
-   --  }
-   --  =========================================================================
-   --  =========================================================================
+   
+   function RTI_Connext_EntityUntypedImpl_Validate_Receive_Params
+     (Self : not null access RTI_Connext_EntityUntypedImpl;
+      FUNCTION_NAME : Standard.String := GNAT.Source_Info.Enclosing_Entity;
+      Min_Count     : DDS.long;
+      Max_Count     : DDS.long;
+      Max_Wait      : DDS.Duration_T) return Boolean is
+      L_Min_Count     : DDS.long := (if Min_Count = LENGTH_UNLIMITED
+                                     then Self.Max_Samples_Per_Read
+                                     else Max_Count);      
+           
+      L_Max_Count     : DDS.long := (if Max_Count = LENGTH_UNLIMITED
+                                     then Self.Max_Samples_Per_Read
+                                     else Max_Count);
+      
+      Ok              : Boolean := True;
+   begin
+      if L_Max_Count < 1 and L_Max_Count /= LENGTH_UNLIMITED 
+      then
+         DDSLog_Exception ("max_count must be greater than zero");
+         OK := False;
+      end if;
+      
+      if ((L_Max_Count < L_Min_Count) and (L_Max_Count /= LENGTH_UNLIMITED)) or
+        ((L_Min_Count  = LENGTH_UNLIMITED) and (L_Min_Count  /= LENGTH_UNLIMITED))        
+      then
+         DDSLog_Exception ("max_count must be greater or equal than min_count");
+         OK := False;
+      end if;
+      if (L_Max_Count = LENGTH_UNLIMITED) and then Duration_Is_Infinite (Max_Wait) then
+         DDSLog_Exception ("max_count and max_wait cannot be both unbounded");
+         OK := False;
+      end if;         
+      return OK;
+   end;
+                                                                  
   
-   
-   --  
-   --  DDS_DataReader* RTI_Connext_EntityUntypedImpl_get_datareader(
-   --      struct RTI_Connext_EntityUntypedImpl * self)
-   --  {
-   --      return self->_reader;
-   --  }
-   --  =========================================================================
-   --  =========================================================================
-  
-   
-   --  
-   --  RTIBool RTI_Connext_EntityUntypedImpl_validate_receive_params(
-   --      const struct RTI_Connext_EntityUntypedImpl * self,
-   --      const char *FUNCTION_NAME,
-   --      DDS_Long min_count,
-   --      DDS_Long max_count,
-   --      const struct DDS_Duration_t * max_wait)
-   --  {
-   --      if (max_count == DDS_LENGTH_UNLIMITED) {
-   --          max_count = self->_max_samples_per_read;
-   --      }
-   --  
-   --      if (min_count == DDS_LENGTH_UNLIMITED) {
-   --          min_count = self->_max_samples_per_read;
-   --      }
-   --  
-   --      if(max_count == 0 || ((max_count < 0)
-   --              && (max_count != DDS_LENGTH_UNLIMITED))) {
-   --          DDSLog_logWithFunctionName(
-   --                  RTI_LOG_BIT_EXCEPTION,
-   --                  FUNCTION_NAME,
-   --                  &DDS_LOG_BAD_PARAMETER_s,
-   --                  "max_count must be greater than zero");
-   --          return RTI_FALSE;
-   --      }
-   --  
-   --      if((max_count < min_count && max_count != DDS_LENGTH_UNLIMITED) ||
-   --         (min_count == DDS_LENGTH_UNLIMITED && max_count != DDS_LENGTH_UNLIMITED)) {
-   --          DDSLog_logWithFunctionName(
-   --                  RTI_LOG_BIT_EXCEPTION,
-   --                  FUNCTION_NAME,
-   --                  &DDS_LOG_BAD_PARAMETER_s,
-   --                  "max_count must be greater or equal than min_count");
-   --          return RTI_FALSE;
-   --      }
-   --  
-   --      if(DDS_Duration_is_zero(max_wait)) {
-   --          DDSLog_logWithFunctionName(
-   --                  RTI_LOG_BIT_EXCEPTION,
-   --                  FUNCTION_NAME,
-   --                  &DDS_LOG_BAD_PARAMETER_s,
-   --                  "max_wait must be greater than zero");
-   --          return RTI_FALSE;
-   --      }
-   --  
-   --      if((max_count == DDS_LENGTH_UNLIMITED)  &&
-   --         (DDS_Duration_is_infinite(max_wait))) {
-   --          DDSLog_logWithFunctionName(
-   --                  RTI_LOG_BIT_EXCEPTION,
-   --                  FUNCTION_NAME,
-   --                  &DDS_LOG_BAD_PARAMETER_s,
-   --                  "max_count and max_wait cannot be both unbounded");
-   --          return RTI_FALSE;
-   --      }
-   --  
-   --      return RTI_TRUE;
-   --  }
-   --  =========================================================================
-   --  =========================================================================
-  
-   
-   --  
-   --  DDS_ReturnCode_t RTI_Connext_SimpleReplierParams_to_entityparams(
-   --      const RTI_Connext_SimpleReplierParams* self,
-   --      RTI_Connext_EntityParams* toParams)
-   --  {
-   --  
-   --      DDSLog_testPrecondition(self == NULL, return DDS_RETCODE_PRECONDITION_NOT_MET);
-   --      DDSLog_testPrecondition(toParams == NULL, return DDS_RETCODE_PRECONDITION_NOT_MET);
-   --      toParams->participant = self->participant;
-   --      toParams->datareader_qos = self->datareader_qos;
-   --      toParams->datawriter_qos = self->datawriter_qos;
-   --      toParams->publisher = self->publisher;
-   --      toParams->qos_library_name = self->qos_library_name;
-   --      toParams->qos_profile_name = self->qos_profile_name;
-   --      toParams->reply_topic_name = self->reply_topic_name;
-   --      toParams->request_topic_name = self->request_topic_name;
-   --      toParams->service_name = self->service_name;
-   --      toParams->subscriber = self->subscriber;
-   --  
-   --      return DDS_RETCODE_OK;
-   --  }
-   --  
 
    function RTI_Connext_SimpleReplierParams_To_Entityparams
-     (Self : RTI_Connext_SimpleReplierParams;
+     (Self : RTI_Connext_EntityParams'Class;
       ToParams : out RTI_Connext_EntityParams) return ReturnCode_T is
    begin
       
@@ -1030,14 +965,14 @@ package body DDS.Request_Reply.Untypedcommon is
       ToParams.Datareader_Qos := Self.Datareader_Qos;
       ToParams.Datawriter_Qos := Self.Datawriter_Qos;
       ToParams.Publisher := Self.Publisher;
-      ToParams.Qos_Library_Name := Self.Qos_Library_Name;
-      ToParams.Qos_Profile_Name := Self.Qos_Profile_Name;
-      ToParams.Reply_Topic_Name := Self.Reply_Topic_Name;
-      ToParams.Request_Topic_Name := Self.Request_Topic_Name;
-      ToParams.Service_Name := Self.Service_Name;
+      Copy (ToParams.Qos_Library_Name, Self.Qos_Library_Name);
+      Copy (ToParams.Qos_Profile_Name, Self.Qos_Profile_Name);
+      Copy (ToParams.Reply_Topic_Name, Self.Reply_Topic_Name);
+      Copy (ToParams.Request_Topic_Name, Self.Request_Topic_Name);
+      Copy (ToParams.Service_Name, Self.Service_Name);
       ToParams.Subscriber := Self.Subscriber;
-   
-      return DDS_RETCODE_OK;
+            
+      return DDS.RETCODE_OK;
    end;
    
 

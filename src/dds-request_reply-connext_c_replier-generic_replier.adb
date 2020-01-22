@@ -192,7 +192,7 @@ package body DDS.Request_Reply.Connext_C_Replier.Generic_REPLIER is
 
        if (retCode /= DDS.RETCODE_OK) then
            if (retCode /= DDS.RETCODE_NO_DATA ) then
-            DDSLog_Exception (RTI_LOG_ANY_FAILURE_S, "get sample");
+            DDSLog_Exception ("get sample");
          end if;
            return retCode;
        end if;
