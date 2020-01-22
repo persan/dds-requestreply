@@ -3,16 +3,13 @@ with Dds;
 with DDS.Request_Reply.Connext_C_Replier; 
 with DDS.Request_Reply.Connext_C_Entity_Params;
 with Ada.Unchecked_Deallocation;
-with DDS.Request_Reply.connext_c_untyped_impl;
+with DDS.Request_Reply.Connext_C_Untyped_Impl;
+with DDS.Request_Reply.Untypedcommon;
 package body DDS.Request_Reply.Replier is
    use Connext_C_Replier;
    use Connext_C_Entity_Params;
    use connext_c_untyped_impl;
-   --  
-   --  #define DDS_CURRENT_SUBMODULE  DDS_SUBMODULE_MASK_DATA
-   --  
-   --  
-   --  
+   use Untypedcommon;
    
    --  void RTI_Connext_Replier_on_data_available(
    --      void* listener_data, DDS_DataReader* reader)
@@ -24,6 +21,7 @@ package body DDS.Request_Reply.Replier is
    --  
    --      self->listener.on_request_available(&self->listener, self);
    --  }
+   
    procedure RTI_Connext_Replier_On_Data_Available (Self : RTI_Connext_Replier_Access;
                                                     Reader : DDS.DataReader.Ref_Access) is 
    begin
@@ -49,18 +47,18 @@ package body DDS.Request_Reply.Replier is
    --  
    --      return DDS_RETCODE_OK;
    --  }
-   procedure RTI_Connext_ReplierParams_ToEntityParams (Self : RTI_Connext_ReplierParams;
+   procedure RTI_Connext_ReplierParams_ToEntityParams (Self     : RTI_Connext_ReplierParams;
                                                        ToParams : out RTI_Connext_EntityParams) is
    begin
       ToParams.Participant := Self.Participant;
-      DDS.Copy (ToParams.Datareader_Qos, Self.Datareader_Qos);
-      DDS.Copy (ToParams.Datawriter_Qos, Self.Datawriter_Qos);
+      Copy (ToParams.Datareader_Qos, Self.Datareader_Qos);
+      Copy (ToParams.Datawriter_Qos, Self.Datawriter_Qos);
       ToParams.Publisher := Self.Publisher;
-      DDS.Copy (ToParams.Qos_Library_Name , Self.Qos_Library_Name);
-      DDS.Copy (ToParams.Qos_Profile_Name , Self.Qos_Profile_Name);
-      DDS.Copy (ToParams.Reply_Topic_Name, Self.Reply_Topic_Name);
-      DDS.Copy (ToParams.Request_Topic_Name, Self.Request_Topic_Name);
-      DDS.Copy (ToParams.Service_Name, Self.Service_Name);
+      Copy (ToParams.Qos_Library_Name , Self.Qos_Library_Name);
+      Copy (ToParams.Qos_Profile_Name , Self.Qos_Profile_Name);
+      Copy (ToParams.Reply_Topic_Name, Self.Reply_Topic_Name);
+      Copy (ToParams.Request_Topic_Name, Self.Request_Topic_Name);
+      Copy (ToParams.Service_Name, Self.Service_Name);
       ToParams.Subscriber := Self.Subscriber;
       
    end;
@@ -101,17 +99,8 @@ package body DDS.Request_Reply.Replier is
    --  {
    --      DDS_ReturnCode_t retcode = DDS_RETCODE_OK;
    --  
-   --      if(self == NULL) {
-   --          DDSLog_exception(&DDS_LOG_BAD_PARAMETER_s,
-   --                           "self");
-   --          return DDS_RETCODE_BAD_PARAMETER;
-   --      }
-   --  
-   --      if(max_wait == NULL) {
-   --          DDSLog_exception(&DDS_LOG_BAD_PARAMETER_s,
-   --                           "max_wait");
-   --          return DDS_RETCODE_BAD_PARAMETER;
-   --      }
+
+
    --  
    --  
    --      retcode =  RTI_Connext_EntityUntypedImpl_wait_for_any_sample(
@@ -126,9 +115,9 @@ package body DDS.Request_Reply.Replier is
    procedure RTI_Connext_Replier_Wait_For_Requests (Self : not null access RTI_Connext_Replier; 
                                                     Min_Count : DDS.Integer;
                                                     Max_Wait  : DDS.Duration_T) is
-      
+    Dummy_ret : DDS.ReturnCode_T;  
    begin
-      RTI_Connext_EntityUntypedImpl_Wait_For_Any_Sample (Self, Max_Wait, Min_Count);
+      Dummy_ret := RTI_Connext_EntityUntypedImpl_Wait_For_Any_Sample (RTI_Connext_EntityUntypedImpl (Self.all)'Access, Max_Wait => Max_Wait, Min_Sample_Count => Min_Count);
    end;
       
       

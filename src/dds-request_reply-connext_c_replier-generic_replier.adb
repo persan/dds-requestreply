@@ -160,12 +160,58 @@ package body DDS.Request_Reply.Connext_C_Replier.Generic_REPLIER is
    ------------------
 
    function Take_Request
-     (Self        :     not null access TReplier;
+     (Self        : not null access TReplier;
       Request     : out TReq.Data_Type;
       Sample_Info : out DDS.SampleInfo) return DDS.ReturnCode_T
    is
+      RetCode : ReturnCode_T;
+      --
+   --      struct DDS_SampleInfoSeq info_seq = DDS_SEQUENCE_INITIALIZER;
+   --      void ** data = NULL;
+   --      int count = 0;
+   --      DDS_Boolean isLoan = DDS_BOOLEAN_TRUE;
+
    begin
 
+            sample_info.valid_data := False;
+   --
+   --      /* No read condition, get any reply */
+   --      retCode = RTI_Connext_EntityUntypedImpl_get_sample_loaned(
+   --          self->parent._impl,
+   --          &data,
+   --          &count,
+   --          &isLoan,
+   --          NULL,
+   --          &info_seq,
+   --          (DDS_Long)0, /* dataSeqLen */
+   --          (DDS_Long)0, /* dataSeqMaxLen */
+   --          DDS_BOOLEAN_TRUE, /* dataSeqHasOwnership */
+   --          1,
+   --          NULL,
+   --          RTI_TRUE);
+
+       if (retCode /= DDS.RETCODE_OK) then
+           if (retCode /= DDS.RETCODE_NO_DATA ) then
+            DDSLog_Exception (RTI_LOG_ANY_FAILURE_S, "get sample");
+         end if;
+           return retCode;
+       end if;
+   --
+   --      retCode = TReqTypeSupport_copy_data(request, *((TReq**)data));
+   --      if(retCode != DDS_RETCODE_OK) {
+   --          DDSLog_exception(&RTI_LOG_ANY_FAILURE_s,
+   --                           "copy sample");
+   --          goto done;
+   --      }
+   --
+   --      if(DDS_SampleInfoSeq_get_length(&info_seq) != 0) {
+   --          /* TODO: implement copy function? */
+   --          *sample_info = DDS_SampleInfoSeq_get(&info_seq, 0);
+   --      }
+   --
+   --    done:
+   --      RTI_Connext_EntityUntypedImpl_return_loan(self->parent._impl, data, &info_seq);
+   --      return retCode;
       pragma Compile_Time_Warning (Standard.True,
                                    "Take_Request unimplemented");
       return raise Program_Error with "Unimplemented function Take_Request";

@@ -39,6 +39,7 @@ package DDS.Request_Reply.Untypedcommon is
       Max_Samples_Per_Read : DDS.long;
       
    end record;
+   type RTI_Connext_EntityUntypedImpl_Access is access all RTI_Connext_EntityUntypedImpl'Class;
    
    function RTI_Connext_CreateWriterTopicFunc
      (Self   : access RTI_Connext_EntityUntypedImpl;
@@ -75,5 +76,33 @@ package DDS.Request_Reply.Untypedcommon is
                                                       Reader_Listener  : DDS.DataReaderListener.Ref_Access;
                                                       Role_Name        : DDS.String) return DDS.ReturnCode_T;
    
-                                                      
+   
+   function RTI_Connext_EntityUntypedImpl_Touch_Samples
+     (Self           : RTI_Connext_EntityUntypedImpl;
+      Max_Count      : DDS.Integer;
+      Read_Condition : DDS.ReadCondition.Ref_Access) return Integer;
+   
+      
+   
+
+   function RTI_Connext_EntityUntypedImpl_Wait_For_Any_Sample
+     (Self             : RTI_Connext_EntityUntypedImpl;
+      Max_Wait         : DDS.Duration_T;
+      Min_Sample_Count : DDS.Integer) return DDS.ReturnCode_T;
+
+   
+   function RTI_Connext_EntityUntypedImpl_Get_Sample_Loaned_W_Len
+     (Self                    : RTI_Connext_EntityUntypedImpl;
+      Received_Data           : System.Address;
+      Data_Count              : in out DDS.Integer;
+      Is_Loan                 : in out DDS.Boolean;
+      DataSeqContiguousBuffer : System.Address;
+      Info_Seq                : access DDS.SampleInfo_Seq.Sequence;
+      Data_Seq_Len            : DDS.long;
+      Data_Seq_Max_Len        : DDS.long;
+      Data_Seq_Has_Ownership  : DDS.Boolean;
+      Max_Samples             : DDS.long;
+      Read_Condition          : DDS.ReadCondition.Ref_Access;
+      Take                    : DDS.Boolean) return DDS.ReturnCode_T;
+                                            
 end DDS.Request_Reply.Untypedcommon;

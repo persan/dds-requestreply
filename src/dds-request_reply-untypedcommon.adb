@@ -1,32 +1,7 @@
+with DDS.DomainParticipantFactory;
+with DDS.TopicListener;
 package body DDS.Request_Reply.Untypedcommon is
 
-
-
-   --  int RTI_Connext_EntityUntypedImpl_touch_samples(
-   --      struct RTI_Connext_EntityUntypedImpl * self,
-   --      int max_count,
-   --      DDS_ReadCondition * read_condition);
-   --  
-   --  DDS_ReturnCode_t RTI_Connext_EntityUntypedImpl_wait_for_any_sample(
-   --      struct RTI_Connext_EntityUntypedImpl * self,
-   --      const struct DDS_Duration_t* max_wait,
-   --      int min_sample_count);
-   --  
-   --  DDS_ReturnCode_t RTI_Connext_EntityUntypedImpl_get_sample_loaned_w_len(
-   --      struct RTI_Connext_EntityUntypedImpl * self,
-   --      void *** received_data,
-   --      int * data_count,
-   --      DDS_Boolean* is_loan,
-   --      void* dataSeqContiguousBuffer,
-   --      struct DDS_SampleInfoSeq* info_seq,
-   --      DDS_Long data_seq_len,
-   --      DDS_Long data_seq_max_len,
-   --      DDS_Boolean data_seq_has_ownership,
-   --      DDS_Long max_samples,
-   --      DDS_ReadCondition * read_condition,
-   --      RTIBool take);
-
-     
 
    
    
@@ -36,247 +11,135 @@ package body DDS.Request_Reply.Untypedcommon is
    --  }
    
     
-   --  
+  
    --  struct DDS_DataWriterQos* RTI_Connext_get_default_request_reply_writer_qos(DDS_DomainParticipant * participant)
    --  {
    --      static struct DDS_DataWriterQos qos = DDS_DataWriterQos_INITIALIZER;
    --      DDS_DomainParticipant_get_default_datawriter_qos(participant, &qos);
    --      return &qos;
    --  }
-  
-   
-   --  struct DDS_DataReaderQos *
-   --  RTI_Connext_get_default_request_reply_reader_qos(DDS_DomainParticipant * participant)
-   --  {
-   --      static struct DDS_DataReaderQos qos = DDS_DataReaderQos_INITIALIZER;
-   --      DDS_DomainParticipant_get_default_datareader_qos(participant, &qos);
-   --  
-   --      return &qos;
-   --  }
-   --  
-   function RTI_Connext_Get_Default_Request_Reply_Reader_Qos (Participant : DDS.DomainParticipant.Ref_Access) return DDS.DataReaderQos is
+   procedure RTI_Connext_Get_Default_Request_Reply_Writer_Qos
+     (Participant : DDS.DomainParticipant.Ref_Access; 
+      Ret         : in out DDS.DataWriterQos) is
    begin
-      return Ret : DDS.DataReaderQos do
-         Participant.Get_Default_DataReader_Qos (Ret);
-      end return;
+      Participant.Get_Default_DataWriter_Qos (Ret);
    end;
    
+   
+
   
-   function RTI_Connext_Get_Or_Create_Topic (Participant : DDS.DomainParticipant.Ref_Access;
-                                             Name        : DDS.String;
-                                             Type_Name   : DDS.String;
-                                             Allow_Cft   : DDS.Boolean) return DDS.TopicDescription.Ref_Access is
-      use type DDS.TopicDescription.Ref_Access;
-      use type DDS.Topic.Ref_Access;
-      Temp : DDS.Topic.Ref_Access;
+   procedure RTI_Connext_Get_Default_Request_Reply_Reader_Qos 
+     (Participant : DDS.DomainParticipant.Ref_Access; 
+      Ret         : in out DDS.DataReaderQos) is
    begin
-      return Ret : DDS.TopicDescription.Ref_Access do
-         Ret := Participant.Lookup_Topicdescription (Name);
-         if Ret = null then
-            Temp := Participant.Create_Topic (Name, Type_Name);
-            if Temp = null then
-               raise Program_Error with "unable to get topic " & Dds.To_Standard_String (Name);
-            else
-               Ret := Temp.As_TopicDescription;
-            end if;
-         end if;
-      end return;      
+      Participant.Get_Default_DataReader_Qos (Ret);
+   end;
+   
+    
+
+
+   
+   function RTI_Connext_Get_Or_Create_Topic
+     (Participant : DDS.DomainParticipant.Ref_Access;
+      Name        : DDS.String;
+      Type_Name   : DDS.String;
+      Allow_Cft   : DDS.Boolean) return DDS.TopicDescription.Ref_Access is
+   begin
+      return Get_Or_Create_Topic (Participant, Name, Type_Name).As_TopicDescription;
    end RTI_Connext_Get_Or_Create_Topic;
+   
    --  =========================================================================
    --  =========================================================================
   
    
    
    
-   
-   --  DDS_ReturnCode_t RTI_Connext_EntityUntypedImpl_get_datawriter_qos(
-   --      struct RTI_Connext_EntityUntypedImpl * self,
-   --      struct DDS_DataWriterQos* qos,
-   --      const RTI_Connext_EntityParams* params,
-   --      const char * role_name)
-   --  {
-   --      DDS_ReturnCode_t retCode = DDS_RETCODE_OK;
-   --      if (params->datareader_qos == NULL && params->qos_library_name != NULL) {
-   --          DDSLog_testPrecondition(params->qos_profile_name == NULL,
-   --              return DDS_RETCODE_PRECONDITION_NOT_MET;);
-   --  
-   --          retCode = DDS_DomainParticipantFactory_get_datawriter_qos_from_profile_w_topic_name(
-   --              DDS_DomainParticipantFactory_get_instance(),
-   --              qos, params->qos_library_name,
-   --              params->qos_profile_name,
-   --              DDS_TopicDescription_get_name(
-   --                  DDS_Topic_as_topicdescription(self->_writer_topic)));
-   --  
-   --      } else if (params->datawriter_qos != NULL) {
-   --          retCode = DDS_DataWriterQos_copy(qos, params->datawriter_qos);
-   --      } else {
-   --          retCode = DDS_DomainParticipant_get_default_datawriter_qos(
-   --              self->participant, qos);
-   --  
-   --          /* ATTENTION: 
-   --           * 
-   --           *  If you change a QoS value here, change it also in:
-   --           *  - The other 3 APIs
-   --           *  - The file in
-   --           *       xmq_c.1.0/srcDoc/examples_srcC/USER_QOS_PROFILES.xml
-   --           *     (This file is automatically copied to the other
-   --           *     xmq modules and the ndds.4.1 examples)
-   --           */            
-   --  
-   --          qos->reliability.kind =  DDS_RELIABLE_RELIABILITY_QOS;
-   --          qos->history.kind = DDS_KEEP_ALL_HISTORY_QOS;
-   --
-   --          qos->resource_limits.max_samples = DDS_LENGTH_UNLIMITED;
-   --          qos->reliability.max_blocking_time.sec = 10;
-   --          qos->reliability.max_blocking_time.nanosec = 0;
-   --  
-   --          /* Heartbeats */
-   --          qos->protocol.rtps_reliable_writer.max_heartbeat_retries
-   --              = DDS_LENGTH_UNLIMITED;
-   --          qos->protocol.rtps_reliable_writer.heartbeat_period.nanosec
-   --              = 100000000; /* 100ms */
-   --          qos->protocol.rtps_reliable_writer.heartbeat_period.sec = 0;
-   --          qos->protocol.rtps_reliable_writer.fast_heartbeat_period.nanosec
-   --              = 10000000; /* 10ms */
-   --          qos->protocol.rtps_reliable_writer.fast_heartbeat_period.sec = 0;
-   --          qos->protocol.rtps_reliable_writer.late_joiner_heartbeat_period.nanosec
-   --              = 10000000; /* 10ms */
-   --          qos->protocol.rtps_reliable_writer.late_joiner_heartbeat_period.sec = 0;
-   --          qos->protocol.rtps_reliable_writer.heartbeats_per_max_samples = 2;
-   --  
-   --          /* Nack response delay */
-   --          qos->protocol.rtps_reliable_writer.max_nack_response_delay.nanosec = 0;
-   --          qos->protocol.rtps_reliable_writer.max_nack_response_delay.sec = 0;
-   --          qos->protocol.rtps_reliable_writer.min_nack_response_delay.nanosec = 0;
-   --          qos->protocol.rtps_reliable_writer.min_nack_response_delay.sec = 0;
-   --  
-   --          /* Send window */
-   --          qos->protocol.rtps_reliable_writer.max_send_window_size = 32;
-   --          qos->protocol.rtps_reliable_writer.min_send_window_size = 32;
-   --  
-   --          /* max_remote_reader_filters unlimited
-   --             This allows a Replier to do writer-side filtering
-   --            for any number of Requester */
-   --          qos->writer_resource_limits.max_remote_reader_filters =
-   --              DDS_LENGTH_UNLIMITED;
-   --      }
-   --  
-   --      if (qos->publication_name.role_name == NULL) {
-   --          qos->publication_name.role_name = DDS_String_dup(role_name);
-   --          if (qos->publication_name.role_name == NULL) {
-   --              DDSLog_exception(&RTI_LOG_ANY_FAILURE_s,
-   --                               "allocate string");
-   --              return DDS_RETCODE_ERROR;
-   --          }
-   --      }
-   --  
-   --      if (retCode != DDS_RETCODE_OK) {
-   --          DDSLog_exception(&RTI_LOG_ANY_FAILURE_s,
-   --              "error getting requester DataWiter QoS");
-   --      }
-   --      return retCode;
-   --  }
    function RTI_Connext_EntityUntypedImpl_Get_Datawriter_Qos 
      (Self      : not null access RTI_Connext_EntityUntypedImpl;
       Qos       : in out DDS.DataWriterQos;
       Params    : RTI_Connext_EntityParams;
-      Role_Name : DDS.String ) return DDS.ReturnCode_T is
+      Role_Name : DDS.String := DDS.NULL_STRING) return DDS.ReturnCode_T is
       
       RetCode : DDS.ReturnCode_T := DDS.RETCODE_OK;
    begin
-      --if (Params.Datareader_Qos = null and then Params.Qos_Library_Name ! = null) then
-      null;
-      --   end if;
+      if Params.Datawriter_Qos = null and Params.Qos_Library_Name /= NULL_STRING then
+         DDS.DomainParticipantFactory.Get_Instance.Get_Datawriter_Qos_From_Profile_W_Topic_Name
+           (QoS          => QoS,
+            Library_Name => Params.Qos_Library_Name,
+            Profile_Name => Params.Qos_Profile_Name,
+            Topic_Name   => Self.Writer_Topic.As_TopicDescription.Get_Name);      
+      elsif Params.Datawriter_Qos /= null then
+         Copy (Qos, Params.Datawriter_Qos.all);
+      else
+         Self.Participant.Get_Default_Datawriter_Qos (QoS);
+         Qos.Reliability.Kind :=  DDS.RELIABLE_RELIABILITY_QOS;
+         Qos.History.Kind := DDS.KEEP_ALL_HISTORY_QOS;
+
+         Qos.Resource_Limits.Max_Samples := DDS.LENGTH_UNLIMITED;
+         Qos.Reliability.Max_Blocking_Time:= To_Duration_T(10.0);
+   
+         --   Heartbeats
+         Qos.Protocol.Rtps_Reliable_Writer.Max_Heartbeat_Retries := DDS.LENGTH_UNLIMITED;
+         Qos.Protocol.Rtps_Reliable_Writer.Heartbeat_Period:= To_Duration_T(0.100);
+         
+         Qos.Protocol.Rtps_Reliable_Writer.Fast_Heartbeat_Period := To_Duration_T (0.010);
+         Qos.Protocol.Rtps_Reliable_Writer.Late_Joiner_Heartbeat_Period := To_Duration_T (0.010);
+         Qos.Protocol.Rtps_Reliable_Writer.Heartbeats_Per_Max_Samples := 2;
+   
+         --  Nack response delay
+         Qos.Protocol.Rtps_Reliable_Writer.Max_Nack_Response_Delay := To_Duration_T(0.0);
+         Qos.Protocol.Rtps_Reliable_Writer.Min_Nack_Response_Delay := To_Duration_T (0.0);
+   
+         --   Send window
+         Qos.Protocol.Rtps_Reliable_Writer.Max_Send_Window_Size := 32;
+         Qos.Protocol.Rtps_Reliable_Writer.Min_Send_Window_Size := 32;
+   
+         --  max_remote_reader_filters unlimited
+         --  This allows a Replier to do writer-side filtering
+         --  for any number of Requester
+         Qos.Writer_Resource_Limits.Max_Remote_Reader_Filters := DDS.LENGTH_UNLIMITED;
+      end if;
+      if Qos.Publication_Name.Role_Name = NULL_STRING then
+         Copy (Qos.Publication_Name.Role_Name, Role_Name);
+      end if;
       return RetCode;
    end;
+
+
+   function RTI_Connext_EntityUntypedImpl_Get_Datareader_Qos 
+     (Self      : not null access RTI_Connext_EntityUntypedImpl;
+      Qos       : in out DDS.DataReaderQoS;
+      Params    : RTI_Connext_EntityParams;
+      Role_Name : DDS.String := DDS.NULL_STRING) return DDS.ReturnCode_T is
+      
+      RetCode : DDS.ReturnCode_T := DDS.RETCODE_OK;
+   begin
+      if Params.Datareader_Qos = null and Params.Qos_Library_Name /= NULL_STRING then
+         DDS.DomainParticipantFactory.Get_Instance.get_datareader_qos_from_profile_w_topic_name
+           (QoS          => QoS,
+            Library_Name => Params.Qos_Library_Name,
+            Profile_Name => Params.Qos_Profile_Name,
+            Topic_Name   => Self.Writer_Topic.As_TopicDescription.Get_Name);      
+      elsif Params.Datareader_Qos /= null then
+         Copy (Qos, Params.Datareader_Qos.all);
+      else
+         Self.Participant.Get_Default_Datareader_Qos (QoS);
+         Qos.Reliability.Kind :=  DDS.RELIABLE_RELIABILITY_QOS;
+         Qos.History.Kind := DDS.KEEP_ALL_HISTORY_QOS;
+
+         Qos.Resource_Limits.Max_Samples := DDS.LENGTH_UNLIMITED;
+         Qos.Reliability.Max_Blocking_Time:= To_Duration_T(10.0);
    
+         Qos.Protocol.Rtps_Reliable_Reader.Max_Heartbeat_Response_Delay := To_Duration_T (0.0);
+         Qos.Protocol.Rtps_Reliable_Reader.Min_Heartbeat_Response_Delay := To_Duration_T (0.0);
+      end if;
+      if Qos.Subscription_Name.Role_Name = DDS.NULL_STRING then
+         Copy (Qos.Subscription_Name.Role_Name, Role_Name);
+      end if;
+      return RetCode;
+   end;
+
    
-   --          DDSLog_testPrecondition(params->qos_profile_name == NULL,
-   --              return DDS_RETCODE_PRECONDITION_NOT_MET;);
-   --  
-   --          retCode = DDS_DomainParticipantFactory_get_datawriter_qos_from_profile_w_topic_name(
-   --              DDS_DomainParticipantFactory_get_instance(),
-   --              qos, params->qos_library_name,
-   --              params->qos_profile_name,
-   --              DDS_TopicDescription_get_name(
-   --                  DDS_Topic_as_topicdescription(self->_writer_topic)));
-   --  
-   --      } else if (params->datawriter_qos != NULL) {
-   --          retCode = DDS_DataWriterQos_copy(qos, params->datawriter_qos);
-   --      } else {
-   --          retCode = DDS_DomainParticipant_get_default_datawriter_qos(
-   --              self->participant, qos);
-   
-   --  =========================================================================
-   --  =========================================================================
-  
-   
-  
-   
-   
-   --  DDS_ReturnCode_t RTI_Connext_EntityUntypedImpl_get_datareader_qos(
-   --      struct RTI_Connext_EntityUntypedImpl * self,
-   --      struct DDS_DataReaderQos* qos,
-   --      const RTI_Connext_EntityParams* params,
-   --      const char * role_name)
-   --  {
-   --      DDS_ReturnCode_t retCode = DDS_RETCODE_OK;
-   --      if (params->datareader_qos == NULL && params->qos_library_name != NULL) {
-   --          retCode = DDS_DomainParticipantFactory_get_datareader_qos_from_profile_w_topic_name(
-   --              DDS_DomainParticipantFactory_get_instance(),
-   --              qos, params->qos_library_name,
-   --              params->qos_profile_name, DDS_TopicDescription_get_name(
-   --                  self->_reader_topic));
-   --  
-   --      } else if (params->datareader_qos != NULL) {
-   --          retCode = DDS_DataReaderQos_copy(qos, params->datareader_qos);
-   --      } else {
-   --          retCode = DDS_DomainParticipant_get_default_datareader_qos(
-   --              self->participant, qos);
-   --  
-   --          /* ATTENTION: 
-   --           * 
-   --           *  If you change a QoS value here, change it also in:
-   --           *  - The other 3 APIs
-   --           *  - The file in
-   --           *       xmq_c.1.0/srcDoc/examples_srcC/USER_QOS_PROFILES.xml
-   --           *     (This file is automatically copied to the other
-   --           *     xmq modules and the ndds.4.1 examples)
-   --           */            
-   --  
-   --          qos->reliability.kind =  DDS_RELIABLE_RELIABILITY_QOS;
-   --          qos->history.kind = DDS_KEEP_ALL_HISTORY_QOS;
-   --  
-   --          qos->resource_limits.max_samples = DDS_LENGTH_UNLIMITED;
-   --          qos->reliability.max_blocking_time.sec = 10;
-   --          qos->reliability.max_blocking_time.nanosec = 0;
-   --  
-   --          qos->protocol.rtps_reliable_reader.max_heartbeat_response_delay.sec = 0;
-   --          qos->protocol.rtps_reliable_reader.max_heartbeat_response_delay.nanosec
-   --              = 0;
-   --          qos->protocol.rtps_reliable_reader.min_heartbeat_response_delay.sec = 0;
-   --          qos->protocol.rtps_reliable_reader.min_heartbeat_response_delay.nanosec
-   --              = 0;
-   --      }
-   --  
-   --      if (qos->subscription_name.role_name == NULL) {
-   --          qos->subscription_name.role_name = DDS_String_dup(role_name);
-   --          if (qos->subscription_name.role_name == NULL) {
-   --              DDSLog_exception(&RTI_LOG_ANY_FAILURE_s,
-   --                               "allocate string");
-   --              return DDS_RETCODE_ERROR;
-   --          }
-   --      }
-   --  
-   --      if (retCode != DDS_RETCODE_OK) {
-   --          DDSLog_exception(&RTI_LOG_ANY_FAILURE_s,
-   --              "error getting requester DataReader QoS");
-   --      }
-   --      return retCode;
-   --  }
-   --  =========================================================================
-   --  =========================================================================
-  
    
   
    --  DDS_ReturnCode_t RTI_Connext_EntityUntypedImpl_delete(
@@ -357,13 +220,9 @@ package body DDS.Request_Reply.Untypedcommon is
    --      return realReturn;
    --  }
    
+
    --  =========================================================================
    --  =========================================================================
-  
-   
-  
-   
-   
    --  Package
    --  DDS_ReturnCode_t RTI_Connext_EntityUntypedImpl_initialize(
    --      struct RTI_Connext_EntityUntypedImpl * self,
@@ -541,12 +400,13 @@ package body DDS.Request_Reply.Untypedcommon is
    --  
    --      return retcode;
    --  }
+   
    function RTI_Connext_EntityUntypedImpl_Initialize (Self             : in out RTI_Connext_EntityUntypedImpl;
                                                       Params           : RTI_Connext_EntityParams;                                                      
                                                       Writer_Type_Name : DDS.String;
                                                       Reader_Type_Name : DDS.String;
                                                       Sample_Size      : DDS.long;
---                                                       Topic_Builder    : RTI_Connext_TopicBuilder;
+                                                      --                                                       Topic_Builder    : RTI_Connext_TopicBuilder;
                                                       Reader_Listener  : DDS.DataReaderListener.Ref_Access;
                                                       Role_Name        : DDS.String) return DDS.ReturnCode_T is
    begin
@@ -779,9 +639,9 @@ package body DDS.Request_Reply.Untypedcommon is
          Waitset           =>  Self.Waitset,
          Initial_Condition =>  Self.Any_Sample_Cond, 
          Condition         => Self.Not_Read_Sample_Cond);
---        if RetCode not in (DDS.RETCODE_OK , DDS.RETCODE_TIMEOUT) then 
---           null; -- log error
---        end if;
+      --        if RetCode not in (DDS.RETCODE_OK , DDS.RETCODE_TIMEOUT) then 
+      --           null; -- log error
+      --        end if;
       return RetCode;
    end;
    --  =========================================================================
@@ -1005,8 +865,8 @@ package body DDS.Request_Reply.Untypedcommon is
       
       
    
-      --  =========================================================================
-      --  =========================================================================
+   --  =========================================================================
+   --  =========================================================================
    --  
    --  DDS_ReturnCode_t RTI_Connext_EntityUntypedImpl_return_loan(
    --      struct RTI_Connext_EntityUntypedImpl * self, void ** dataArray, struct DDS_SampleInfoSeq* info_seq)
@@ -1160,6 +1020,26 @@ package body DDS.Request_Reply.Untypedcommon is
    --      return DDS_RETCODE_OK;
    --  }
    --  
+
+   function RTI_Connext_SimpleReplierParams_To_Entityparams
+     (Self : RTI_Connext_SimpleReplierParams;
+      ToParams : out RTI_Connext_EntityParams) return ReturnCode_T is
+   begin
+      
+      ToParams.Participant := Self.Participant;
+      ToParams.Datareader_Qos := Self.Datareader_Qos;
+      ToParams.Datawriter_Qos := Self.Datawriter_Qos;
+      ToParams.Publisher := Self.Publisher;
+      ToParams.Qos_Library_Name := Self.Qos_Library_Name;
+      ToParams.Qos_Profile_Name := Self.Qos_Profile_Name;
+      ToParams.Reply_Topic_Name := Self.Reply_Topic_Name;
+      ToParams.Request_Topic_Name := Self.Request_Topic_Name;
+      ToParams.Service_Name := Self.Service_Name;
+      ToParams.Subscriber := Self.Subscriber;
+   
+      return DDS_RETCODE_OK;
+   end;
+   
 
    
 end DDS.Request_Reply.Untypedcommon;

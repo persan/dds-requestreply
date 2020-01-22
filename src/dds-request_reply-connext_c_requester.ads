@@ -13,7 +13,7 @@ package DDS.Request_Reply.Connext_C_Requester is
    DEFAULT_MAX_WAIT : constant DDS.Duration_T := DDS.To_Duration_T (1.0);
 
    type RTI_Connext_RequesterUntypedImpl is abstract new  RTI_Connext_EntityUntypedImpl with null record;
-   
+   type RTI_Connext_RequesterUntypedImpl_Access is access all RTI_Connext_RequesterUntypedImpl;
    
    
    type RTI_Connext_Requester is abstract new RTI_Connext_RequesterUntypedImpl with record 
@@ -53,7 +53,6 @@ package DDS.Request_Reply.Connext_C_Requester is
       Related_Request_Id : DDS.SampleIdentity_T) return DDS.ReturnCode_T;
    
    
-private 
 
    function RTI_Connext_RequesterParams_To_RTI_Connext_EntityParams
      (Self : not null access RTI_Connext_RequesterParams;
@@ -62,6 +61,12 @@ private
    --  =========================================================================
    --  =========================================================================
    --  extern XMQCDllExport
+   function RTI_Connext_RequesterUntypedImpl_Create
+     (Params : RTI_Connext_RequesterParams;
+      Request_Type_Name : DDS.String;
+      Reply_Type_Name   : DDS.String;
+      reply_size : DDS.Integer) return RTI_Connext_RequesterUntypedImpl;
+                                                     
    -- RTI_Connext_RequesterUntypedImpl_create(
    --      const RTI_Connext_RequesterParams * params,
    --      RegisterTypeFunc _request_type_fnc,

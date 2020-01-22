@@ -12,8 +12,8 @@ package DDS.Request_Reply.Connext_C_Entity_Params is
       Reply_Topic_Name   : DDS.String;
       Qos_Library_Name   : DDS.String;
       Qos_Profile_Name   : DDS.String;
-      Datawriter_Qos     : DDS.DataWriterQos;
-      Datareader_Qos     : DDS.DataReaderQos;
+      Datawriter_Qos     : access DDS.DataWriterQos;
+      Datareader_Qos     : access DDS.DataReaderQos;
       Publisher          : DDS.Publisher.Ref_Access;
       Subscriber         : DDS.Subscriber.Ref_Access;
    end record;

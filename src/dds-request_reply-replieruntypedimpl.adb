@@ -109,7 +109,19 @@ package body DDS.Request_Reply.Replieruntypedimpl is
    --      return DDS_RETCODE_OK;
    --  
    --  }
-   
+   function RTI_Connext_ReplierUntypedImpl_Configure_Params_For_Reply 
+     (Self : not null access RTI_Connext_ReplierUntypedImpl;
+      Params : in out WriteParams_T;
+      Related_Request_Info : DDS.SampleIdentity_T) return DDS.ReturnCode_T is
+   begin
+      if Related_Request_Info =  AUTO_SAMPLE_IDENTITY then
+         return DDS.RETCODE_BAD_PARAMETER;
+      end if;
+      Params.Related_Sample_Identity := Related_Request_Info;
+      return DDS.RETCODE_OK;
+   end;
+      
+                                                                       
    
                                                        
    --  DDS_ReturnCode_t RTI_Connext_ReplierUntypedImpl_send_sample(
@@ -140,19 +152,21 @@ package body DDS.Request_Reply.Replieruntypedimpl is
    --      }
    --      return retcode;
    --  }
+   
    function RTI_Connext_ReplierUntypedImpl_Send_Sample
      (Self                 : not null access RTI_Connext_ReplierUntypedImpl;
       Data                 : System.Address;
       Related_Request_Info : DDS.SampleIdentity_T;
-      WriteParams          : DDS.WriteParams_T) return DDS.ReturnCode_T is
+      WriteParams          : in out DDS.WriteParams_T) return DDS.ReturnCode_T is
       Retcode : DDS.ReturnCode_T;
    begin
       retcode := RTI_Connext_ReplierUntypedImpl_Configure_Params_For_Reply 
         (Self,
          WriteParams,
          Related_Request_Info);
+      
       if retcode = DDS.RETCODE_OK then
-         return Self.Writer.Write_W_Params (Data, Data, WriteParams);
+         return Self.Writer.Write_W_Params (Instance_Data => Data, Params => WriteParams);
       else
          return Retcode;
       end if;

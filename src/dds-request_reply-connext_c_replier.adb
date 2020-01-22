@@ -9,10 +9,7 @@ package body DDS.Request_Reply.Connext_C_Replier is
      (Self : RTI_Connext_Replier_Access) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "RTI_Connext_Replier_Delete unimplemented");
-      return raise Program_Error
-          with "Unimplemented function RTI_Connext_Replier_Delete";
+      return raise Program_Error with "Unimplemented function RTI_Connext_Replier_Delete";
    end RTI_Connext_Replier_Delete;
 
    -------------------------------------------
@@ -24,10 +21,7 @@ package body DDS.Request_Reply.Connext_C_Replier is
       Max_Wait : DDS.Duration_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "RTI_Connext_Replier_Wait_For_Requests unimplemented");
-      return raise Program_Error
-          with "Unimplemented function RTI_Connext_Replier_Wait_For_Requests";
+      return raise Program_Error with "Unimplemented function RTI_Connext_Replier_Wait_For_Requests";
    end RTI_Connext_Replier_Wait_For_Requests;
 
    -------------------------------------------
@@ -35,13 +29,10 @@ package body DDS.Request_Reply.Connext_C_Replier is
    -------------------------------------------
 
    function RTI_Connext_ReplierUntypedImpl_create
-      return RTI_Connext_ReplierUntypedImpl'Class
+     return RTI_Connext_ReplierUntypedImpl_Access
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "RTI_Connext_ReplierUntypedImpl_create unimplemented");
-      return raise Program_Error
-          with "Unimplemented function RTI_Connext_ReplierUntypedImpl_create";
+      return raise Program_Error with "Unimplemented function RTI_Connext_ReplierUntypedImpl_create";
    end RTI_Connext_ReplierUntypedImpl_create;
 
    -----------------------------------------------
@@ -56,10 +47,7 @@ package body DDS.Request_Reply.Connext_C_Replier is
      .ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "RTI_Connext_ReplierUntypedImpl_Initialize unimplemented");
-      return raise Program_Error
-          with "Unimplemented function RTI_Connext_ReplierUntypedImpl_Initialize";
+      return raise Program_Error with "Unimplemented function RTI_Connext_ReplierUntypedImpl_Initialize";
    end RTI_Connext_ReplierUntypedImpl_Initialize;
 
    ------------------------------------------------
@@ -73,8 +61,6 @@ package body DDS.Request_Reply.Connext_C_Replier is
       WriteParams          : DDS.WriteParams_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "RTI_Connext_ReplierUntypedImpl_send_sample unimplemented");
       return raise Program_Error
           with "Unimplemented function RTI_Connext_ReplierUntypedImpl_send_sample";
    end RTI_Connext_ReplierUntypedImpl_send_sample;
@@ -84,14 +70,12 @@ package body DDS.Request_Reply.Connext_C_Replier is
    ----------------------------------------------
 
    function RTI_Connext_ReplierParams_toEntityParams
-     (Self     :     RTI_Connext_ReplierParams;
-      ToParams : out RTI_Connext_EntityParams) return DDS.ReturnCode_T
+     (Self              : not null access RTI_Connext_ReplierParams;
+      ToParams          : out RTI_Connext_EntityParams) return DDS.ReturnCode_T
    is
+      pragma Unreferenced (ToParams);
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "RTI_Connext_ReplierParams_toEntityParams unimplemented");
-      return raise Program_Error
-          with "Unimplemented function RTI_Connext_ReplierParams_toEntityParams";
+      return raise Program_Error with "Unimplemented function RTI_Connext_ReplierParams_toEntityParams";
    end RTI_Connext_ReplierParams_toEntityParams;
 
 end DDS.Request_Reply.Connext_C_Replier;

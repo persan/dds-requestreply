@@ -127,7 +127,45 @@ package body DDS.Request_Reply.Requesteruntypedimpl is
    --      return topic;
    --  
    --  }
+
    
+   function RTI_Connext_RequesterUntypedImpl_Create_Writer_Topic
+     (Self : not null access RTI_Connext_EntityUntypedImpl;
+      Params : RTI_Connext_EntityParams;
+      Request_Type_Name : DDS.String) return DDS.Topic.Ref_Access is 
+   
+       request_topic_name : DDS.String;
+       topic : DDS.Topic.Ref_Access;
+   begin
+      Copy (Request_Topic_Name,
+            (if Params.Request_Topic_Name = NULL_STRING 
+             then 
+                To_Standard_String (Params.Request_Topic_Name)
+             else
+                RTI_Connext_Create_Request_Topic_Name_From_Service_Name (To_Standard_String (Params.Service_Name))));
+   
+       if request_topic_name = DDS.NULL_STRING then
+              DDSLog_Exception ("Failure to create writer topic for requester");
+           goto finish;
+      end if;
+   
+      Topic := DDS.Topic.Narrow
+        (RTI_Connext_Get_Or_Create_Topic
+           (Participant => Self.Participant,
+            Name        => Request_Topic_Name,
+            Type_Name   => Request_Type_Name, 
+            Allow_Cft   => FALSE));
+      if Topic = null then
+         DDSLog_Exception ("Failure to create writer topic for requester");
+         goto Finish;
+      end if;
+   
+      <<Finish>>
+      Finalize (Request_Topic_Name);
+      return Topic;
+   
+   end;
+
    
    
    -- ==========================================================================
