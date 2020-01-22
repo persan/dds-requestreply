@@ -1,0 +1,13 @@
+__*
+*.o
+*.ali
+b__*
+*.stdout
+*.stderr
+.#*#
+*.cswi
+*.cgpr
+*-loc.xml
+messages.txt
+clang_ref_cache.db
+x.py
