@@ -105,7 +105,7 @@ package DDS is
 
    subtype Octet           is Interfaces.Unsigned_8;
    --  <dref>Octet</dref>
-
+   INFINITE : constant := -1;
    type Octets is record
       Length : Integer;
       Value  : System.Address;
@@ -6586,15 +6586,21 @@ package DDS is
    --  <dref internal="true" name="Sample_Signature">SampleInfo_sample_signature</dref>
    --  <dref internal="true" name="Encapsulation_Id">SampleInfo_encapsulation_id</dref>
    --  <dref internal="true" name="Related_Epoch">SampleInfo_related_epoch</dref>
-
-
    pragma Convention (C, SampleInfo);
+
+
 
    type SampleInfo_Access is access all SampleInfo;
    type SampleInfo_Array is array (Natural range <>) of aliased SampleInfo;
    procedure Initialize (Self  : in out SampleInfo);
    procedure Finalize (Self  : in out SampleInfo);
    procedure Copy (Dst : in out SampleInfo; Src : in SampleInfo);
+
+   procedure Get_Sample_Identity (From : SampleInfo; Id : out SampleIdentity_T);
+   function Get_Sample_Identity (From : SampleInfo) return  SampleIdentity_T;
+
+   procedure Get_Related_Sample_Identity (From : SampleInfo; Id : out SampleIdentity_T);
+   function Get_Related_Sample_Identity (From : SampleInfo) return  SampleIdentity_T;
 
    package SampleInfo_Seq is new DDS_Support.Sequences_Generic
      (SampleInfo,

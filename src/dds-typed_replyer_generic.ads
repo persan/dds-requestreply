@@ -78,197 +78,155 @@ package DDS.Typed_Replyer_Generic is
 
    procedure Delete (Self : in out Ref_Access);
 
-   function Send_Reply (Self : not null access Ref;
-                          Data : Reply_DataWriters.Treats.Data_Type) return DDS.ReturnCode_T;
 
-   procedure Send_Reply (Self : not null access Ref;
-                         Data : Request_DataWriters.Treats.Data_Type);
+   function Send_Reply
+     (Self    : not null access Ref;
+      Reply   : access Reply_DataWriters.Treats.Data_Type;
+      Id      : access DDS.SampleIdentity_T)return DDS.ReturnCode_T;
 
-   function Send_Reply (Self : not null access Ref;
-                        Data : Reply_DataWriters.Treats.Data_Type) return Reply_DataWriters.Treats.Data_Type;
-
+   function Send_Reply
+     (Self    : not null access Ref;
+      Reply   : Reply_DataWriters.Treats.Data_Type;
+      Id      : DDS.SampleIdentity_T)return DDS.ReturnCode_T;
 
    procedure Send_Reply
      (Self    : not null access Ref;
-      Request : access Request_DataWriters.Treats.Data_Type);
-
-   function Send_Reply
-     (Self    : not null access Ref;
-      Request : access Request_DataWriters.Treats.Data_Type) return Reply_DataWriters.Container;
-
-   function Send_Reply
-     (Self    : not null access Ref;
-      Request : Reply_DataWriters.Treats.Data_Type) return Reply_DataWriters.Container;
-
-
-   function Send_Reply
-     (Self            : not null access Ref;
-      Request         : access Request_DataWriters.Treats.Data_Type;
-      Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.Long;
-      Timeout         : DDS.Duration_T := DURATION_INFINITE) return Reply_DataWriters.Container;
+      Reply   : access Reply_DataWriters.Treats.Data_Type;
+      Id      : access DDS.SampleIdentity_T);
 
    procedure Send_Reply
-     (Self         : not null access Ref;
-      Request      : access Request_DataWriters.Treats.Data_Type;
-      Request_Info : DDS.WriteParams_T);
+     (Self    : not null access Ref;
+      Reply   : Reply_DataWriters.Treats.Data_Type;
+      Id      : DDS.SampleIdentity_T);
+
 
    function Receive_Request
      (Self     : not null access Ref;
-      Replies  : aliased Reply_DataWriters.Treats.Data_Type;
-      Info_Seq : not null access DDS.SampleInfo_Seq.Sequence;
-      Timeout  : DDS.Duration_T) return DDS.ReturnCode_T;
+      Request  : in out Request_DataReaders.Treats.Data_Type;
+      Info_Seq : in out DDS.SampleInfo;
+      Timeout  : DDS.Duration_T := DDS.DURATION_INFINITE) return DDS.ReturnCode_T;
+
+   procedure Receive_Request
+     (Self     : not null access Ref;
+      Request  : in out Request_DataReaders.Treats.Data_Type;
+      Info_Seq : in out DDS.SampleInfo;
+      Timeout  : DDS.Duration_T := DDS.DURATION_INFINITE);
 
    function Receive_Request
      (Self     : not null access Ref;
-      Timeout  : DDS.Duration_T) return Reply_DataWriters.Container;
+      Timeout  : DDS.Duration_T) return Request_DataReaders.Container;
 
-   function Receive_Replies
+   function Receive_Requests
      (Self                 : not null access Ref;
-      Replies              : not null Reply_DataWriters.Treats.Data_Sequences.Sequence_Access;
+      Requests             : not null Request_DataReaders.Treats.Data_Sequences.Sequence_Access;
       Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count      : DDS.Natural;
-      Max_Reply_Count      : DDS.Long;
-      Timeout              : DDS.Duration_T) return DDS.ReturnCode_T;
+      Min_Requests_Count   : DDS.Long := 1;
+      Max_Requests_Count   : DDS.Long := DDS.INFINITE;
+      Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE) return DDS.ReturnCode_T;
 
-   procedure Receive_Replies
+   procedure Receive_Requests
      (Self                 : not null access Ref;
-      Replies              : not null Reply_DataWriters.Treats.Data_Sequences.Sequence_Access;
+      Requests             : not null Request_DataReaders.Treats.Data_Sequences.Sequence_Access;
       Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count      : DDS.Natural;
-      Max_Reply_Count      : DDS.Long;
-      Timeout              : DDS.Duration_T);
+      Min_Reply_Count      : DDS.long := 1;
+      Max_Reply_Count      : DDS.long := DDS.INFINITE;
+      Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE);
 
-   function Receive_Replies
+   procedure Receive_Requests
      (Self                 : not null access Ref;
-      Min_Reply_Count      : DDS.Natural;
-      Max_Reply_Count      : DDS.Long;
-      Timeout              : DDS.Duration_T) return Reply_DataWriters.Container;
+      Requests             : in out Request_DataReaders.Treats.Data_Sequences.Sequence;
+      Sample_Info          : in out DDS.SampleInfo_Seq.Sequence;
+      Min_Reply_Count      : DDS.long := 1;
+      Max_Reply_Count      : DDS.long := DDS.INFINITE;
+      Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE);
 
-   function Receive_Replies
+
+   function Receive_Request
+     (Self                 : not null access Ref;
+      Min_Reply_Count      : DDS.long := 1;
+      Max_Reply_Count      : DDS.long := DDS.INFINITE;
+      Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE) return Request_DataReaders.Container;
+
+
+   function Receive_Request
      (Self            : not null access Ref;
-      Replies         : not null Reply_DataWriters.Treats.Data_Sequences.Sequence_Access;
-      Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
+      Requests        : not null Request_DataReaders.Treats.Data_Sequences.Sequence_Access;
+      Sample_Info     : not null DDS.SampleInfo_Seq.Sequence_Access;
       Min_Reply_Count : DDS.Natural;
       Max_Reply_Count : DDS.Long;
       Timeout         : Duration) return DDS.ReturnCode_T;
 
-   function Receive_Replies
+
+   function Receive_Request
      (Self            : not null access Ref;
       Min_Reply_Count : DDS.Natural;
       Max_Reply_Count : DDS.Long;
-      Timeout         : Duration) return Reply_DataWriters.Container;
+      Timeout         : Duration) return Request_DataReaders.Container;
 
 
-   function Take_Reply
+   function Take_Request
      (Self        : not null access Ref;
-      Replies     : aliased Reply_DataWriters.Treats.Data_Type;
+      Requests    : aliased Request_DataReaders.Treats.Data_Type;
       Sample_Info : not null access DDS.SampleInfo_Seq.Sequence;
       Timeout     : DDS.Duration_T) return DDS.ReturnCode_T;
 
-   function Take_Replies
+   function Take_Request
      (Self            : not null access Ref;
-      Replies         : not null Reply_DataWriters.Treats.Data_Sequences.Sequence_Access;
+      Requests        : not null Request_DataReaders.Treats.Data_Sequences.Sequence_Access;
+      Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
+      Min_Reply_Count : DDS.Natural := 1;
+      Max_Reply_Count : DDS.Long := DDS.INFINITE;
+      Timeout         : DDS.Duration_T) return DDS.ReturnCode_T;
+
+   function Take_Request
+     (Self            : not null access Ref;
+      Min_Reply_Count : DDS.Natural;
+      Max_Reply_Count : DDS.Long;
+      Timeout         : DDS.Duration_T) return  Request_DataReaders.Container;
+
+
+
+   function Read_Request
+     (Self        : not null access Ref;
+      Request     : aliased Request_DataReaders.Treats.Data_Type;
+      Sample_Info : not null access DDS.SampleInfo_Seq.Sequence;
+      Timeout     : DDS.Duration_T) return DDS.ReturnCode_T;
+
+   function Read_Request
+     (Self            : not null access Ref;
+      Requests        : not null Request_DataReaders.Treats.Data_Sequences.Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count : DDS.Natural;
       Max_Reply_Count : DDS.Long;
       Timeout         : DDS.Duration_T) return DDS.ReturnCode_T;
 
-   function Take_Replies
+   function Read_Request
      (Self            : not null access Ref;
       Min_Reply_Count : DDS.Natural;
       Max_Reply_Count : DDS.Long;
-      Timeout         : DDS.Duration_T) return  Reply_DataWriters.Container;
+      Timeout         : DDS.Duration_T) return Request_DataReaders.Container'Class;
 
 
-
-   function Take_Reply_For_Related_Request
-     (Self                 : not null access Ref;
-      Replies              : aliased Reply_DataWriters.Treats.Data_Type;
-      Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
-      Related_Request_Info : not null access DDS.SampleIdentity_T) return DDS.ReturnCode_T;
-
-   function Take_Replies_For_Related_Request
-     (Self                 : not null access Ref;
-      Replies              : not null Reply_DataWriters.Treats.Data_Sequences.Sequence_Access;
-      Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
-      Related_Request_Info : not null access DDS.SampleIdentity_T) return DDS.ReturnCode_T;
-
-   function Take_Replies_For_Related_Request
-     (Self                 : not null access Ref;
-      Related_Request_Info : not null access DDS.SampleIdentity_T) return Reply_DataWriters.Container;
-
-
-   function Read_Reply
-     (Self        : not null access Ref;
-      Replies     : aliased Reply_DataWriters.Treats.Data_Type;
-      Sample_Info : not null access DDS.SampleInfo_Seq.Sequence;
-      Timeout     : DDS.Duration_T) return DDS.ReturnCode_T;
-
-   function Read_Replies
-     (Self            : not null access Ref;
-      Replies         : not null Reply_DataWriters.Treats.Data_Sequences.Sequence_Access;
-      Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.Long;
-      Timeout         : DDS.Duration_T) return DDS.ReturnCode_T;
-
-   function Read_Replies
-     (Self            : not null access Ref;
-      Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.Long;
-      Timeout         : DDS.Duration_T) return Reply_DataWriters.Container'Class;
-
-
-
-   function Read_Reply_For_Related_Request
-     (Self                 : not null access Ref;
-      Replies              : aliased Reply_DataWriters.Treats.Data_Type;
-      Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
-      Related_Request_Info : DDS.SampleIdentity_T) return DDS.ReturnCode_T;
-
-
-   function Read_Replies_For_Related_Request
-     (Self                 : not null access Ref;
-      Replies              : not null Reply_DataWriters.Treats.Data_Sequences.Sequence_Access;
-      Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
-      Related_Request_Info : DDS.SampleIdentity_T) return DDS.ReturnCode_T;
-
-   function Read_Replies_For_Related_Request
-     (Self                 : not null access Ref;
-      Related_Request_Info : DDS.SampleIdentity_T) return Reply_DataWriters.Container'Class;
 
 
    procedure Return_Loan (Self         : not null access Ref;
-                          Replies      : not null Reply_DataWriters.Treats.Data_Sequences.Sequence_Access;
+                          Replies      : not null Request_DataReaders.Treats.Data_Sequences.Sequence_Access;
                           Sample_Info  : DDS.SampleInfo_Seq.Sequence_Access);
 
    procedure Return_Loan (Self         : not null access Ref;
-                          Replies      : Reply_DataWriters.Treats.Data_Sequences.Sequence;
+                          Replies      : Request_DataReaders.Treats.Data_Sequences.Sequence;
                           Sample_Info  : DDS.SampleInfo_Seq.Sequence);
    procedure Delete (This : in out Ref);
 
-   procedure Wait_For_Replies
-     (This      : in out Ref;
-      Min_Count : Dds.Long;
-      Max_Wait  : DDS.Duration_T);
-
-
-   procedure Wait_For_Replies_For_Related_Reques
-     (This               : in out Ref;
-      Min_Count          : Dds.Long;
-      Max_Wait           : DDS.Duration_T;
-      Related_Request_Id : DDS.SampleIdentity_T);
-
-   function Get_Request_DataWriter (Self : not null access Ref) return Request_DataWriters.Ref_Access;
-   function Get_Reply_DataReader (Self : not null access Ref) return Reply_DataWriters.Ref_Access;
+   function Get_Request_DataReader (Self : not null access Ref) return Request_DataReaders.Ref_Access;
+   function Get_Reply_Datawriter (Self : not null access Ref) return Reply_DataWriters.Ref_Access;
 
 private
    type Ref is new DDS.Requester.Impl.Ref   with record
       Request_Topic      : DDS.Topic.Ref_Access;
       Reply_Topic        : DDS.Topic.Ref_Access;
-      Request_DataWriter : Request_DataWriters.Ref_Access;
-      Reply_DataReader   : Reply_DataWriters.Ref_Access;
+      Reply_DataWriter   : Reply_DataWriters.Ref_Access;
+      Request_DataReader : Request_DataReaders.Ref_Access;
       Listner            : Request_Listeners.Ref_Access;
    end record;
 

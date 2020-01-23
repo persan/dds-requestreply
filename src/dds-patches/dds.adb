@@ -1287,6 +1287,39 @@ package body DDS is
       Dst := Src;
    end Copy;
 
+   procedure Get_Sample_Identity (From : SampleInfo; Id : out SampleIdentity_T) is
+
+      type DDS_SampleInfo_Access is access all DDS_SampleInfo with Storage_Size => 0;
+      type DDS_SampleIdentity_T is access all RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Infrastructure_H.DDS_SampleIdentity_T with Storage_Size => 0;
+      function Convert is new Ada.Unchecked_Conversion (System.Address, DDS_SampleInfo_Access);
+      function Convert is new Ada.Unchecked_Conversion (System.Address, DDS_SampleIdentity_T);
+   begin
+      DDS_SampleInfo_Get_Sample_Identity (Convert (From'Address), Convert (Id'Address));
+   end;
+
+   function Get_Sample_Identity (From : SampleInfo) return  SampleIdentity_T  is
+   begin
+      return Ret : SampleIdentity_T do
+         Get_Sample_Identity (From, Ret);
+      end return;
+   end;
+
+   procedure Get_Related_Sample_Identity (From : SampleInfo; Id : out SampleIdentity_T) is
+
+      type DDS_SampleInfo_Access is access all DDS_SampleInfo with Storage_Size => 0;
+      type DDS_SampleIdentity_T is access all RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Infrastructure_H.DDS_SampleIdentity_T with Storage_Size => 0;
+      function Convert is new Ada.Unchecked_Conversion (System.Address, DDS_SampleInfo_Access);
+      function Convert is new Ada.Unchecked_Conversion (System.Address, DDS_SampleIdentity_T);
+   begin
+      DDS_SampleInfo_Get_Related_Sample_Identity (Convert (From'Address), Convert (Id'Address));
+   end;
+
+   function Get_Related_Sample_Identity (From : SampleInfo) return  SampleIdentity_T  is
+   begin
+      return Ret : SampleIdentity_T do
+         Get_Related_Sample_Identity (From, Ret);
+      end return;
+   end;
 
    --  ====================================================================
    --  Suport routines for TransportUnicastSettings_T
