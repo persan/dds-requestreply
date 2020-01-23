@@ -17,7 +17,8 @@ project Hello_World_Request_Reply is
    package Compiler is
       for Driver ("Java") use "";
       for Driver ("idl") use "";
-      for Default_Switches ("C") use Dds.Compiler'Default_Switches ("C");      
+      for Default_Switches ("C") use Dds.Compiler'Default_Switches ("C");     
+      for Default_Switches ("Ada") use ("-gnatwa");     
    end Compiler;
  
    package Naming is 

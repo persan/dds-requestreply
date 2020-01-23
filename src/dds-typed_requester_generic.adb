@@ -593,5 +593,17 @@ package body DDS.Typed_Requester_Generic is
       return raise Program_Error
           with "Unimplemented function Get_Reply_DataReader";
    end Get_Reply_DataReader;
+   procedure Delete (Self : in out Ref_Access) is null;
+
+   procedure Receive_Replies
+     (Self                 : not null access Ref;
+      Replies              : not null Reply_DataReaders.Treats.Data_Sequences.Sequence_Access;
+      Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
+      Min_Reply_Count      : DDS.Natural;
+      Max_Reply_Count      : DDS.Long;
+      Timeout              : DDS.Duration_T)is null;
+   procedure Return_Loan (Self         : not null access Ref;
+                          Replies      : Reply_DataReaders.Treats.Data_Sequences.Sequence;
+                          Sample_Info  : DDS.SampleInfo_Seq.Sequence) is null;
 
 end DDS.Typed_Requester_Generic;

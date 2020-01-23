@@ -1,6 +1,6 @@
 with Dds.Topic;
 with DDS.Entity_Params;
-package DDS.Replier is
+package DDS.Repl
    type Ref is interface;
    type Ref_Access is access all Ref;
 

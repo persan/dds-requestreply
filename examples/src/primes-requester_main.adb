@@ -1,96 +1,53 @@
---  /*
---   * Instantiate the requester structure and declare its functions
---   */
---  RTI_CONNEXT_REQUESTER_DECL(PrimeNumberRequest, PrimeNumberReply, PrimeNumberRequester)
---
---  /*
---   * Define TReq, the request type and TRep, the reply type and
---   * Instantiate the implementation of the requester functions.
---   *
---   * Note: for simplicity we include the implementation here, but it could
---   *       be compiled in its own .c file.
---   */
---  #define TReq PrimeNumberRequest
---  #define TRep PrimeNumberReply
---  #define TRequester PrimeNumberRequester
---
+
 with Ada.Command_Line;
 with Ada.Text_IO; use Ada.Text_IO;
 with DDS.DomainParticipant;
 with DDS.DomainParticipantFactory;
 with Primes.PrimeNumberRequester;
 with Primes.PrimeNumberRequest_TypeSupport;
-with DDS.Request_Reply.Connext_C_Requester;
+with RTIDDS.Config;
+
 procedure Primes.Requester_Main is
    use DDS.DomainParticipant;
    use all type DDS.ReturnCode_T;
 
-   procedure Requester_Shutdown ( Participant : DDS.DomainParticipant.Ref_Access;
-                                  Requester   : PrimeNumberRequester.Ref_Access;
-                                  Request     : PrimeNumberRequest_Access) is
+   procedure Requester_Shutdown (Participant : in out DDS.DomainParticipant.Ref_Access;
+                                 Requester   : in out PrimeNumberRequester.Ref_Access;
+                                 Request     : in out PrimeNumberRequest_Access) is
    begin
-      --  {
-      --      DDS_ReturnCode_t retcode;
-      --      int status = 0;
+
+
+      PrimeNumberRequest_TypeSupport.Delete_Data (Request);
+      PrimeNumberRequester.Delete (Requester);
+
+      if Participant /= null then
+         Participant.Delete_Contained_Entities;
+      end if;
+
       --
-      --      if (request != NULL) {
-      --          PrimeNumberRequestTypeSupport_delete_data(request);
-      --      }
-      --
-      --      if (requester != NULL) {
-      --          retcode = RTI_Connext_Requester_delete(
-      --              (RTI_Connext_Requester *) requester);
-      --          if (retcode != DDS_RETCODE_OK) {
-      --              fprintf(stderr, "delete requester error %d\n", retcode);
-      --              status = -1;
-      --          }
-      --      }
-      --
-      --      if (participant != NULL) {
-      --          retcode = DDS_DomainParticipant_delete_contained_entities(participant);
-      --          if (retcode != DDS_RETCODE_OK) {
-      --              fprintf(stderr, "delete_contained_entities error %d\n", retcode);
-      --              status = -1;
-      --          }
-      --
-      --          retcode = DDS_DomainParticipantFactory_delete_participant(
-      --              DDS_TheParticipantFactory, participant);
-      --          if (retcode != DDS_RETCODE_OK) {
-      --              fprintf(stderr, "delete_participant error %d\n", retcode);
-      --              status = -1;
-      --          }
-      --      }
-      --
-      --      retcode = DDS_DomainParticipantFactory_finalize_instance();
-      --      if (retcode != DDS_RETCODE_OK) {
-      --          printf("ParticipantFactory finalize_instance error %d\n", retcode);
-      --          status = -1;
-      --      }
-      --
-      --      return status;
-      --  }      null;
-      null;
+      DDS.DomainParticipantFactory.Get_Instance.Delete_Participant (Participant);
+      DDS.DomainParticipantFactory.Get_Instance.Finalize_Instance;
    end;
 
 
    procedure Requester_Main (N                : DDS.long ;
                              Primes_Per_Reply : DDS.long ;
                              Domain_Id        : DDS.DomainId_T)
-     --  int requester_main(int n, int primes_per_reply, int domain_id)
    is
-   --      int in_progress;
-   --      int i, j;
 
       Retcode : DDS.ReturnCode_T;
 
-      Replies  : aliased PrimeNumberRequest_Seq.Sequence;
-      Info_Seq : aliased DDS.SampleInfo_Seq.Sequence;
-      Participant : DDS.DomainParticipant.Ref_Access;
-      Requester : PrimeNumberRequester.Ref_Access;
-      Request : PrimeNumberRequest_Access;
-      MAX_WAIT : DDS.Duration_T := DDS.To_Duration_T (20.0);
-      Requester_Params : DDS.Request_Reply.Connext_C_Requester.RTI_Connext_RequesterParams;
-      use PrimeNumberRequester;
+      Replies          : aliased PrimeNumberReply_Seq.Sequence;
+      Info_Seq         : aliased DDS.SampleInfo_Seq.Sequence;
+      Participant      : DDS.DomainParticipant.Ref_Access;
+      Requester        : PrimeNumberRequester.Ref_Access;
+      Request          : PrimeNumberRequest_Access := PrimeNumberRequest_TypeSupport.Create_Data;
+      MAX_WAIT         : constant DDS.Duration_T := DDS.To_Duration_T (20.0);
+      In_Progress      : Boolean := False;
+
+      use type PrimeNumberRequester.Ref_Access;
+      use PrimeNumberReply_Seq;
+      use DDS.SampleInfo_Seq;
    begin
 
       --  Create the participant
@@ -105,14 +62,13 @@ procedure Primes.Requester_Main is
       --  Create the requester with that participant, and a QoS profile
       --  defined in USER_QOS_PROFILES.xml
       --
-      Requester_Params.Participant := Participant;
-      DDS.Copy (Requester_Params.Service_Name, Service_Name);
-      DDS.Copy (Requester_Params.Qos_Library_Name, Qos_Library_Name);
-      DDS.Copy (Requester_Params.Qos_Profile_Name, Qos_Profile_Name);
-      Requester := PrimeNumberRequester.Create_W_Params (Requester_Params);
+      Requester := PrimeNumberRequester.Create (Participant      => Participant,
+                                                Service_Name     => Service_Name,
+                                                Qos_Library_Name => Qos_Library_Name,
+                                                Qos_Profile_Name => Qos_Profile_Name);
       if Requester = null then
          Put_Line (Standard_Error, "create requester error");
-         Ada.Command_Line.Set_Exit_Status (ADa.Command_Line.Failure);
+         Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
          Requester_Shutdown (Participant, Requester, Request);
          return;
       end if;
@@ -129,13 +85,9 @@ procedure Primes.Requester_Main is
 
       Request.N := N;
       Request.Primes_Per_Reply := Primes_Per_Reply;
-      Retcode := Requester.Send_Request (Request);
+      Retcode := Requester.Send_Request (Request.all);
 
-
-      --  Send the request
-      Retcode := Requester.Send_Request (Request);
-
-      if retcode /= DDS.RETCODE_OK then
+      if Retcode /= DDS.RETCODE_OK then
          Put_Line (Standard_Error, "send_request error:" & Retcode'Img );
          Ada.Command_Line.Set_Exit_Status (ADa.Command_Line.Failure);
          Requester_Shutdown (Participant, Requester, Request);
@@ -144,105 +96,96 @@ procedure Primes.Requester_Main is
 
 
 
-      --      /* Receive replies */
-      --      retcode = PrimeNumberRequester_receive_replies(
-      --          requester, &replies, &info_seq,
-      --          1, /* Wait for at least one reply */
-      --          DDS_LENGTH_UNLIMITED, &MAX_WAIT);
-      --
-      --      in_progress = 1;
-      --      while (retcode == DDS_RETCODE_OK && in_progress) {
-      --
-      --          for (i = 0; i < PrimeNumberReplySeq_get_length(&replies); i++) {
-      --              struct PrimeNumberReply * reply =
-      --                  PrimeNumberReplySeq_get_reference(&replies, i);
-      --              struct DDS_SampleInfo * info =
-      --                  DDS_SampleInfoSeq_get_reference(&info_seq, i);
-      --
-      --              if (info->valid_data) {
-      --
-      --                  for (j = 0; j < DDS_LongSeq_get_length(&reply->primes); j++) {
-      --                      DDS_Long prime_number =
-      --                          *DDS_LongSeq_get_reference(&reply->primes, j);
-      --
-      --                      printf("%d ", prime_number);
-      --                  }
-      --
-      --                  if (reply->status != REPLY_IN_PROGRESS) {
-      --                      in_progress = 0;
-      --                      if (reply->status == REPLY_ERROR) {
-      --                          fprintf(stderr, "Error in Replier\n");
-      --                      } else { /* reply->status == REPLY_COMPLETED */
-      --                          printf("DONE");
-      --                          fflush(stdout);
-      --                      }
-      --                  }
-      --
-      --                  printf("\n");
-      --              }
-      --          }
-      --
-      --          /*
-      --           * Return the loan to the middleware
-      --           */
-      --          PrimeNumberRequester_return_loan(requester, &replies, &info_seq);
-      --
-      --          if (in_progress) {
-      --              retcode = PrimeNumberRequester_receive_replies(
-      --                  requester, &replies, &info_seq,
-      --                  1, DDS_LENGTH_UNLIMITED, &MAX_WAIT);
-      --          }
-      --      }
-      --
-      --      if (retcode != DDS_RETCODE_OK) {
-      --          if (retcode == DDS_RETCODE_TIMEOUT) {
-      --              fprintf(stderr, "Timed out waiting for prime numbers\n");
-      --              return -1;
-      --          } else {
-      --              fprintf(stderr, "Error receiving replies %d\n", retcode);
-      --              return -1;
-      --          }
-      --      }
-      --
-      --      return requester_shutdown(participant, requester, request);
-      null;
+
+      Retcode := Requester.Receive_Replies
+        (Replies         => Replies'Unrestricted_Access,
+         Sample_Info     => Info_Seq'Unrestricted_Access,
+         Min_Reply_Count => 1,
+         Max_Reply_Count => DDS.LENGTH_UNLIMITED,
+         Timeout         => MAX_WAIT);
+
+
+      In_Progress := True;
+      while In_Progress and then (Retcode = DDS.RETCODE_OK)loop
+         Put_Line ("(");
+         for I in 1 .. Get_Length (Replies'Unrestricted_Access) loop
+            declare
+               Reply        : constant PrimeNumberReply_Access := Get_Reference (Replies'Unrestricted_Access, I);
+               Info         : constant DDS.SampleInfo_Access := Get_Reference (Info_Seq'Unrestricted_Access, I);
+            begin
+               if (Info.Valid_Data) then
+                  for Prime_Number of Reply.Primesf loop
+                     Put (Prime_Number.all'Img);
+                  end loop;
+               end if;
+               if Reply.Status /= REPLY_IN_PROGRESS then
+                  In_Progress := False;
+                  if Reply.Status = REPLY_ERROR then
+                     Put_Line (Standard_Error, "Error in Replier");
+                  elsif Reply.Status = REPLY_COMPLETED then
+                     Put_Line ("DONE");
+                  end if;
+               end if;
+               Put_Line (")");
+            end;
+         end loop;
+
+         --   Return the loan to the middleware
+         Requester.Return_Loan (Replies, Info_Seq);
+
+         if In_Progress then
+            Retcode := Requester.Receive_Replies
+              (Replies         => Replies'Unrestricted_Access,
+               Sample_Info     => Info_Seq'Unrestricted_Access,
+               Min_Reply_Count => 1,
+               Max_Reply_Count => DDS.LENGTH_UNLIMITED,
+               Timeout         => MAX_WAIT);
+                 end if;
+
+      end loop;
+
+      if Retcode /= DDS.RETCODE_OK then
+         if (Retcode = DDS.RETCODE_TIMEOUT) then
+            Put_Line (Standard_Error, "Timed out waiting for prime numbers");
+         else
+            Put_Line (Standard_Error, "Error receiving replies" &  Retcode'Img);
+         end if;
+      end if;
+      Requester_Shutdown (Participant, Requester, Request);
    end;
+
+
+   Domain_Id        : DDS.DomainId_T :=  0;
+   N                : DDS.long;
+   Primes_Per_Reply : DDS.long := 5;
 begin
-   null;
-   --      int domain_id = 0;
-   --      int n;
-   --      int primes_per_reply = 5;
-   --
-   --      if (argc < 2) {
-   --          printf("PrimeNumberRequester:\n");
-   --          printf("Sends a request to calculate the prime numbers <= n\n");
-   --          printf("Parameters: <n> [<primes_per_reply> = 5] [<domain_id> = 0]\n");
-   --          return -1;
-   --      }
-   --
-   --      n = atoi(argv[1]);
-   --
-   --      if (argc > 2) {
-   --          primes_per_reply = atoi(argv[2]);
-   --      }
-   --
-   --      if (argc > 3) {
-   --          domain_id = atoi(argv[3]);
-   --      }
-   --
-   --      /* Uncomment this to turn on additional logging
-   --      NDDS_Config_Logger_set_verbosity(
-   --                      NDDS_Config_Logger_get_instance(),
-   --                      NDDS_CONFIG_LOG_VERBOSITY_WARNING);
-   --      */
-   --
-   --      printf("PrimeNumberRequester: Sending a request to calculate the ");
-   --      printf("prime numbers <=  %d in sequences of %d or less elements ",
-   --             n, primes_per_reply);
-   --      printf("(on domain %d)\n", domain_id);
-   --      fflush(stdout);
-   --
-   --      return requester_main(n, primes_per_reply, domain_id);
-   --  }
+
+   if Ada.Command_Line.Argument_Count < 1 then
+      Put_Line ("PrimeNumberRequester:");
+      Put_Line ("Sends a request to calculate the prime numbers <= n");
+      Put_Line ("Parameters: <n> [<primes_per_reply> = 5] [<domain_id> = 0]");
+      Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+      return;
+   end if;
+   N := DDS.Integer'Value (Ada.Command_Line.Argument (1));
+   if Ada.Command_Line.Argument_Count < 1 then
+      Primes_Per_Reply := DDS.Integer'Value (Ada.Command_Line.Argument (2));
+   end if;
+
+   if Ada.Command_Line.Argument_Count < 2 then
+      Domain_Id := DDS.DomainId_T'Value (Ada.Command_Line.Argument (3));
+   end if;
+
+   RTIDDS.Config.Logger.Get_Instance.Set_Verbosity (RTIDDS.Config.VERBOSITY_SILENT);
+   -- Uncomment this to turn on additional logging
+   -- RTIDDS.Config.Logger.Get_Instance.Set_Verbosity (RTIDDS.Config.VERBOSITY_WARNING);
+
+   Put_Line ("PrimeNumberRequester: Sending a request to calculate the ");
+   Put_Line ("prime numbers <=  %d in sequences of %d or less elements " &
+               N'Img &  Primes_Per_Reply'Img);
+   Put_Line ("(on domain %d)" & Domain_Id'Img);
+
+
+   Requester_Main (N, Primes_Per_Reply, Domain_Id);
 
 end;

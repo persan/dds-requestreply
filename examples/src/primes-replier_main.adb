@@ -1,3 +1,11 @@
+with Ada.Command_Line;
+with Ada.Text_IO; use Ada.Text_IO;
+with DDS.DomainParticipant;
+with DDS.DomainParticipantFactory;
+with Primes.PrimeNumberReplyer;
+with Primes.PrimeNumberRequest_TypeSupport;
+with Primes.PrimeNumberReply_TypeSupport;
+with RTIDDS.Config;
 procedure Primes.Replier_Main is
 --   */
 --  #include "Primes.h"
@@ -203,7 +211,9 @@ procedure Primes.Replier_Main is
 --      return 0;
 --  }
 --  
---  
+
+   procedure Replier_Main (Domain_Id : DDS.DomainId_T) is
+      
 --  int replier_main(int domain_id)
 --  {
 --      int result;
@@ -216,7 +226,7 @@ procedure Primes.Replier_Main is
 --      const struct DDS_Duration_t MAX_WAIT = {60, 0};
 --      struct DDS_SampleInfo request_info;
 --      struct DDS_SampleIdentity_t request_id;
---  
+begin
 --      /* Create the participant */
 --      participant = DDS_DomainParticipantFactory_create_participant(
 --          DDS_TheParticipantFactory, domain_id, &DDS_PARTICIPANT_QOS_DEFAULT,
@@ -298,8 +308,10 @@ procedure Primes.Replier_Main is
 --      replier_shutdown(participant, replier, request);
 --  
 --      return result;
---  }
---  
+      null;
+   end;
+   
+   Domain_Id        : DDS.DomainId_T :=  0;
 begin
    null;
    --  int main(int argc, char *argv[])
@@ -322,5 +334,17 @@ begin
    --      return replier_main(domain_id);
    --  }
    --  #endif
+   if Ada.Command_Line.Argument_Count > 0 then
+      Domain_Id := DDS.DomainId_T'Value (Ada.Command_Line.Argument (1));
+   end if;
+
+   RTIDDS.Config.Logger.Get_Instance.Set_Verbosity (RTIDDS.Config.VERBOSITY_SILENT);
+   -- Uncomment this to turn on additional logging
+   -- RTIDDS.Config.Logger.Get_Instance.Set_Verbosity (RTIDDS.Config.VERBOSITY_WARNING);
+
+   Put_Line ("PrimeNumberRequester: Sending a request to calculate the ");
+   Put_Line ("(on domain %d)" & Domain_Id'Img);
+
+   Replier_Main (Domain_Id);
 
 end Primes.Replier_Main;
