@@ -4,10 +4,11 @@ with Ada.Text_IO; use Ada.Text_IO;
 with DDS.DomainParticipant;
 with DDS.DomainParticipantFactory;
 with Primes.PrimeNumberRequester;
-with Primes.PrimeNumberRequest_TypeSupport;
+with Primes_IDL_File.PrimeNumberRequest_TypeSupport;
 with RTIDDS.Config;
 
 procedure Primes.Requester_Main is
+   use Primes_IDL_File;
    use DDS.DomainParticipant;
    use all type DDS.ReturnCode_T;
 
@@ -114,7 +115,7 @@ procedure Primes.Requester_Main is
                Info         : constant DDS.SampleInfo_Access := Get_Reference (Info_Seq'Unrestricted_Access, I);
             begin
                if (Info.Valid_Data) then
-                  for Prime_Number of Reply.Primesf loop
+                  for Prime_Number of Reply.Primes loop
                      Put (Prime_Number.all'Img);
                   end loop;
                end if;

@@ -14,7 +14,7 @@
  * It simply contains an integer that requests all the prime numbers below it.
  *
  */
-module primes {
+
 const string Service_Name = "PrimeCalculator";
 const string Qos_Library_Name = "RequestReplyExampleProfiles";
 const string Qos_Profile_Name = "RequesterExampleProfile";
@@ -72,11 +72,10 @@ struct PrimeNumberReply {
         /*
          * A sequence of prime numbers
          */
-        sequence<long, PRIME_SEQUENCE_MAX_LENGTH> primesf;
+        sequence<long, PRIME_SEQUENCE_MAX_LENGTH> primes;
         
         /*
          * Status information about this reply
          */
          PrimeNumberCalculationStatus status;
-};
 };

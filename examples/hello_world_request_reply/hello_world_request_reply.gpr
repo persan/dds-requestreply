@@ -1,4 +1,4 @@
-with "../dds-ada-request_reply.gpr";
+with "../../dds-ada-request_reply.gpr"; --@REPLACEwith "dds-ada-request_reply.gpr";
 with "dds.gpr";
 
 project Hello_World_Request_Reply is
