@@ -1,17 +1,22 @@
 with Ada.Command_Line;
-with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Numerics.Long_Elementary_Functions;
+with Ada.Text_IO; 
 with DDS.DomainParticipant;
 with DDS.DomainParticipantFactory;
 with Primes.PrimeNumberReplier;
 with Primes_IDL_File.PrimeNumberRequest_TypeSupport;
-with Ada.numerics.Long_Elementary_Functions;
 with RTIDDS.Config;
+
 procedure Primes.Replier_Main is
-   use Primes_IDL_File;
-   use all type DDS.DomainParticipant.Ref_Access;
-   use type DDS.ReturnCode_T;
-   use all type Dds.long;
+
    use Ada.Numerics.Long_Elementary_Functions;
+   use Ada.Text_IO;
+
+   use Primes_IDL_File;
+   
+   use type DDS.DomainParticipant.Ref_Access;
+   use type DDS.ReturnCode_T;
+   use type DDS.long;
    
    Factory          : constant DDS.DomainParticipantFactory.Ref_Access := DDS.DomainParticipantFactory.Get_Instance;
    
@@ -44,10 +49,8 @@ procedure Primes.Replier_Main is
    procedure Calculate_And_Send_Primes (Replier    : PrimeNumberReplier.Ref_Access;
                                         Request    : PrimeNumberRequest;
                                         Request_Id : DDS.SampleIdentity_T) is
-      pragma Unreferenced (Request_Id, Replier);
 
-      Retcode          : DDS.ReturnCode_T;
-      I, M, K, Length  : DDS.long;
+      M, Length        : DDS.long;
       N                : constant DDS.long := Request.N;
       Primes_Per_Reply : constant DDS.Natural :=  Request.Primes_Per_Reply;
       Reply            : aliased PrimeNumberReply;      
@@ -56,37 +59,22 @@ procedure Primes.Replier_Main is
       Prime            : Prime_Type := (0 => 0, 1 => 0, others => 1);
       use DDS.Long_Seq;
    begin
+      Length := 0;
       Initialize (Reply);
       Set_Maximum (Reply.Primes'Access, Primes_Per_Reply);      
       Reply.Status := REPLY_IN_PROGRESS;
       M := DDS.long (Sqrt (Long_Float (N)));
+      
       for I in 2 .. M loop
          if Prime (I) /= 0 then
             for K in I * I .. N loop
-               null;
-            --              for (k = i*i; k <= n; k+=i) {
-            --                  prime[k] = 0;
+               Prime (K) := 0;
             end loop;
-            --              /* Add a new element */
-            --              length = DDS_LongSeq_get_length(&reply->primes);
-            --              DDS_LongSeq_set_length(&reply->primes,  length + 1);
-            --              *DDS_LongSeq_get_reference(&reply->primes, length) = i;
-            --  
-            --              if (length + 1 == primes_per_reply) {
-            --  
-            --                  /* Send a reply now */
-            --                  retcode = PrimeNumberReplier_send_reply(
-            --                      replier, reply, request_id);
-            --  
-            --                  if (retcode != DDS_RETCODE_OK) {
-            --                      fprintf(stderr, "send_reply error %d\n", retcode);
-            --                      PrimeNumberReplyTypeSupport_delete_data(reply);
-            --                      return -1;
-            --                  }
-            --  
-            --                  DDS_LongSeq_set_length(&reply->primes, 0);
-            --              }
-           
+            Append (Reply.Primes'Access, I);
+            if Length + 1 = Primes_Per_Reply then
+               Replier.Send_Reply (Reply, Request_Id);               
+               Set_Length (Reply.Primes'Access, 0);           
+            end if;
          end if;
       end loop;
       --  
@@ -128,7 +116,6 @@ procedure Primes.Replier_Main is
       --          return -1;
       --      }
       --  
-      --      free(prime);
       --      PrimeNumberReplyTypeSupport_delete_data(reply);
       --      return 0;
    end;

@@ -141,8 +141,7 @@ procedure Primes.Requester_Main is
                Min_Reply_Count => 1,
                Max_Reply_Count => DDS.LENGTH_UNLIMITED,
                Timeout         => MAX_WAIT);
-                 end if;
-
+         end if;
       end loop;
 
       if Retcode /= DDS.RETCODE_OK then
