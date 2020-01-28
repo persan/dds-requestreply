@@ -19,7 +19,8 @@ procedure Primes.Replier_Main is
    use type DDS.long;
    
    Factory          : constant DDS.DomainParticipantFactory.Ref_Access := DDS.DomainParticipantFactory.Get_Instance;
-   
+   MAX_WAIT         : constant DDS.Duration_T := DDS.To_Duration_T (20.0);
+
    procedure Replier_Shutdown
      (Participant : in out DDS.DomainParticipant.Ref_Access;
       Replier     : in PrimeNumberReplier.Ref_Access;
@@ -77,47 +78,25 @@ procedure Primes.Replier_Main is
             end if;
          end if;
       end loop;
-      --  
-      --      /* Calculation is done. Send remaining prime numbers */
-      --      for (i = m + 1; i <= n; i++) {
-      --          if (prime[i]) {
-      --  
-      --              length = DDS_LongSeq_get_length(&reply->primes);
-      --              DDS_LongSeq_set_length(&reply->primes,  length + 1);
-      --              *DDS_LongSeq_get_reference(&reply->primes, length) = i;
-      --  
-      --              if (length + 1 == primes_per_reply) {
-      --  
-      --                  /* Send a reply now */
-      --                  retcode = PrimeNumberReplier_send_reply(
-      --                      replier, reply, request_id);
-      --  
-      --                  if (retcode != DDS_RETCODE_OK) {
-      --                      fprintf(stderr, "send_reply error %d\n", retcode);
-      --                      PrimeNumberReplyTypeSupport_delete_data(reply);
-      --                      return -1;
-      --                  }
-      --  
-      --                  DDS_LongSeq_set_length(&reply->primes, 0);
-      --              }
-      --          }
-      --      }
-      --  
-      --      /* Send the last reply. Indicate that the calculation is complete and
-      --       * send any prime number left in the sequence
-      --       */
-      --      reply->status = REPLY_COMPLETED;
-      --      retcode = PrimeNumberReplier_send_reply(
-      --          replier, reply, request_id);
-      --  
-      --      if (retcode != DDS_RETCODE_OK) {
-      --          fprintf(stderr, "send_reply error %d\n", retcode);
-      --          PrimeNumberReplyTypeSupport_delete_data(reply);
-      --          return -1;
-      --      }
-      --  
-      --      PrimeNumberReplyTypeSupport_delete_data(reply);
-      --      return 0;
+
+      -- Calculation is done. Send remaining prime numbers
+      for I  in  M + 1 .. N loop
+         if Prime (I) /= 0 then
+            Length := Get_Length (Reply.Primes'Access);
+            Append (Reply.Primes'Access, I);
+
+            if Length + 1 = Primes_Per_Reply then
+               Replier.Send_Reply (Reply, Request_Id);               
+               Set_Length (Reply.Primes'Access, 0);           
+            end if;
+         end if;
+      end loop;
+      
+      --  Send the last reply. Indicate that the calculation is complete and
+      --  send any prime number left in the sequence
+      Reply.Status := REPLY_COMPLETED;
+      Replier.Send_Reply (Reply, Request_Id);               
+      
    end;
    
    
@@ -127,7 +106,6 @@ procedure Primes.Replier_Main is
       Request_Id       : Dds.SampleIdentity_T;
       Request_Info     : aliased DDS.SampleInfo;
       Request          : PrimeNumberRequest_Access := PrimeNumberRequest_TypeSupport.Create_Data;      
-      MAX_WAIT         : constant DDS.Duration_T := DDS.To_Duration_T (20.0);
       RetCode          : DDS.ReturnCode_T := DDS.RETCODE_OK;
      
       
@@ -165,16 +143,21 @@ procedure Primes.Replier_Main is
                Put_Line ("Calculating prime numbers below " & Request.N'Img & "... ");    
                --   This operation could be executed in a separate thread,
                --   to process requests in parallel
-               Calculate_And_Send_Primes (Replier, Request.all, Request_Id);
+               Calculate_And_Send_Primes (Replier => Replier, 
+                                          Request    => Request.all, 
+                                          Request_Id => Request_Id);
                
                Put_Line ("DONE");
             end if;
          end if;
-         Retcode := Replier.Receive_Request (Request.all, Request_Info, Timeout => MAX_WAIT);
+         Retcode := Replier.Receive_Request (Request  => Request.all, 
+                                             Info_Seq => Request_Info, 
+                                             Timeout  => MAX_WAIT);
       end loop;
 
       if Retcode = DDS.RETCODE_TIMEOUT then
-         Put_Line ("No request received for " & MAX_WAIT.Sec'Img & " seconds. Shutting down replier");
+         Put_Line ("No request received for " & MAX_WAIT.Sec'Img & 
+                     " seconds. Shutting down replier");
       else 
          Put_Line (Standard_Error, "Error in replier " &  Retcode'Img);
       end if;
@@ -190,12 +173,12 @@ begin
       Domain_Id := DDS.DomainId_T'Value (Ada.Command_Line.Argument (1));
    end if;
 
-   RTIDDS.Config.Logger.Get_Instance.Set_Verbosity (RTIDDS.Config.VERBOSITY_SILENT);
+   RTIDDS.Config.Logger.Get_Instance.Set_Verbosity (RTIDDS.Config.VERBOSITY_WARNING);
    -- Uncomment this to turn on additional logging
-   -- RTIDDS.Config.Logger.Get_Instance.Set_Verbosity (RTIDDS.Config.VERBOSITY_WARNING);
+   -- RTIDDS.Config.Logger.Get_Instance.Set_Verbosity (RTIDDS.Config.VERBOSITY_ERROR);
 
-   Put_Line ("PrimeNumberRequester: Sending a request to calculate the ");
-   Put_Line ("(on domain %d)" & Domain_Id'Img);
+   Put_Line ("PrimeNumberRequester: Sending a request to calculate the " &
+               "(on domain " & Domain_Id'Img & ")");
 
    Replier_Main (Domain_Id);
 

@@ -1,23 +1,23 @@
-with DDS.DataReader;
-with DDS.Request_Reply.Connext_C_Replier;
-with DDS.Request_Reply.Connext_C_Entity_Params;
+with Dds.Topic;
+with DDS.Entity_Params;
 package DDS.Request_Reply.Replier is
-   use Connext_C_Replier;
-   use Connext_C_Entity_Params;
-   procedure RTI_Connext_Replier_On_Data_Available
-     (Self   : RTI_Connext_Replier_Access;
-      Reader : DDS.DataReader.Ref_Access);
+   type Ref is limited interface;
+   type Ref_Access is access all Ref;
 
 
-   procedure RTI_Connext_ReplierParams_ToEntityParams
-     (Self     : RTI_Connext_ReplierParams;
-      ToParams : out RTI_Connext_EntityParams);
+   function Create_Writer_Topic
+     (Self   : not null access Ref;
+      Params : DDS.Entity_Params.EntityParams;
+      Name   : DDS.String) return DDS.Topic.Ref_Access is abstract;
 
-   procedure RTI_Connext_Replier_Delete
-     (Self : in out RTI_Connext_Replier_Access);
+   function Create_Reader_Topic
+     (Self   : not null access Ref;
+      Params : DDS.Entity_Params.EntityParams;
+      Name   : DDS.String) return DDS.Topic.Ref_Access is abstract;
 
-   procedure RTI_Connext_Replier_Wait_For_Requests
-     (Self      : not null access RTI_Connext_Replier;
+
+   procedure Wait_For_Requests
+     (Self      : not null access Ref;
       Min_Count : DDS.Integer;
-      Max_Wait  : DDS.Duration_T);
+      Max_Wait  : DDS.Duration_T) is abstract;
 end DDS.Request_Reply.Replier;

@@ -1,5 +1,8 @@
 with DDS.DataReader;
+with DDS.DataReaderListener;
+with DDS.DataReaderListener;
 with DDS.DataWriter;
+with DDS.DataWriterListener;
 with DDS.DomainParticipant;
 with DDS.Publisher;
 with DDS.Requester;
@@ -13,7 +16,7 @@ with DDS.Request_Reply.Connext_C_Requester;
 generic
    with package Request_DataWriters is new DDS.Typed_DataWriter_Generic (<>);
    with package Reply_DataReaders is new DDS.Typed_DataReader_Generic (<>);
-package DDS.Typed_Requester_Generic is
+package DDS.Request_Reply.Typed_Requester_Generic is
 
    type Ref is new DDS.Requester.Impl.Ref with private;
    type Ref_Access is access all Ref'Class;
@@ -266,6 +269,122 @@ package DDS.Typed_Requester_Generic is
    function Get_Reply_DataReader (Self : not null access Ref) return Reply_DataReaders.Ref_Access;
 
 private
+
+ type DataReader_Listner (Parent : not null Ref_Access )is new DDS.DataReaderListener.Ref with null record;
+    procedure On_Offered_Deadline_Missed
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
+      Status : in DDS.OfferedDeadlineMissedStatus);
+
+   procedure On_Data_Available
+     (Self       : not null access DataReader_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access);
+
+   procedure On_Offered_Incompatible_Qos
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
+      Status : in DDS.OfferedIncompatibleQosStatus);
+   --  <dref>DataWriterListener_on_offered_incompatible_qos</dref>
+
+   procedure On_Liveliness_Lost
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
+      Status : in DDS.LivelinessLostStatus);
+   --  <dref>DataWriterListener_on_liveliness_lost</dref>
+
+   procedure On_Publication_Matched
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
+      Status : in DDS.PublicationMatchedStatus);
+   --  <dref>DataWriterListener_on_publication_matched</dref>
+
+   procedure On_Reliable_Writer_Cache_Changed
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
+      Status : in DDS.ReliableWriterCacheChangedStatus);
+   --  <dref>DataWriterListener_on_reliable_writer_cache_changed</dref>
+
+   procedure On_Reliable_Reader_Activity_Changed
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
+      Status : in DDS.ReliableReaderActivityChangedStatus);
+
+
+   procedure On_Destination_Unreachable
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
+      Instance : in DDS.InstanceHandle_T;
+      Locator  : in DDS.Locator_T);
+
+   procedure On_Data_Request
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
+      Cookie   : in DDS.Cookie_T;
+      Request  : in out System.Address);
+
+   procedure On_Data_Return
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
+      arg      : System.Address;
+      Cookie   : in DDS.Cookie_T);
+   procedure On_Sample_Removed
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
+      Cookie : in DDS.Cookie_T);
+
+   procedure On_Instance_Replaced
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
+      Instance : in DDS.InstanceHandle_T);
+   --  <dref>DataWriterListener_on_instance_replaced</dref>
+
+   procedure On_Application_Acknowledgment
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
+      Info : in DDS.AcknowledgmentInfo);
+   --  <dref>DataWriterListener_on_application_acknowledgment</dref>
+
+   procedure On_Service_Request_Accepted
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
+      Info : in DDS.ServiceRequestAcceptedStatus);
+
+
+   type DataWriter_Listner (Parent : not null Ref_Access )is new DDS.DataWriterListener.Ref with null record;
+    procedure On_Requested_Deadline_Missed
+     (Self       : not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access;
+      Status     : in DDS.RequestedDeadlineMissedStatus);
+
+   procedure On_Requested_Incompatible_Qos
+     (Self       : not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access;
+      Status     : in DDS.RequestedIncompatibleQosStatus);
+
+   procedure On_Sample_Rejected
+     (Self       : not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access;
+      Status     : in DDS.SampleRejectedStatus);
+
+   procedure On_Liveliness_Changed
+     (Self       : not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access;
+      Status     : in DDS.LivelinessChangedStatus);
+
+   procedure On_Data_Available
+     (Self       : not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access);
+
+   procedure On_Subscription_Matched
+     (Self       : not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access;
+      Status     : in DDS.SubscriptionMatchedStatus);
+
+   procedure On_Sample_Lost
+     (Self       : not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access;
+      Status     : in DDS.SampleLostStatus);
+
    type Ref is new DDS.Requester.Impl.Ref   with record
       Request_Topic      : DDS.Topic.Ref_Access;
       Reply_Topic        : DDS.Topic.Ref_Access;

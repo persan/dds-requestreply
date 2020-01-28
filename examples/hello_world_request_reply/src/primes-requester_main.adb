@@ -12,6 +12,8 @@ procedure Primes.Requester_Main is
    use DDS.DomainParticipant;
    use all type DDS.ReturnCode_T;
 
+   Factory : constant DDS.DomainParticipantFactory.Ref_Access := DDS.DomainParticipantFactory.Get_Instance;
+
    procedure Requester_Shutdown (Participant : in out DDS.DomainParticipant.Ref_Access;
                                  Requester   : in out PrimeNumberRequester.Ref_Access;
                                  Request     : in out PrimeNumberRequest_Access) is
@@ -25,9 +27,8 @@ procedure Primes.Requester_Main is
          Participant.Delete_Contained_Entities;
       end if;
 
-      --
-      DDS.DomainParticipantFactory.Get_Instance.Delete_Participant (Participant);
-      DDS.DomainParticipantFactory.Get_Instance.Finalize_Instance;
+      Factory.Delete_Participant (Participant);
+      Factory.Finalize_Instance;
    end;
 
 
@@ -52,7 +53,7 @@ procedure Primes.Requester_Main is
    begin
 
       --  Create the participant
-      Participant := DDS.DomainParticipantFactory.Get_Instance.Create_Participant (Domain_Id);
+      Participant := Factory.Create_Participant (Domain_Id);
       if Participant = null then
          Put_Line (Standard_Error, "create_participant error");
          Ada.Command_Line.Set_Exit_Status (ADa.Command_Line.Failure);
@@ -176,14 +177,13 @@ begin
       Domain_Id := DDS.DomainId_T'Value (Ada.Command_Line.Argument (3));
    end if;
 
-   RTIDDS.Config.Logger.Get_Instance.Set_Verbosity (RTIDDS.Config.VERBOSITY_SILENT);
+   RTIDDS.Config.Logger.Get_Instance.Set_Verbosity (RTIDDS.Config.VERBOSITY_WARNING);
    -- Uncomment this to turn on additional logging
-   -- RTIDDS.Config.Logger.Get_Instance.Set_Verbosity (RTIDDS.Config.VERBOSITY_WARNING);
+   -- RTIDDS.Config.Logger.Get_Instance.Set_Verbosity (RTIDDS.Config.VERBOSITY_ERROR);
 
-   Put_Line ("PrimeNumberRequester: Sending a request to calculate the ");
-   Put_Line ("prime numbers <=  %d in sequences of %d or less elements " &
-               N'Img &  Primes_Per_Reply'Img);
-   Put_Line ("(on domain %d)" & Domain_Id'Img);
+   Put_Line ("PrimeNumberRequester: Sending a request to calculate the " &
+               "prime numbers " & N'Img & " in sequences of " & Primes_Per_Reply'Img & " or less elements." &
+               "(on domain " & Domain_Id'Img & ")" );
 
 
    Requester_Main (N, Primes_Per_Reply, Domain_Id);

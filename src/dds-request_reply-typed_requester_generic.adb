@@ -1,5 +1,5 @@
 pragma Ada_2012;
-package body DDS.Typed_Requester_Generic is
+package body DDS.Request_Reply.Typed_Requester_Generic is
 
    -----------------------------
    -- Get_Request_Data_Writer --
@@ -100,6 +100,16 @@ package body DDS.Typed_Requester_Generic is
       pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
       return raise Program_Error with "Unimplemented function Create";
    end Create;
+
+   ------------
+   -- Delete --
+   ------------
+
+   procedure Delete (Self : in out Ref_Access) is
+   begin
+      pragma Compile_Time_Warning (Standard.True, "Delete unimplemented");
+      raise Program_Error with "Unimplemented procedure Delete";
+   end Delete;
 
    ------------------
    -- Send_Request --
@@ -264,6 +274,24 @@ package body DDS.Typed_Requester_Generic is
       pragma Compile_Time_Warning (Standard.True,
          "Receive_Replies unimplemented");
       return raise Program_Error with "Unimplemented function Receive_Replies";
+   end Receive_Replies;
+
+   ---------------------
+   -- Receive_Replies --
+   ---------------------
+
+   procedure Receive_Replies
+     (Self    : not null access Ref;
+      Replies : not null Reply_DataReaders.Treats.Data_Sequences
+        .Sequence_Access;
+      Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
+      Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.Long;
+      Timeout         : DDS.Duration_T)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "Receive_Replies unimplemented");
+      raise Program_Error with "Unimplemented procedure Receive_Replies";
    end Receive_Replies;
 
    ---------------------
@@ -528,6 +556,20 @@ package body DDS.Typed_Requester_Generic is
       raise Program_Error with "Unimplemented procedure Return_Loan";
    end Return_Loan;
 
+   -----------------
+   -- Return_Loan --
+   -----------------
+
+   procedure Return_Loan
+     (Self        : not null access Ref;
+      Replies     : Reply_DataReaders.Treats.Data_Sequences.Sequence;
+      Sample_Info : DDS.SampleInfo_Seq.Sequence)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True, "Return_Loan unimplemented");
+      raise Program_Error with "Unimplemented procedure Return_Loan";
+   end Return_Loan;
+
    ------------
    -- Delete --
    ------------
@@ -593,17 +635,328 @@ package body DDS.Typed_Requester_Generic is
       return raise Program_Error
           with "Unimplemented function Get_Reply_DataReader";
    end Get_Reply_DataReader;
-   procedure Delete (Self : in out Ref_Access) is null;
 
-   procedure Receive_Replies
-     (Self                 : not null access Ref;
-      Replies              : not null Reply_DataReaders.Treats.Data_Sequences.Sequence_Access;
-      Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count      : DDS.Natural;
-      Max_Reply_Count      : DDS.Long;
-      Timeout              : DDS.Duration_T)is null;
-   procedure Return_Loan (Self         : not null access Ref;
-                          Replies      : Reply_DataReaders.Treats.Data_Sequences.Sequence;
-                          Sample_Info  : DDS.SampleInfo_Seq.Sequence) is null;
+   --------------------------------
+   -- On_Offered_Deadline_Missed --
+   --------------------------------
+
+   procedure On_Offered_Deadline_Missed
+     (Self   :    not null access DataReader_Listner;
+      Writer :    access DDS.DataWriter.Ref'Class;
+      Status : in DDS.OfferedDeadlineMissedStatus)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Offered_Deadline_Missed unimplemented");
+      raise Program_Error
+        with "Unimplemented procedure On_Offered_Deadline_Missed";
+   end On_Offered_Deadline_Missed;
+
+   -----------------------
+   -- On_Data_Available --
+   -----------------------
+
+   procedure On_Data_Available
+     (Self       :    not null access DataReader_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Data_Available unimplemented");
+      raise Program_Error with "Unimplemented procedure On_Data_Available";
+   end On_Data_Available;
+
+   ---------------------------------
+   -- On_Offered_Incompatible_Qos --
+   ---------------------------------
+
+   procedure On_Offered_Incompatible_Qos
+     (Self   :    not null access DataReader_Listner;
+      Writer :    access DDS.DataWriter.Ref'Class;
+      Status : in DDS.OfferedIncompatibleQosStatus)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Offered_Incompatible_Qos unimplemented");
+      raise Program_Error
+        with "Unimplemented procedure On_Offered_Incompatible_Qos";
+   end On_Offered_Incompatible_Qos;
+
+   ------------------------
+   -- On_Liveliness_Lost --
+   ------------------------
+
+   procedure On_Liveliness_Lost
+     (Self   :    not null access DataReader_Listner;
+      Writer :    access DDS.DataWriter.Ref'Class;
+      Status : in DDS.LivelinessLostStatus)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Liveliness_Lost unimplemented");
+      raise Program_Error with "Unimplemented procedure On_Liveliness_Lost";
+   end On_Liveliness_Lost;
+
+   ----------------------------
+   -- On_Publication_Matched --
+   ----------------------------
+
+   procedure On_Publication_Matched
+     (Self   :    not null access DataReader_Listner;
+      Writer :    access DDS.DataWriter.Ref'Class;
+      Status : in DDS.PublicationMatchedStatus)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Publication_Matched unimplemented");
+      raise Program_Error
+        with "Unimplemented procedure On_Publication_Matched";
+   end On_Publication_Matched;
+
+   --------------------------------------
+   -- On_Reliable_Writer_Cache_Changed --
+   --------------------------------------
+
+   procedure On_Reliable_Writer_Cache_Changed
+     (Self   :    not null access DataReader_Listner;
+      Writer :    access DDS.DataWriter.Ref'Class;
+      Status : in DDS.ReliableWriterCacheChangedStatus)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Reliable_Writer_Cache_Changed unimplemented");
+      raise Program_Error
+        with "Unimplemented procedure On_Reliable_Writer_Cache_Changed";
+   end On_Reliable_Writer_Cache_Changed;
+
+   -----------------------------------------
+   -- On_Reliable_Reader_Activity_Changed --
+   -----------------------------------------
+
+   procedure On_Reliable_Reader_Activity_Changed
+     (Self   :    not null access DataReader_Listner;
+      Writer :    access DDS.DataWriter.Ref'Class;
+      Status : in DDS.ReliableReaderActivityChangedStatus)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Reliable_Reader_Activity_Changed unimplemented");
+      raise Program_Error
+        with "Unimplemented procedure On_Reliable_Reader_Activity_Changed";
+   end On_Reliable_Reader_Activity_Changed;
+
+   --------------------------------
+   -- On_Destination_Unreachable --
+   --------------------------------
+
+   procedure On_Destination_Unreachable
+     (Self     :    not null access DataReader_Listner;
+      Writer   :    access DDS.DataWriter.Ref'Class;
+      Instance : in DDS.InstanceHandle_T; Locator : in DDS.Locator_T)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Destination_Unreachable unimplemented");
+      raise Program_Error
+        with "Unimplemented procedure On_Destination_Unreachable";
+   end On_Destination_Unreachable;
+
+   ---------------------
+   -- On_Data_Request --
+   ---------------------
+
+   procedure On_Data_Request
+     (Self    :        not null access DataReader_Listner;
+      Writer  :    access DDS.DataWriter.Ref'Class; Cookie : in DDS.Cookie_T;
+      Request : in out System.Address)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Data_Request unimplemented");
+      raise Program_Error with "Unimplemented procedure On_Data_Request";
+   end On_Data_Request;
+
+   --------------------
+   -- On_Data_Return --
+   --------------------
+
+   procedure On_Data_Return
+     (Self   :    not null access DataReader_Listner;
+      Writer :    access DDS.DataWriter.Ref'Class; arg : System.Address;
+      Cookie : in DDS.Cookie_T)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Data_Return unimplemented");
+      raise Program_Error with "Unimplemented procedure On_Data_Return";
+   end On_Data_Return;
+
+   -----------------------
+   -- On_Sample_Removed --
+   -----------------------
+
+   procedure On_Sample_Removed
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class; Cookie : in DDS.Cookie_T)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Sample_Removed unimplemented");
+      raise Program_Error with "Unimplemented procedure On_Sample_Removed";
+   end On_Sample_Removed;
+
+   --------------------------
+   -- On_Instance_Replaced --
+   --------------------------
+
+   procedure On_Instance_Replaced
+     (Self     :    not null access DataReader_Listner;
+      Writer   :    access DDS.DataWriter.Ref'Class;
+      Instance : in DDS.InstanceHandle_T)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Instance_Replaced unimplemented");
+      raise Program_Error with "Unimplemented procedure On_Instance_Replaced";
+   end On_Instance_Replaced;
+
+   -----------------------------------
+   -- On_Application_Acknowledgment --
+   -----------------------------------
+
+   procedure On_Application_Acknowledgment
+     (Self   :    not null access DataReader_Listner;
+      Writer :    access DDS.DataWriter.Ref'Class;
+      Info   : in DDS.AcknowledgmentInfo)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Application_Acknowledgment unimplemented");
+      raise Program_Error
+        with "Unimplemented procedure On_Application_Acknowledgment";
+   end On_Application_Acknowledgment;
+
+   ---------------------------------
+   -- On_Service_Request_Accepted --
+   ---------------------------------
+
+   procedure On_Service_Request_Accepted
+     (Self   :    not null access DataReader_Listner;
+      Writer :    access DDS.DataWriter.Ref'Class;
+      Info   : in DDS.ServiceRequestAcceptedStatus)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Service_Request_Accepted unimplemented");
+      raise Program_Error
+        with "Unimplemented procedure On_Service_Request_Accepted";
+   end On_Service_Request_Accepted;
+
+   ----------------------------------
+   -- On_Requested_Deadline_Missed --
+   ----------------------------------
+
+   procedure On_Requested_Deadline_Missed
+     (Self       :    not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access;
+      Status     : in DDS.RequestedDeadlineMissedStatus)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Requested_Deadline_Missed unimplemented");
+      raise Program_Error
+        with "Unimplemented procedure On_Requested_Deadline_Missed";
+   end On_Requested_Deadline_Missed;
+
+   -----------------------------------
+   -- On_Requested_Incompatible_Qos --
+   -----------------------------------
+
+   procedure On_Requested_Incompatible_Qos
+     (Self       :    not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access;
+      Status     : in DDS.RequestedIncompatibleQosStatus)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Requested_Incompatible_Qos unimplemented");
+      raise Program_Error
+        with "Unimplemented procedure On_Requested_Incompatible_Qos";
+   end On_Requested_Incompatible_Qos;
+
+   ------------------------
+   -- On_Sample_Rejected --
+   ------------------------
+
+   procedure On_Sample_Rejected
+     (Self       :    not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access;
+      Status     : in DDS.SampleRejectedStatus)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Sample_Rejected unimplemented");
+      raise Program_Error with "Unimplemented procedure On_Sample_Rejected";
+   end On_Sample_Rejected;
+
+   ---------------------------
+   -- On_Liveliness_Changed --
+   ---------------------------
+
+   procedure On_Liveliness_Changed
+     (Self       :    not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access;
+      Status     : in DDS.LivelinessChangedStatus)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Liveliness_Changed unimplemented");
+      raise Program_Error with "Unimplemented procedure On_Liveliness_Changed";
+   end On_Liveliness_Changed;
+
+   -----------------------
+   -- On_Data_Available --
+   -----------------------
+
+   procedure On_Data_Available
+     (Self       :    not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Data_Available unimplemented");
+      raise Program_Error with "Unimplemented procedure On_Data_Available";
+   end On_Data_Available;
+
+   -----------------------------
+   -- On_Subscription_Matched --
+   -----------------------------
+
+   procedure On_Subscription_Matched
+     (Self       :    not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access;
+      Status     : in DDS.SubscriptionMatchedStatus)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Subscription_Matched unimplemented");
+      raise Program_Error
+        with "Unimplemented procedure On_Subscription_Matched";
+   end On_Subscription_Matched;
+
+   --------------------
+   -- On_Sample_Lost --
+   --------------------
+
+   procedure On_Sample_Lost
+     (Self       :    not null access DataWriter_Listner;
+      The_Reader : in DDS.DataReaderListener.DataReader_Access;
+      Status     : in DDS.SampleLostStatus)
+   is
+   begin
+      pragma Compile_Time_Warning (Standard.True,
+         "On_Sample_Lost unimplemented");
+      raise Program_Error with "Unimplemented procedure On_Sample_Lost";
+   end On_Sample_Lost;
 
 end DDS.Typed_Requester_Generic;

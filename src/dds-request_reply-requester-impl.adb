@@ -1,5 +1,5 @@
 pragma Ada_2012;
-package body DDS.Requester.Impl is
+package body DDS.Request_Reply.Requester.Impl is
 
    -----------------------------
    -- Get_Request_Data_Writer --
