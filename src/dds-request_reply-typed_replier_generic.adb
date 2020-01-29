@@ -1,33 +1,23 @@
 pragma Ada_2012;
+
 package body DDS.Request_Reply.Typed_Replier_Generic is
-
+   use type DDS.Publisher.Ref_Access;
+   use type DDS.Subscriber.Ref_Access;
    -----------------------------
-   -- Get_Request_Data_Writer --
+   -- Get_Request_Data_Reader --
    -----------------------------
 
-   function Get_Request_Data_Writer
-     (Self : not null access Ref) return DDS.DataWriter.Ref_Access
-   is
-   begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Get_Request_Data_Writer unimplemented");
-      return raise Program_Error
-          with "Unimplemented function Get_Request_Data_Writer";
-   end Get_Request_Data_Writer;
-
-   ---------------------------
-   -- Get_Reply_Data_Reader --
-   ---------------------------
-
-   function Get_Reply_Data_Reader
+   function Get_Request_Data_Reader
      (Self : not null access Ref) return DDS.DataReader.Ref_Access
-   is
-   begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Get_Reply_Data_Reader unimplemented");
-      return raise Program_Error
-          with "Unimplemented function Get_Reply_Data_Reader";
-   end Get_Reply_Data_Reader;
+   is (DDS.DataReader.Ref_Access (Self.Reply_DataWriter));
+
+   ---------------------------
+   -- Get_Reply_Data_Writer --
+   ---------------------------
+
+   function Get_Reply_Data_Writer
+     (Self : not null access Ref) return DDS.DataWriter.Ref_Access
+   is (DDS.DataWriter.Ref_Access (Self.Reply_DataWriter));
 
    ------------
    -- Create --
@@ -35,16 +25,28 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
 
    function Create
      (Participant      : DDS.DomainParticipant.Ref_Access;
-      Service_Name     : DDS.String; Qos_Library_Name : DDS.String;
+      Service_Name     : DDS.String;
+      Qos_Library_Name : DDS.String;
       Qos_Profile_Name : DDS.String;
       Publisher        : DDS.Publisher.Ref_Access     := null;
       Subscriber       : DDS.Subscriber.Ref_Access    := null;
       A_Listner        : Replyer_Listeners.Ref_Access := null;
-      Mask : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask             : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
    is
+      Dummy              : aliased Ref;
+      Request_Topic_Name : DDS.String := Dummy.Create_Request_Topic_Name_From_Service_Name (Service_Name);
+      Reply_Topic_Name   : DDS.String := Dummy.Create_Reply_Topic_Name_From_Service_Name (Service_Name);
+      Ret                : Ref_Access;
    begin
-      pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
-      return raise Program_Error with "Unimplemented function Create";
+      Ret := Create (Participant,
+                     Request_Topic_Name, Reply_Topic_Name,
+                     Qos_Library_Name, Qos_Profile_Name,
+                     Publisher, Subscriber,
+                     A_Listner, Mask);
+      Finalize (Request_Topic_Name);
+      Finalize (Reply_Topic_Name);
+      return Ret;
+
    end Create;
 
    ------------
@@ -53,15 +55,66 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
 
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
-      Request_Topic_Name : DDS.String; Reply_Topic_Name : DDS.String;
-      Qos_Library_Name   : DDS.String; Qos_Profile_Name : DDS.String;
+      Request_Topic_Name : DDS.String;
+      Reply_Topic_Name   : DDS.String;
+      Qos_Library_Name   : DDS.String;
+      Qos_Profile_Name   : DDS.String;
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
       A_Listner          : Replyer_Listeners.Ref_Access := null;
-      Mask : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask               : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
    is
+      Ret : Ref_Access := new Ref;
    begin
-      pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
+      Ret.Participant := Participant;
+      Ret.Validate (Publisher, Subscriber);
+
+      Ret.Reply_Topic := Ret.Create_Reply_Topic_With_Profile
+        (Topic_Name       => Reply_Topic_Name,
+         Type_Name        => Reply_DataWriters.Treats.Get_Type_Name,
+         Qos_Library_Name => Qos_Library_Name,
+         Qos_Profile_Name => Qos_Profile_Name);
+
+      Ret.Request_Topic := Ret.Create_Request_Topic_With_Profile
+        (Topic_Name       => Request_Topic_Name,
+         Type_Name        => Request_DataReaders.Treats.Get_Type_Name,
+         Qos_Library_Name => Qos_Library_Name,
+         Qos_Profile_Name => Qos_Profile_Name);
+
+      Ret.Reply_DataWriter := Reply_DataWriters.Ref_Access
+        ((if Publisher = null
+         then
+            Participant.Create_DataWriter_With_Profile
+           (A_Topic      => Ret.Reply_Topic,
+            Library_Name => Qos_Library_Name,
+            Profile_Name => Qos_Profile_Name,
+            A_Listener   => Ret.Writer_Listner'Unrestricted_Access,
+            Mask         => Mask)
+         else
+            Publisher.Create_DataWriter_With_Profile
+           (A_Topic      => Ret.Request_Topic,
+            Library_Name => Qos_Library_Name,
+            Profile_Name => Qos_Profile_Name,
+            A_Listener   => Ret.Writer_Listner'Unrestricted_Access,
+            Mask         => Mask)));
+
+      Ret.Request_DataReader := Request_DataReaders.Ref_Access
+        ((if Subscriber = null
+         then
+            Participant.Create_DataReader_With_Profile
+           (Topic      => Ret.Reply_Topic.As_TopicDescription,
+            Library_Name => Qos_Library_Name,
+            Profile_Name => Qos_Profile_Name,
+            A_Listener   => Ret.Reader_Listner'Unrestricted_Access,
+            Mask         => Mask)
+         else
+            Subscriber.Create_DataReader_With_Profile
+           (Topic      => Ret.Request_Topic.As_TopicDescription,
+            Library_Name => Qos_Library_Name,
+            Profile_Name => Qos_Profile_Name,
+            A_Listener   => Ret.Reader_Listner'Unrestricted_Access,
+            Mask         => Mask)));
+
       return raise Program_Error with "Unimplemented function Create";
    end Create;
 
@@ -71,16 +124,27 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
 
    function Create
      (Participant    : DDS.DomainParticipant.Ref_Access;
-      Service_Name   : DDS.String; Datawriter_Qos : DDS.DataWriterQos;
+      Service_Name   : DDS.String;
+      Datawriter_Qos : DDS.DataWriterQos;
       Datareader_Qos : DDS.DataReaderQos;
       Publisher      : DDS.Publisher.Ref_Access     := null;
       Subscriber     : DDS.Subscriber.Ref_Access    := null;
       A_Listner      : Replyer_Listeners.Ref_Access := null;
-      Mask : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask           : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
    is
+      Dummy              : aliased Ref;
+      Request_Topic_Name : DDS.String := Dummy.Create_Request_Topic_Name_From_Service_Name (Service_Name);
+      Reply_Topic_Name   : DDS.String := Dummy.Create_Reply_Topic_Name_From_Service_Name (Service_Name);
+      Ret                : Ref_Access;
    begin
-      pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
-      return raise Program_Error with "Unimplemented function Create";
+      Ret :=  Create (Participant,
+                      Request_Topic_Name, Reply_Topic_Name,
+                      Datawriter_Qos, Datareader_Qos,
+                      Publisher, Subscriber,
+                      A_Listner, Mask);
+      Finalize (Request_Topic_Name);
+      Finalize (Reply_Topic_Name);
+      return Ret;
    end Create;
 
    ------------
@@ -89,15 +153,20 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
 
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
-      Request_Topic_Name : DDS.String; Reply_Topic_Name : DDS.String;
-      Datawriter_Qos : DDS.DataWriterQos; Datareader_Qos : DDS.DataReaderQos;
+      Request_Topic_Name : DDS.String;
+      Reply_Topic_Name   : DDS.String;
+      Datawriter_Qos     : DDS.DataWriterQos;
+      Datareader_Qos     : DDS.DataReaderQos;
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
       A_Listner          : Replyer_Listeners.Ref_Access := null;
-      Mask : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask               : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
    is
+      Ret : Ref_Access := new Ref;
    begin
-      pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
+      --        Ret.Create_Reply_Topic (Reply_Topic_Name, Reply_DataWriters.Treats.Get_Type_Name);
+      --        Ret.Create_Request_Topic (Request_Topic_Name, Request_DataReaders.Treats.Get_Type_Name);
+      --        pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
       return raise Program_Error with "Unimplemented function Create";
    end Create;
 
@@ -107,7 +176,7 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
 
    procedure Delete (Self : in out Ref_Access) is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Delete unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True, "Delete unimplemented");
       raise Program_Error with "Unimplemented procedure Delete";
    end Delete;
 
@@ -121,7 +190,7 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Id    : access DDS.SampleIdentity_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Send_Reply unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True, "Send_Reply unimplemented");
       return raise Program_Error with "Unimplemented function Send_Reply";
    end Send_Reply;
 
@@ -134,7 +203,7 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Id   : DDS.SampleIdentity_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Send_Reply unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True, "Send_Reply unimplemented");
       return raise Program_Error with "Unimplemented function Send_Reply";
    end Send_Reply;
 
@@ -148,7 +217,7 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Id    : access DDS.SampleIdentity_T)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Send_Reply unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True, "Send_Reply unimplemented");
       raise Program_Error with "Unimplemented procedure Send_Reply";
    end Send_Reply;
 
@@ -161,7 +230,7 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Id   : DDS.SampleIdentity_T)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Send_Reply unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True, "Send_Reply unimplemented");
       raise Program_Error with "Unimplemented procedure Send_Reply";
    end Send_Reply;
 
@@ -177,8 +246,8 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
      .ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Receive_Request unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --           "Receive_Request unimplemented");
       return raise Program_Error with "Unimplemented function Receive_Request";
    end Receive_Request;
 
@@ -193,8 +262,8 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Timeout  :        DDS.Duration_T := DDS.DURATION_INFINITE)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Receive_Request unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --           "Receive_Request unimplemented");
       raise Program_Error with "Unimplemented procedure Receive_Request";
    end Receive_Request;
 
@@ -207,8 +276,8 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       return Request_DataReaders.Container
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Receive_Request unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --           "Receive_Request unimplemented");
       return raise Program_Error with "Unimplemented function Receive_Request";
    end Receive_Request;
 
@@ -217,9 +286,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
    ----------------------
 
    function Receive_Requests
-     (Self     : not null access Ref;
-      Requests : not null Request_DataReaders.Treats.Data_Sequences
-        .Sequence_Access;
+     (Self               : not null access Ref;
+      Requests           : not null Request_DataReaders.Treats.Data_Sequences
+      .Sequence_Access;
       Sample_Info        : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Requests_Count : DDS.long       := 1;
       Max_Requests_Count : DDS.long       := DDS.INFINITE;
@@ -227,10 +296,10 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
      .ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Receive_Requests unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --           "Receive_Requests unimplemented");
       return raise Program_Error
-          with "Unimplemented function Receive_Requests";
+        with "Unimplemented function Receive_Requests";
    end Receive_Requests;
 
    ----------------------
@@ -238,17 +307,17 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
    ----------------------
 
    procedure Receive_Requests
-     (Self     : not null access Ref;
-      Requests : not null Request_DataReaders.Treats.Data_Sequences
-        .Sequence_Access;
+     (Self            : not null access Ref;
+      Requests        : not null Request_DataReaders.Treats.Data_Sequences
+      .Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count : DDS.long       := 1;
       Max_Reply_Count : DDS.long       := DDS.INFINITE;
       Timeout         : DDS.Duration_T := DDS.DURATION_INFINITE)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Receive_Requests unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --           "Receive_Requests unimplemented");
       raise Program_Error with "Unimplemented procedure Receive_Requests";
    end Receive_Requests;
 
@@ -258,15 +327,15 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
 
    procedure Receive_Requests
      (Self            :        not null access Ref;
-      Requests : in out Request_DataReaders.Treats.Data_Sequences.Sequence;
+      Requests        : in out Request_DataReaders.Treats.Data_Sequences.Sequence;
       Sample_Info     : in out DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count :        DDS.long       := 1;
       Max_Reply_Count :        DDS.long       := DDS.INFINITE;
       Timeout         :        DDS.Duration_T := DDS.DURATION_INFINITE)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Receive_Requests unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --           "Receive_Requests unimplemented");
       raise Program_Error with "Unimplemented procedure Receive_Requests";
    end Receive_Requests;
 
@@ -275,14 +344,15 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
    ---------------------
 
    function Receive_Request
-     (Self            : not null access Ref; Min_Reply_Count : DDS.long := 1;
+     (Self            : not null access Ref;
+      Min_Reply_Count : DDS.long := 1;
       Max_Reply_Count : DDS.long       := DDS.INFINITE;
       Timeout         : DDS.Duration_T := DDS.DURATION_INFINITE)
       return Request_DataReaders.Container
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Receive_Request unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --                                     "Receive_Request unimplemented");
       return raise Program_Error with "Unimplemented function Receive_Request";
    end Receive_Request;
 
@@ -291,16 +361,16 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
    ---------------------
 
    function Receive_Request
-     (Self     : not null access Ref;
-      Requests : not null Request_DataReaders.Treats.Data_Sequences
-        .Sequence_Access;
+     (Self            : not null access Ref;
+      Requests        : not null Request_DataReaders.Treats.Data_Sequences
+      .Sequence_Access;
       Sample_Info     : not null DDS.SampleInfo_Seq.Sequence_Access;
       Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
       Timeout         : Duration) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Receive_Request unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --                                     "Receive_Request unimplemented");
       return raise Program_Error with "Unimplemented function Receive_Request";
    end Receive_Request;
 
@@ -314,8 +384,8 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       return Request_DataReaders.Container
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Receive_Request unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --                                     "Receive_Request unimplemented");
       return raise Program_Error with "Unimplemented function Receive_Request";
    end Receive_Request;
 
@@ -330,8 +400,8 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Timeout     :         DDS.Duration_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Take_Request unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --                                     "Take_Request unimplemented");
       return raise Program_Error with "Unimplemented function Take_Request";
    end Take_Request;
 
@@ -340,17 +410,17 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
    ------------------
 
    function Take_Request
-     (Self     : not null access Ref;
-      Requests : not null Request_DataReaders.Treats.Data_Sequences
-        .Sequence_Access;
+     (Self            : not null access Ref;
+      Requests        : not null Request_DataReaders.Treats.Data_Sequences
+      .Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count : DDS.Natural := 1;
       Max_Reply_Count : DDS.long    := DDS.INFINITE; Timeout : DDS.Duration_T)
       return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Take_Request unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --                                     "Take_Request unimplemented");
       return raise Program_Error with "Unimplemented function Take_Request";
    end Take_Request;
 
@@ -364,8 +434,8 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       return Request_DataReaders.Container
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Take_Request unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --                                     "Take_Request unimplemented");
       return raise Program_Error with "Unimplemented function Take_Request";
    end Take_Request;
 
@@ -380,8 +450,8 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Timeout     :         DDS.Duration_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Read_Request unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --                                     "Read_Request unimplemented");
       return raise Program_Error with "Unimplemented function Read_Request";
    end Read_Request;
 
@@ -390,16 +460,16 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
    ------------------
 
    function Read_Request
-     (Self     : not null access Ref;
-      Requests : not null Request_DataReaders.Treats.Data_Sequences
-        .Sequence_Access;
+     (Self            : not null access Ref;
+      Requests        : not null Request_DataReaders.Treats.Data_Sequences
+      .Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
       Timeout         : DDS.Duration_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Read_Request unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --                                     "Read_Request unimplemented");
       return raise Program_Error with "Unimplemented function Read_Request";
    end Read_Request;
 
@@ -413,8 +483,8 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       return Request_DataReaders.Container'Class
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Read_Request unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --                                     "Read_Request unimplemented");
       return raise Program_Error with "Unimplemented function Read_Request";
    end Read_Request;
 
@@ -423,13 +493,13 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
    -----------------
 
    procedure Return_Loan
-     (Self    : not null access Ref;
-      Replies : not null Request_DataReaders.Treats.Data_Sequences
-        .Sequence_Access;
+     (Self        : not null access Ref;
+      Replies     : not null Request_DataReaders.Treats.Data_Sequences
+      .Sequence_Access;
       Sample_Info : DDS.SampleInfo_Seq.Sequence_Access)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Return_Loan unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True, "Return_Loan unimplemented");
       raise Program_Error with "Unimplemented procedure Return_Loan";
    end Return_Loan;
 
@@ -443,7 +513,7 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Sample_Info : DDS.SampleInfo_Seq.Sequence)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Return_Loan unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True, "Return_Loan unimplemented");
       raise Program_Error with "Unimplemented procedure Return_Loan";
    end Return_Loan;
 
@@ -453,7 +523,7 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
 
    procedure Delete (This : in out Ref) is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Delete unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True, "Delete unimplemented");
       raise Program_Error with "Unimplemented procedure Delete";
    end Delete;
 
@@ -465,10 +535,10 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
      (Self : not null access Ref) return Request_DataReaders.Ref_Access
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Get_Request_DataReader unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --                                     "Get_Request_DataReader unimplemented");
       return raise Program_Error
-          with "Unimplemented function Get_Request_DataReader";
+        with "Unimplemented function Get_Request_DataReader";
    end Get_Request_DataReader;
 
    --------------------------
@@ -479,12 +549,17 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
      (Self : not null access Ref) return Reply_DataWriters.Ref_Access
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "Get_Reply_Datawriter unimplemented");
+      --        pragma Compile_Time_Warning (Standard.True,
+      --                                     "Get_Reply_Datawriter unimplemented");
       return raise Program_Error
-          with "Unimplemented function Get_Reply_Datawriter";
+        with "Unimplemented function Get_Reply_Datawriter";
    end Get_Reply_Datawriter;
 
+
+   --===========================================================================
+   --===========================================================================
+
+   use type Replyer_Listeners.Ref_Access;
    --------------------------------
    -- On_Offered_Deadline_Missed --
    --------------------------------
@@ -495,10 +570,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Status : in DDS.OfferedDeadlineMissedStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Offered_Deadline_Missed unimplemented");
-      raise Program_Error
-        with "Unimplemented procedure On_Offered_Deadline_Missed";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Offered_Deadline_Missed (Self.Parent.all'Access, Status);
+      end if;
    end On_Offered_Deadline_Missed;
 
    -----------------------
@@ -510,9 +584,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       The_Reader : in DDS.DataReaderListener.DataReader_Access)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Data_Available unimplemented");
-      raise Program_Error with "Unimplemented procedure On_Data_Available";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Request_Avalible (Self.Parent.all'Access);
+      end if;
    end On_Data_Available;
 
    ---------------------------------
@@ -525,10 +599,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Status : in DDS.OfferedIncompatibleQosStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Offered_Incompatible_Qos unimplemented");
-      raise Program_Error
-        with "Unimplemented procedure On_Offered_Incompatible_Qos";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Offered_Incompatible_Qos (Self.Parent.all'Access, Status);
+      end if;
    end On_Offered_Incompatible_Qos;
 
    ------------------------
@@ -541,9 +614,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Status : in DDS.LivelinessLostStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Liveliness_Lost unimplemented");
-      raise Program_Error with "Unimplemented procedure On_Liveliness_Lost";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Liveliness_Lost (Self.Parent.all'Access, Status);
+      end if;
    end On_Liveliness_Lost;
 
    ----------------------------
@@ -556,10 +629,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Status : in DDS.PublicationMatchedStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Publication_Matched unimplemented");
-      raise Program_Error
-        with "Unimplemented procedure On_Publication_Matched";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Publication_Matched (Self.Parent.all'Access, Status);
+      end if;
    end On_Publication_Matched;
 
    --------------------------------------
@@ -567,15 +639,14 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
    --------------------------------------
 
    procedure On_Reliable_Writer_Cache_Changed
-     (Self   :    not null access DataReader_Listner;
-      Writer :    access DDS.DataWriter.Ref'Class;
+     (Self   : not null access DataReader_Listner;
+      Writer : access DDS.DataWriter.Ref'Class;
       Status : in DDS.ReliableWriterCacheChangedStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Reliable_Writer_Cache_Changed unimplemented");
-      raise Program_Error
-        with "Unimplemented procedure On_Reliable_Writer_Cache_Changed";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Reliable_Writer_Cache_Changed (Self.Parent.all'Access, Status);
+      end if;
    end On_Reliable_Writer_Cache_Changed;
 
    -----------------------------------------
@@ -588,10 +659,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Status : in DDS.ReliableReaderActivityChangedStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Reliable_Reader_Activity_Changed unimplemented");
-      raise Program_Error
-        with "Unimplemented procedure On_Reliable_Reader_Activity_Changed";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Reliable_Reader_Activity_Changed (Self.Parent.all'Access, Status);
+      end if;
    end On_Reliable_Reader_Activity_Changed;
 
    --------------------------------
@@ -604,10 +674,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Instance : in DDS.InstanceHandle_T; Locator : in DDS.Locator_T)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Destination_Unreachable unimplemented");
-      raise Program_Error
-        with "Unimplemented procedure On_Destination_Unreachable";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Destination_Unreachable (Self.Parent.all'Access, Instance, Locator);
+      end if;
    end On_Destination_Unreachable;
 
    ---------------------
@@ -616,13 +685,14 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
 
    procedure On_Data_Request
      (Self    :        not null access DataReader_Listner;
-      Writer  :    access DDS.DataWriter.Ref'Class; Cookie : in DDS.Cookie_T;
+      Writer  :    access DDS.DataWriter.Ref'Class;
+      Cookie  : in DDS.Cookie_T;
       Request : in out System.Address)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Data_Request unimplemented");
-      raise Program_Error with "Unimplemented procedure On_Data_Request";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Data_Request (Self.Parent.all'Access, Cookie, Request);
+      end if;
    end On_Data_Request;
 
    --------------------
@@ -631,13 +701,14 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
 
    procedure On_Data_Return
      (Self   :    not null access DataReader_Listner;
-      Writer :    access DDS.DataWriter.Ref'Class; arg : System.Address;
+      Writer :    access DDS.DataWriter.Ref'Class;
+      Arg    : System.Address;
       Cookie : in DDS.Cookie_T)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Data_Return unimplemented");
-      raise Program_Error with "Unimplemented procedure On_Data_Return";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Data_Return (Self.Parent.all'Access, Arg, Cookie);
+      end if;
    end On_Data_Return;
 
    -----------------------
@@ -646,12 +717,13 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
 
    procedure On_Sample_Removed
      (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class; Cookie : in DDS.Cookie_T)
+      Writer : access DDS.DataWriter.Ref'Class;
+      Cookie : in DDS.Cookie_T)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Sample_Removed unimplemented");
-      raise Program_Error with "Unimplemented procedure On_Sample_Removed";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Sample_Removed (Self.Parent.all'Access, Cookie);
+      end if;
    end On_Sample_Removed;
 
    --------------------------
@@ -664,9 +736,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Instance : in DDS.InstanceHandle_T)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Instance_Replaced unimplemented");
-      raise Program_Error with "Unimplemented procedure On_Instance_Replaced";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Instance_Replaced (Self.Parent.all'Access, Instance);
+      end if;
    end On_Instance_Replaced;
 
    -----------------------------------
@@ -679,10 +751,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Info   : in DDS.AcknowledgmentInfo)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Application_Acknowledgment unimplemented");
-      raise Program_Error
-        with "Unimplemented procedure On_Application_Acknowledgment";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Application_Acknowledgment (Self.Parent.all'Access, Info);
+      end if;
    end On_Application_Acknowledgment;
 
    ---------------------------------
@@ -695,10 +766,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Info   : in DDS.ServiceRequestAcceptedStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Service_Request_Accepted unimplemented");
-      raise Program_Error
-        with "Unimplemented procedure On_Service_Request_Accepted";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Service_Request_Accepted (Self.Parent.all'Access, Info);
+      end if;
    end On_Service_Request_Accepted;
 
    ----------------------------------
@@ -711,10 +781,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Status     : in DDS.RequestedDeadlineMissedStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Requested_Deadline_Missed unimplemented");
-      raise Program_Error
-        with "Unimplemented procedure On_Requested_Deadline_Missed";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Requested_Deadline_Missed (Self.Parent.all'Access, Status);
+      end if;
    end On_Requested_Deadline_Missed;
 
    -----------------------------------
@@ -727,10 +796,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Status     : in DDS.RequestedIncompatibleQosStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Requested_Incompatible_Qos unimplemented");
-      raise Program_Error
-        with "Unimplemented procedure On_Requested_Incompatible_Qos";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Requested_Incompatible_Qos (Self.Parent.all'Access, Status);
+      end if;
    end On_Requested_Incompatible_Qos;
 
    ------------------------
@@ -743,9 +811,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Status     : in DDS.SampleRejectedStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Sample_Rejected unimplemented");
-      raise Program_Error with "Unimplemented procedure On_Sample_Rejected";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Sample_Rejected (Self.Parent.all'Access, Status);
+      end if;
    end On_Sample_Rejected;
 
    ---------------------------
@@ -758,24 +826,24 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Status     : in DDS.LivelinessChangedStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Liveliness_Changed unimplemented");
-      raise Program_Error with "Unimplemented procedure On_Liveliness_Changed";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Liveliness_Changed (Self.Parent.all'Access, Status);
+      end if;
    end On_Liveliness_Changed;
 
    -----------------------
    -- On_Data_Available --
    -----------------------
 
-   procedure On_Data_Available
-     (Self       :    not null access DataWriter_Listner;
-      The_Reader : in DDS.DataReaderListener.DataReader_Access)
-   is
-   begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Data_Available unimplemented");
-      raise Program_Error with "Unimplemented procedure On_Data_Available";
-   end On_Data_Available;
+   --     procedure On_Data_Available
+   --       (Self       :    not null access DataWriter_Listner;
+   --        The_Reader : in DDS.DataReaderListener.DataReader_Access)
+   --     is
+   --     begin
+   --        if Self.Parent.Listner /= null then
+   --           Self.Parent.Listner.On_Request_Avalible (Self.all'Access);
+   --        end if;
+   --     end On_Data_Available;
 
    -----------------------------
    -- On_Subscription_Matched --
@@ -787,10 +855,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Status     : in DDS.SubscriptionMatchedStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Subscription_Matched unimplemented");
-      raise Program_Error
-        with "Unimplemented procedure On_Subscription_Matched";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Subscription_Matched (Self.Parent.all'Access, Status);
+      end if;
    end On_Subscription_Matched;
 
    --------------------
@@ -803,9 +870,9 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       Status     : in DDS.SampleLostStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True,
-         "On_Sample_Lost unimplemented");
-      raise Program_Error with "Unimplemented procedure On_Sample_Lost";
+      if Self.Parent.Listner /= null then
+         Self.Parent.Listner.On_Sample_Lost (Self.Parent.all'Access, Status);
+      end if;
    end On_Sample_Lost;
 
-end DDS.Typed_Replier_Generic;
+end DDS.Request_Reply.Typed_Replier_Generic;

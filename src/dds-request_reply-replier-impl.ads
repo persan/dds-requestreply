@@ -1,7 +1,8 @@
-with Dds.Topic;
+with DDS.Topic;
 with DDS.Entity_Params;
+with DDS.Request_Reply.impl;
 package DDS.Request_Reply.Replier.Impl is
-   type Ref is limited new Replier.Ref with private;
+   type Ref is limited new DDS.Request_Reply.Impl.Ref and Replier.Ref with private;
    type Ref_Access is access all Ref;
 
 
@@ -21,7 +22,7 @@ package DDS.Request_Reply.Replier.Impl is
       Min_Count : DDS.Integer;
       Max_Wait  : DDS.Duration_T);
 private
-   type Ref is limited new Replier.Ref with record
+   type Ref is limited new DDS.Request_Reply.Impl.Ref and Replier.Ref with record
       null;
    end record;
 

@@ -1,6 +1,7 @@
 with DDS.ReadCondition;
+with DDS.Request_Reply.impl;
 package DDS.Request_Reply.Requester.Impl is
-   type Ref is abstract new DDS.Requester.Ref with private;
+   type Ref is abstract limited new DDS.Request_Reply.impl.ref and DDS.Request_Reply.Requester.Ref with private;
    type Ref_Access is access all Ref'Class;
 
    function Get_Request_Data_Writer
@@ -24,7 +25,7 @@ package DDS.Request_Reply.Requester.Impl is
 
 
 private
-   type Ref is abstract new DDS.Requester.Ref with record
+   type Ref is abstract limited new DDS.Request_Reply.impl.ref and DDS.Request_Reply.Requester.Ref with record
       null;
    end record;
-end DDS.Requester.Impl;
+end DDS.Request_Reply.Requester.Impl;

@@ -5,14 +5,15 @@ with DDS.Topic;
 with DDS.DomainParticipant;
 with DDS.Subscriber;
 with DDS.Publisher;
+with DDS.Request_Reply.impl;
 private with RTIDDS.Low_Level.ndds_connext_c_connext_c_requester_h;
 
 generic
    with package Request_DataWriters is new DDS.Typed_DataWriter_Generic (<>);
    with package Reply_DataReaders is new DDS.Typed_DataReader_Generic (<>);
-package Dds.Request_Reply.Request_Generic is
+package DDS.Request_Reply.Request_Generic is
 
-   type Ref (<>) is limited new Dds.Entity_Impl.Ref and Dds.Request_Reply.Ref with private;
+   type Ref (<>) is limited new  Dds.Request_Reply.impl.Ref and Dds.Request_Reply.Ref with private;
    type Ref_Access is access all Ref'Class;
 
    function Create (Participant         : DDS.DomainParticipant.Ref_Access;
@@ -230,7 +231,7 @@ private
    function Create (Participant   : not null DDS.DomainParticipant.Ref_Access;
                     Params        : in Request_Params) return Ref_Access;
 
-   type Ref is limited new Dds.Entity_Impl.Ref and Dds.Request_Reply.Ref with record
+   type Ref is limited new Dds.Request_Reply.Impl.Ref and Dds.Request_Reply.Ref with record
       Request_Topic      : DDS.Topic.Ref_Access;
       Reply_Topic        : DDS.Topic.Ref_Access;
       Request_DataWriter : Request_DataWriters.Ref_Access;

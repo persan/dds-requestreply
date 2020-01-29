@@ -3,8 +3,9 @@ with DDS.DataReader;
 with DDS.DataWriter;
 with DDS.Topic;
 with DDS.Entity_Params;
+with DDS.Request_Reply;
 package DDS.Request_Reply.Requester is
-   type Ref is interface;
+   type Ref is limited interface and DDS.Request_Reply.Ref;
    type Ref_Access is access all Ref'Class;
 
 
@@ -34,4 +35,4 @@ package DDS.Request_Reply.Requester is
      (Self             : not null access Ref;
       Service_Name     : DDS.String) return DDS.String is abstract;
 
-end DDS.Requester;
+end DDS.Request_Reply.Requester;

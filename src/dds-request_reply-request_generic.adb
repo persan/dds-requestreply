@@ -6,7 +6,7 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-package body Dds.Request_Reply.Request_Generic is
+package body DDS.Request_Reply.Request_Generic is
 
    ------------
    -- Create --

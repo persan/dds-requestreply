@@ -203,7 +203,7 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
    function Send_Request
      (Self            : not null access Ref;
       Request         : access Request_DataWriters.Treats.Data_Type;
-      Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.Long;
+      Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
       Timeout : DDS.Duration_T := DURATION_INFINITE) return Reply_DataReaders
      .Container
    is
@@ -267,7 +267,7 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
       Replies : not null Reply_DataReaders.Treats.Data_Sequences
         .Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.Long;
+      Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
       Timeout         : DDS.Duration_T) return DDS.ReturnCode_T
    is
    begin
@@ -285,7 +285,7 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
       Replies : not null Reply_DataReaders.Treats.Data_Sequences
         .Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.Long;
+      Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
       Timeout         : DDS.Duration_T)
    is
    begin
@@ -300,7 +300,7 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
 
    function Receive_Replies
      (Self            : not null access Ref; Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.Long; Timeout : DDS.Duration_T)
+      Max_Reply_Count : DDS.long; Timeout : DDS.Duration_T)
       return Reply_DataReaders.Container
    is
    begin
@@ -318,7 +318,7 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
       Replies : not null Reply_DataReaders.Treats.Data_Sequences
         .Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.Long;
+      Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
       Timeout         : Duration) return DDS.ReturnCode_T
    is
    begin
@@ -333,7 +333,7 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
 
    function Receive_Replies
      (Self            : not null access Ref; Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.Long; Timeout : Duration) return Reply_DataReaders
+      Max_Reply_Count : DDS.long; Timeout : Duration) return Reply_DataReaders
      .Container
    is
    begin
@@ -366,7 +366,7 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
       Replies : not null Reply_DataReaders.Treats.Data_Sequences
         .Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.Long;
+      Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
       Timeout         : DDS.Duration_T) return DDS.ReturnCode_T
    is
    begin
@@ -381,7 +381,7 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
 
    function Take_Replies
      (Self            : not null access Ref; Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.Long; Timeout : DDS.Duration_T)
+      Max_Reply_Count : DDS.long; Timeout : DDS.Duration_T)
       return Reply_DataReaders.Container
    is
    begin
@@ -467,7 +467,7 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
       Replies : not null Reply_DataReaders.Treats.Data_Sequences
         .Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.Long;
+      Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
       Timeout         : DDS.Duration_T) return DDS.ReturnCode_T
    is
    begin
@@ -482,7 +482,7 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
 
    function Read_Replies
      (Self            : not null access Ref; Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.Long; Timeout : DDS.Duration_T)
+      Max_Reply_Count : DDS.long; Timeout : DDS.Duration_T)
       return Reply_DataReaders.Container'Class
    is
    begin
@@ -585,7 +585,7 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
    ----------------------
 
    procedure Wait_For_Replies
-     (This : in out Ref; Min_Count : Dds.Long; Max_Wait : DDS.Duration_T)
+     (This : in out Ref; Min_Count : Dds.long; Max_Wait : DDS.Duration_T)
    is
    begin
       pragma Compile_Time_Warning (Standard.True,
@@ -598,7 +598,7 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
    -----------------------------------------
 
    procedure Wait_For_Replies_For_Related_Reques
-     (This : in out Ref; Min_Count : Dds.Long; Max_Wait : DDS.Duration_T;
+     (This : in out Ref; Min_Count : Dds.long; Max_Wait : DDS.Duration_T;
       Related_Request_Id :        DDS.SampleIdentity_T)
    is
    begin
@@ -782,7 +782,7 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
 
    procedure On_Data_Return
      (Self   :    not null access DataReader_Listner;
-      Writer :    access DDS.DataWriter.Ref'Class; arg : System.Address;
+      Writer :    access DDS.DataWriter.Ref'Class; Arg : System.Address;
       Cookie : in DDS.Cookie_T)
    is
    begin
@@ -959,4 +959,4 @@ package body DDS.Request_Reply.Typed_Requester_Generic is
       raise Program_Error with "Unimplemented procedure On_Sample_Lost";
    end On_Sample_Lost;
 
-end DDS.Typed_Requester_Generic;
+end DDS.Request_Reply.Typed_Requester_Generic;
