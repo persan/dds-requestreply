@@ -469,9 +469,6 @@ private
       The_Reader : in DDS.DataReaderListener.DataReader_Access;
       Status     : in DDS.LivelinessChangedStatus);
 
---     procedure On_Data_Available
---       (Self       : not null access DataWriter_Listner;
---        The_Reader : in DDS.DataReaderListener.DataReader_Access);
 
    procedure On_Subscription_Matched
      (Self       : not null access DataWriter_Listner;
@@ -484,9 +481,6 @@ private
       Status     : in DDS.SampleLostStatus);
 
    type Ref is new DDS.Request_Reply.Requester.Impl.Ref with record
-      Participant        : DDS.DomainParticipant.Ref_Access;
-      Request_Topic      : DDS.Topic.Ref_Access;
-      Reply_Topic        : DDS.Topic.Ref_Access;
       Reply_DataWriter   : Reply_DataWriters.Ref_Access;
       Request_DataReader : Request_DataReaders.Ref_Access;
       Listner            : Replyer_Listeners.Ref_Access;

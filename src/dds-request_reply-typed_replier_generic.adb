@@ -66,6 +66,7 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
    is
       Ret : Ref_Access := new Ref;
    begin
+
       Ret.Participant := Participant;
       Ret.Validate (Publisher, Subscriber);
 

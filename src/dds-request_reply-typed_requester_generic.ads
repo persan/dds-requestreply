@@ -11,7 +11,6 @@ with DDS.Topic;
 with DDS.Request_Reply.Requester.Impl;
 with DDS.Typed_DataWriter_Generic;
 with DDS.Typed_DataReader_Generic;
-with DDS.Request_Reply.Connext_C_Requester;
 
 generic
    with package Request_DataWriters is new DDS.Typed_DataWriter_Generic (<>);

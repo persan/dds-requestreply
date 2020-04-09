@@ -37,6 +37,10 @@ package DDS.Request_Reply.Impl is
                        Publisher  : DDS.Publisher.Ref_Access;
                        Subscriber : DDS.Subscriber.Ref_Access);
 private
-   type Ref is limited new Request_Reply.Ref with null record;
+   type Ref is limited new Request_Reply.Ref with record
+      Participant        : DDS.DomainParticipant.Ref_Access;
+      Request_Topic      : DDS.Topic.Ref_Access;
+      Reply_Topic        : DDS.Topic.Ref_Access;
+   end record;
 
 end DDS.Request_Reply.Impl;
