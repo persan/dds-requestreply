@@ -1,0 +1,37 @@
+with "../../dds-ada-request_reply.gpr";
+project DDS.Ada.Request_Reply.Tests is
+
+   for Create_Missing_Dirs use "True"; 
+   for Languages use ("Makefile", "Python", "Ada");
+   for Source_Dirs use (".", "src/**");
+   for Object_Dir use ".obj";
+   for Exec_Dir use "bin";
+   
+   for Main use project'Main & ("dds-request_reply-tests-simple-requester_main.adb");
+   for Main use project'Main & ("dds-request_reply-tests-simple-replier_main.adb");
+   
+   package Builder is
+      for Switches ("ada") use ("-j0", "-k", "-g", "-s");
+   end Builder;
+
+   package Compiler is
+      for Driver ("Makefile") use "";
+      for Driver ("Python") use "";
+      for Switches ("ada") use ("-g", "-gnatwa", "-gnaty3BOabcdfhiklnprtux");
+   end Compiler;
+
+   package Linker is
+      for Switches ("ada") use ("-g");
+   end Linker;
+
+   package Make is
+      for Makefile use "Makefile";
+   end Make;
+
+   package Naming is
+      for Spec_Suffix ("Makefile") use ".mk";
+      for Spec_Suffix ("MarkDown") use ".md";
+      for Body_Suffix ("python") use ".py";
+      for Specification_Exceptions ("Makefile") use ("Makefile");
+   end Naming;   
+end DDS.Ada.Request_Reply.Tests;

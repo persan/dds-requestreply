@@ -217,18 +217,9 @@ package DDS.Request_Reply.Typed_Requester_Generic is
 
 
 
-   procedure Send_Request
-     (Self    : not null access Ref;
-      Request : access Request_DataWriters.Treats.Data_Type);
-
-   function Send_Request
-     (Self    : not null access Ref;
-      Request : access Request_DataWriters.Treats.Data_Type) return Reply_DataReaders.Container;
-
    function Send_Request
      (Self    : not null access Ref;
       Request : Request_DataWriters.Treats.Data_Type) return Reply_DataReaders.Container;
-
 
    function Send_Request
      (Self            : not null access Ref;
@@ -239,7 +230,7 @@ package DDS.Request_Reply.Typed_Requester_Generic is
 
    procedure Send_Request
      (Self         : not null access Ref;
-      Request      : access Request_DataWriters.Treats.Data_Type;
+      Request      : Request_DataWriters.Treats.Data_Type;
       Request_Info : DDS.WriteParams_T);
 
    function Receive_Reply

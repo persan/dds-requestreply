@@ -10,14 +10,14 @@ with DDS.Topic;
 with DDS.Request_Reply.Requester.Impl;
 with DDS.Typed_DataWriter_Generic;
 with DDS.Typed_DataReader_Generic;
-with DDS.Request_Reply.Connext_C_Requester;
+-- with DDS.Request_Reply.Connext_C_Requester;
 
 generic
    with package Reply_DataWriters is new DDS.Typed_DataWriter_Generic (<>);
    with package Request_DataReaders is new DDS.Typed_DataReader_Generic (<>);
 package DDS.Request_Reply.Typed_Replier_Generic is
 
-   type Ref is new DDS.Request_Reply.Requester.Impl.Ref with private;
+   type Ref (<>) is new DDS.Request_Reply.Requester.Impl.Ref with private;
    type Ref_Access is access all Ref'Class;
 
    package Replyer_Listeners is
@@ -227,30 +227,20 @@ package DDS.Request_Reply.Typed_Replier_Generic is
 
    function Send_Reply
      (Self    : not null access Ref;
-      Reply   : access Reply_DataWriters.Treats.Data_Type;
-      Id      : access DDS.SampleIdentity_T)return DDS.ReturnCode_T;
-
-   function Send_Reply
-     (Self    : not null access Ref;
       Reply   : Reply_DataWriters.Treats.Data_Type;
       Id      : DDS.SampleIdentity_T)return DDS.ReturnCode_T;
-
-   procedure Send_Reply
-     (Self    : not null access Ref;
-      Reply   : access Reply_DataWriters.Treats.Data_Type;
-      Id      : access DDS.SampleIdentity_T);
 
    procedure Send_Reply
      (Self    : not null access Ref;
       Reply   : Reply_DataWriters.Treats.Data_Type;
       Id      : DDS.SampleIdentity_T);
 
-
    function Receive_Request
      (Self     : not null access Ref;
       Request  : in out Request_DataReaders.Treats.Data_Type;
       Info_Seq : in out DDS.SampleInfo;
       Timeout  : DDS.Duration_T := DDS.DURATION_INFINITE) return DDS.ReturnCode_T;
+
 
    procedure Receive_Request
      (Self     : not null access Ref;
@@ -262,30 +252,6 @@ package DDS.Request_Reply.Typed_Replier_Generic is
      (Self     : not null access Ref;
       Timeout  : DDS.Duration_T) return Request_DataReaders.Container;
 
-   function Receive_Requests
-     (Self                 : not null access Ref;
-      Requests             : not null Request_DataReaders.Treats.Data_Sequences.Sequence_Access;
-      Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Requests_Count   : DDS.long := 1;
-      Max_Requests_Count   : DDS.long := DDS.INFINITE;
-      Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE) return DDS.ReturnCode_T;
-
-   procedure Receive_Requests
-     (Self                 : not null access Ref;
-      Requests             : not null Request_DataReaders.Treats.Data_Sequences.Sequence_Access;
-      Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count      : DDS.long := 1;
-      Max_Reply_Count      : DDS.long := DDS.INFINITE;
-      Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE);
-
-   procedure Receive_Requests
-     (Self                 : not null access Ref;
-      Requests             : in out Request_DataReaders.Treats.Data_Sequences.Sequence;
-      Sample_Info          : in out DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count      : DDS.long := 1;
-      Max_Reply_Count      : DDS.long := DDS.INFINITE;
-      Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE);
-
 
    function Receive_Request
      (Self                 : not null access Ref;
@@ -294,57 +260,12 @@ package DDS.Request_Reply.Typed_Replier_Generic is
       Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE) return Request_DataReaders.Container;
 
 
-   function Receive_Request
-     (Self            : not null access Ref;
-      Requests        : not null Request_DataReaders.Treats.Data_Sequences.Sequence_Access;
-      Sample_Info     : not null DDS.SampleInfo_Seq.Sequence_Access;
-      Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.long;
-      Timeout         : Duration) return DDS.ReturnCode_T;
-
-
-   function Receive_Request
-     (Self            : not null access Ref;
-      Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.long;
-      Timeout         : Duration) return Request_DataReaders.Container;
-
-
-   function Take_Request
-     (Self        : not null access Ref;
-      Requests    : aliased Request_DataReaders.Treats.Data_Type;
-      Sample_Info : not null access DDS.SampleInfo_Seq.Sequence;
-      Timeout     : DDS.Duration_T) return DDS.ReturnCode_T;
-
-   function Take_Request
-     (Self            : not null access Ref;
-      Requests        : not null Request_DataReaders.Treats.Data_Sequences.Sequence_Access;
-      Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count : DDS.Natural := 1;
-      Max_Reply_Count : DDS.long := DDS.INFINITE;
-      Timeout         : DDS.Duration_T) return DDS.ReturnCode_T;
-
    function Take_Request
      (Self            : not null access Ref;
       Min_Reply_Count : DDS.Natural;
       Max_Reply_Count : DDS.long;
       Timeout         : DDS.Duration_T) return  Request_DataReaders.Container;
 
-
-
-   function Read_Request
-     (Self        : not null access Ref;
-      Request     : aliased Request_DataReaders.Treats.Data_Type;
-      Sample_Info : not null access DDS.SampleInfo_Seq.Sequence;
-      Timeout     : DDS.Duration_T) return DDS.ReturnCode_T;
-
-   function Read_Request
-     (Self            : not null access Ref;
-      Requests        : not null Request_DataReaders.Treats.Data_Sequences.Sequence_Access;
-      Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.long;
-      Timeout         : DDS.Duration_T) return DDS.ReturnCode_T;
 
    function Read_Request
      (Self            : not null access Ref;
@@ -354,7 +275,12 @@ package DDS.Request_Reply.Typed_Replier_Generic is
 
 
 
+   procedure Delete (This : in out Ref);
 
+   function Get_Request_DataReader (Self : not null access Ref) return Request_DataReaders.Ref_Access;
+   function Get_Reply_Datawriter (Self : not null access Ref) return Reply_DataWriters.Ref_Access;
+
+private
    procedure Return_Loan (Self         : not null access Ref;
                           Replies      : not null Request_DataReaders.Treats.Data_Sequences.Sequence_Access;
                           Sample_Info  : DDS.SampleInfo_Seq.Sequence_Access);
@@ -362,14 +288,9 @@ package DDS.Request_Reply.Typed_Replier_Generic is
    procedure Return_Loan (Self         : not null access Ref;
                           Replies      : Request_DataReaders.Treats.Data_Sequences.Sequence;
                           Sample_Info  : DDS.SampleInfo_Seq.Sequence);
-   procedure Delete (This : in out Ref);
 
-   function Get_Request_DataReader (Self : not null access Ref) return Request_DataReaders.Ref_Access;
-   function Get_Reply_Datawriter (Self : not null access Ref) return Reply_DataWriters.Ref_Access;
-
-private
    type DataReader_Listner (Parent : not null access Ref )is new DDS.DataReaderListener.Ref with null record;
-    procedure On_Offered_Deadline_Missed
+   procedure On_Offered_Deadline_Missed
      (Self   : not null access DataReader_Listner;
       Writer : access DDS.DataWriter.Ref'Class;
       Status : in DDS.OfferedDeadlineMissedStatus);
@@ -409,21 +330,21 @@ private
 
 
    procedure On_Destination_Unreachable
-     (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class;
+     (Self     : not null access DataReader_Listner;
+      Writer   : access DDS.DataWriter.Ref'Class;
       Instance : in DDS.InstanceHandle_T;
       Locator  : in DDS.Locator_T);
 
    procedure On_Data_Request
-     (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class;
+     (Self     : not null access DataReader_Listner;
+      Writer   : access DDS.DataWriter.Ref'Class;
       Cookie   : in DDS.Cookie_T;
       Request  : in out System.Address);
 
    procedure On_Data_Return
-     (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class;
-      arg      : System.Address;
+     (Self     : not null access DataReader_Listner;
+      Writer   : access DDS.DataWriter.Ref'Class;
+      Arg      : System.Address;
       Cookie   : in DDS.Cookie_T);
    procedure On_Sample_Removed
      (Self   : not null access DataReader_Listner;
@@ -431,25 +352,25 @@ private
       Cookie : in DDS.Cookie_T);
 
    procedure On_Instance_Replaced
-     (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class;
+     (Self     : not null access DataReader_Listner;
+      Writer   : access DDS.DataWriter.Ref'Class;
       Instance : in DDS.InstanceHandle_T);
    --  <dref>DataWriterListener_on_instance_replaced</dref>
 
    procedure On_Application_Acknowledgment
      (Self   : not null access DataReader_Listner;
       Writer : access DDS.DataWriter.Ref'Class;
-      Info : in DDS.AcknowledgmentInfo);
+      Info   : in DDS.AcknowledgmentInfo);
    --  <dref>DataWriterListener_on_application_acknowledgment</dref>
 
    procedure On_Service_Request_Accepted
      (Self   : not null access DataReader_Listner;
       Writer : access DDS.DataWriter.Ref'Class;
-      Info : in DDS.ServiceRequestAcceptedStatus);
+      Info   : in DDS.ServiceRequestAcceptedStatus);
 
 
    type DataWriter_Listner (Parent : not null access Ref )is new DDS.DataWriterListener.Ref with null record;
-    procedure On_Requested_Deadline_Missed
+   procedure On_Requested_Deadline_Missed
      (Self       : not null access DataWriter_Listner;
       The_Reader : in DDS.DataReaderListener.DataReader_Access;
       Status     : in DDS.RequestedDeadlineMissedStatus);
