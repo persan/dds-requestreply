@@ -19,4 +19,5 @@ x.py
 *.bexch
 *main
 *driver
+*.pyc
 
