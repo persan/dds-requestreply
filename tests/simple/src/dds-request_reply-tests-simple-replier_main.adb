@@ -1,6 +1,7 @@
 with DDS.Request_Reply.Tests.Simple.Replier;
 
 procedure DDS.Request_Reply.Tests.Simple.Replier_Main is
+
    Replier    : Simple.Replier.Ref_Access :=
                   DDS.Request_Reply.Tests.Simple.Replier.Create
                     (Participant        => Participant,
@@ -17,9 +18,18 @@ begin
 
       for I of Replier.Receive_Request loop
 
-         Copy (Reply, "reply to<");
-         Append  (Reply, I.Data.all);
+         if I.Data.all = DONE then
+            Append (Reply, "FINAL " & Count'Img);
+         end if;
+
+         Append (Reply, "reply to<");
+         Append (Reply, I.Data.all);
          Append (Reply, "> Count" & Count'Img);
+
+         if I.Data.all = DONE then
+            Append (Reply, "> Count" & Count'Img);
+         end if;
+
          Count := Count + 1;
          Replier.Send_Reply
            (Reply => Reply,

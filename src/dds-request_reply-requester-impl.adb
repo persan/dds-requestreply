@@ -1,4 +1,6 @@
-pragma Ada_2012;
+--  ----------------------------------------------------------------------------
+--  Note this is an implementation package and is subject to change att any time.
+--  ----------------------------------------------------------------------------
 package body DDS.Request_Reply.Requester.Impl is
 
    -----------------------------
@@ -10,9 +12,9 @@ package body DDS.Request_Reply.Requester.Impl is
    is
    begin
       pragma Compile_Time_Warning (Standard.True,
-         "Get_Request_Data_Writer unimplemented");
+                                   "Get_Request_Data_Writer unimplemented");
       return raise Program_Error
-          with "Unimplemented function Get_Request_Data_Writer";
+        with "Unimplemented function Get_Request_Data_Writer";
    end Get_Request_Data_Writer;
 
    ---------------------------
@@ -24,9 +26,9 @@ package body DDS.Request_Reply.Requester.Impl is
    is
    begin
       pragma Compile_Time_Warning (Standard.True,
-         "Get_Reply_Data_Reader unimplemented");
+                                   "Get_Reply_Data_Reader unimplemented");
       return raise Program_Error
-          with "Unimplemented function Get_Reply_Data_Reader";
+        with "Unimplemented function Get_Reply_Data_Reader";
    end Get_Reply_Data_Reader;
 
    -------------------
@@ -39,7 +41,7 @@ package body DDS.Request_Reply.Requester.Impl is
    is
    begin
       pragma Compile_Time_Warning (Standard.True,
-         "Touch_Samples unimplemented");
+                                   "Touch_Samples unimplemented");
       return raise Program_Error with "Unimplemented function Touch_Samples";
    end Touch_Samples;
 
@@ -53,9 +55,9 @@ package body DDS.Request_Reply.Requester.Impl is
    is
    begin
       pragma Compile_Time_Warning (Standard.True,
-         "Wait_For_Any_Sample unimplemented");
+                                   "Wait_For_Any_Sample unimplemented");
       return raise Program_Error
-          with "Unimplemented function Wait_For_Any_Sample";
+        with "Unimplemented function Wait_For_Any_Sample";
    end Wait_For_Any_Sample;
 
-end DDS.Requester.Impl;
+end DDS.Request_Reply.Requester.Impl;

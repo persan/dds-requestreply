@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+
+<dds xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:noNamespaceSchemaLocation="http://community.rti.com/schema/6.0.1/rti_dds_qos_profiles.xsd">
+    <!-- QoS Library containing the QoS profile used in the generated example.
+
+        A QoS library is a named set of QoS profiles.
+    -->
+    <qos_library name="library">
+
+        <!-- QoS profile used to configure reliable communication between the DataWriter 
+             and DataReader created in the example code.
+
+             A QoS profile groups a set of related QoS.
+        -->
+        <qos_profile name="profile" base_name="BuiltinQosLib::Generic.StrictReliable" is_default_qos="true">
+            <!-- QoS used to configure the data writer created in the example code -->                
+            <datawriter_qos>
+                <publication_name>
+                    <name>HelloWorldDataWriter</name>
+                </publication_name>
+            </datawriter_qos>
+
+            <!-- QoS used to configure the data reader created in the example code -->                
+            <datareader_qos>
+                <subscription_name>
+                    <name>HelloWorldDataReader</name>
+                </subscription_name>
+            </datareader_qos>
+            <participant_qos>
+                <participant_name>
+                    <name>HelloWorldParticipant</name>
+                    <role_name>HelloWorldParticipantRole</role_name>
+                </participant_name>
+            </participant_qos>
+        </qos_profile>
+
+    </qos_library>
+</dds>

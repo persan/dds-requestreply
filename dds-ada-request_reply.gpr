@@ -10,7 +10,14 @@ library project DDS.Ada.Request_Reply extends "dds-ada.gpr" is
 
    for Excluded_Source_Files use project'Excluded_Source_Files & ("rtidds-cdr_streams.adb");
    for Excluded_Source_Files use project'Excluded_Source_Files & ("rtidds-cdr_streams.ads");
+
    for Excluded_Source_Files use project'Excluded_Source_Files & ("dds-request_reply.adb");
+
+   for Excluded_Source_Files use project'Excluded_Source_Files & ("dds-request_reply-request_generic.ads");
+   for Excluded_Source_Files use project'Excluded_Source_Files & ("dds-request_reply-request_generic.adb");
+
+   for Excluded_Source_Files use project'Excluded_Source_Files & ("dds-request_reply-reply_generic.ads");
+   for Excluded_Source_Files use project'Excluded_Source_Files & ("dds-request_reply-reply_generic.adb");
 
    package Compiler is
       for Driver ("gen") use "";

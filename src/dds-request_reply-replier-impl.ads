@@ -1,8 +1,14 @@
+--  ----------------------------------------------------------------------------
+--  Note this is an implementation package and is subject to change att any time.
+--  ----------------------------------------------------------------------------
+
 with DDS.Topic;
 with DDS.Entity_Params;
-with DDS.Request_Reply.impl;
+with DDS.Request_Reply.Impl;
 package DDS.Request_Reply.Replier.Impl is
-   type Ref is limited new DDS.Request_Reply.Impl.Ref and Replier.Ref with private;
+   type Ref is limited new DDS.Request_Reply.Impl.Ref and Replier.Ref with record
+      null;
+   end record;
    type Ref_Access is access all Ref;
 
 
@@ -21,9 +27,5 @@ package DDS.Request_Reply.Replier.Impl is
      (Self      : not null access Ref;
       Min_Count : DDS.Integer;
       Max_Wait  : DDS.Duration_T);
-private
-   type Ref is limited new DDS.Request_Reply.Impl.Ref and Replier.Ref with record
-      null;
-   end record;
 
 end DDS.Request_Reply.Replier.Impl;

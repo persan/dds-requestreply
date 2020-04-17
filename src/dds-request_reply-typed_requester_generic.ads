@@ -505,8 +505,6 @@ private
       Request_DataWriter : Request_DataWriters.Ref_Access;
       Reply_DataReader   : Reply_DataReaders.Ref_Access;
       Listner            : Request_Listeners.Ref_Access;
-      Request_Topic      : DDS.Topic.Ref_Access;
-      Reply_Topic        : DDS.Topic.Ref_Access;
       Writer_Listner     : DataWriter_Listner (Ref'Access);
       Reader_Listner     : DataReader_Listner (Ref'Access);
    end record;

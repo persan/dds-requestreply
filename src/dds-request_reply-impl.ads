@@ -1,8 +1,17 @@
+--  ----------------------------------------------------------------------------
+--  Note this is an implementation package and is subject to change att any time.
+--  ----------------------------------------------------------------------------
+
 with DDS.Publisher;
 with DDS.Subscriber;
 package DDS.Request_Reply.Impl is
 
-   type Ref is limited new Request_Reply.Ref with private;
+   type Ref is limited new Request_Reply.Ref with record
+      Participant        : DDS.DomainParticipant.Ref_Access;
+      Request_Topic      : DDS.Topic.Ref_Access;
+      Reply_Topic        : DDS.Topic.Ref_Access;
+   end record;
+
    type Ref_Access  is access all Ref'Class;
    procedure Log_Exception (Log : Standard.String) is null;
 
@@ -36,11 +45,5 @@ package DDS.Request_Reply.Impl is
    procedure Validate (Self       : not null access Ref;
                        Publisher  : DDS.Publisher.Ref_Access;
                        Subscriber : DDS.Subscriber.Ref_Access);
-private
-   type Ref is limited new Request_Reply.Ref with record
-      Participant        : DDS.DomainParticipant.Ref_Access;
-      Request_Topic      : DDS.Topic.Ref_Access;
-      Reply_Topic        : DDS.Topic.Ref_Access;
-   end record;
 
 end DDS.Request_Reply.Impl;
