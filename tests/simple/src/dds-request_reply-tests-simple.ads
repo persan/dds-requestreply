@@ -1,7 +1,7 @@
 with DDS.DomainParticipantFactory;
 with DDS.DomainParticipant;
 package DDS.Request_Reply.Tests.Simple is
-
+   pragma Elaborate_Body;
    Domain_Id          : DDS.DomainId_T := 0;
    Request_Topic_Name : String := To_DDS_String ("Request_Topic_Name");
    Reply_Topic_Name   : String := To_DDS_String ("Reply_Topic_Name");

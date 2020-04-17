@@ -8,6 +8,7 @@ project DDS.Ada.Request_Reply.Tests is
    for Exec_Dir use "bin";
    
    for Main use  ("dds-request_reply-tests-simple-driver.adb");
+   -- The Main number 1
    
    for Main use project'Main & ("dds-request_reply-tests-simple-requester_main.adb");
    for Main use project'Main & ("dds-request_reply-tests-simple-replier_main.adb");
@@ -26,6 +27,10 @@ project DDS.Ada.Request_Reply.Tests is
    package Linker is
       for Switches ("ada") use ("-g");
    end Linker;
+
+   package Binder is
+      for Switches ("ada") use ("-E");
+   end Binder;
 
    package Make is
       for Makefile use "Makefile";
