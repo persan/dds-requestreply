@@ -1,11 +1,7 @@
---  ----------------------------------------------------------------------------
---  Note this is an implementation package and is subject to change att any time.
---  ----------------------------------------------------------------------------
-
 with DDS.Topic;
 with DDS.Entity_Params;
 with DDS.Request_Reply.Impl;
-package DDS.Request_Reply.Replier.Impl is
+package  DDS.Request_Reply.Replier.Impl is
    type Ref is limited new DDS.Request_Reply.Impl.Ref and Replier.Ref with record
       null;
    end record;

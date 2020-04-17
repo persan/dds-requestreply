@@ -14,9 +14,9 @@ with DDS.Typed_DataReader_Generic;
 generic
    with package Reply_DataWriters is new DDS.Typed_DataWriter_Generic (<>);
    with package Request_DataReaders is new DDS.Typed_DataReader_Generic (<>);
-package DDS.Request_Reply.Typed_Replier_Generic is
+package DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
-   type Ref (<>) is new DDS.Request_Reply.Requester.Impl.Ref with private;
+   type Ref (<>) is limited new DDS.Request_Reply.Requester.Ref with private;
    type Ref_Access is access all Ref'Class;
 
    package Replyer_Listeners is
@@ -400,7 +400,7 @@ private
       The_Reader : in DDS.DataReaderListener.DataReader_Access;
       Status     : in DDS.SampleLostStatus);
 
-   type Ref is new DDS.Request_Reply.Requester.Impl.Ref with record
+   type Ref is limited new DDS.Request_Reply.Requester.Impl.Ref with record
       Reply_DataWriter   : Reply_DataWriters.Ref_Access;
       Request_DataReader : Request_DataReaders.Ref_Access;
       Listner            : Replyer_Listeners.Ref_Access;
@@ -409,4 +409,4 @@ private
 
    end record;
 
-end DDS.Request_Reply.Typed_Replier_Generic;
+end DDS.Request_Reply.Replier.Typed_Replier_Generic;

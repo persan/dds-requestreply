@@ -8,16 +8,15 @@ with DDS.Publisher;
 with DDS.Request_Reply.Requester;
 with DDS.Subscriber;
 with DDS.Topic;
-with DDS.Request_Reply.Requester.Impl;
 with DDS.Typed_DataWriter_Generic;
 with DDS.Typed_DataReader_Generic;
-
+private with DDS.Request_Reply.Requester.Impl;
 generic
    with package Request_DataWriters is new DDS.Typed_DataWriter_Generic (<>);
    with package Reply_DataReaders is new DDS.Typed_DataReader_Generic (<>);
-package DDS.Request_Reply.Typed_Requester_Generic is
+package DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
-   type Ref is limited new DDS.Request_Reply.Requester.Impl.Ref with private;
+   type Ref is limited new DDS.Request_Reply.Requester.Ref with private;
    type Ref_Access is access all Ref'Class;
 
    package Request_Listeners is
@@ -509,4 +508,4 @@ private
       Reader_Listner     : DataReader_Listner (Ref'Access);
    end record;
 
-end DDS.Request_Reply.Typed_Requester_Generic;
+end DDS.Request_Reply.Requester.Typed_Requester_Generic;

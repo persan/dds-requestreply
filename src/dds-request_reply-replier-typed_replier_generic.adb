@@ -1,6 +1,6 @@
 pragma Ada_2012;
 
-package body DDS.Request_Reply.Typed_Replier_Generic is
+package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    use type DDS.Publisher.Ref_Access;
    use type DDS.Subscriber.Ref_Access;
    -----------------------------
@@ -878,4 +878,4 @@ package body DDS.Request_Reply.Typed_Replier_Generic is
       end if;
    end On_Sample_Lost;
 
-end DDS.Request_Reply.Typed_Replier_Generic;
+end DDS.Request_Reply.Replier.Typed_Replier_Generic;
