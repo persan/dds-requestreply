@@ -4,7 +4,7 @@
 
 with DDS.ReadCondition;
 with DDS.Request_Reply.Impl;
-package DDS.Request_Reply.Requester.Impl is
+private package DDS.Request_Reply.Requester.Impl is
    type Ref is abstract limited new DDS.Request_Reply.Impl.Ref and DDS.Request_Reply.Requester.Ref with record
       null;
    end record;

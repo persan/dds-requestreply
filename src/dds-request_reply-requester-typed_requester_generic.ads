@@ -500,7 +500,9 @@ private
       The_Reader : in DDS.DataReaderListener.DataReader_Access;
       Status     : in DDS.SampleLostStatus);
 
-   type Ref is limited new DDS.Request_Reply.Requester.Impl.Ref with record
+   type Ref is limited new
+     DDS.Request_Reply.Requester.Impl.Ref
+   with record
       Request_DataWriter : Request_DataWriters.Ref_Access;
       Reply_DataReader   : Reply_DataReaders.Ref_Access;
       Listner            : Request_Listeners.Ref_Access;

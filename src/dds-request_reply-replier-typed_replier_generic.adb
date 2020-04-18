@@ -3,21 +3,6 @@ pragma Ada_2012;
 package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    use type DDS.Publisher.Ref_Access;
    use type DDS.Subscriber.Ref_Access;
-   -----------------------------
-   -- Get_Request_Data_Reader --
-   -----------------------------
-
-   function Get_Request_Data_Reader
-     (Self : not null access Ref) return DDS.DataReader.Ref_Access
-   is (DDS.DataReader.Ref_Access (Self.Reply_DataWriter));
-
-   ---------------------------
-   -- Get_Reply_Data_Writer --
-   ---------------------------
-
-   function Get_Reply_Data_Writer
-     (Self : not null access Ref) return DDS.DataWriter.Ref_Access
-   is (DDS.DataWriter.Ref_Access (Self.Reply_DataWriter));
 
    ------------
    -- Create --
@@ -73,17 +58,17 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Ret.Reply_Topic := Ret.Create_Reply_Topic_With_Profile
         (Topic_Name       => Reply_Topic_Name,
          Type_Name        => Reply_DataWriters.Treats.Get_Type_Name,
-         Qos_Library_Name => Qos_Library_Name,
-         Qos_Profile_Name => Qos_Profile_Name);
+         Library_Name     => Qos_Library_Name,
+         Profile_Name     => Qos_Profile_Name);
 
       Ret.Request_Topic := Ret.Create_Request_Topic_With_Profile
         (Topic_Name       => Request_Topic_Name,
          Type_Name        => Request_DataReaders.Treats.Get_Type_Name,
-         Qos_Library_Name => Qos_Library_Name,
-         Qos_Profile_Name => Qos_Profile_Name);
+         Library_Name     => Qos_Library_Name,
+         Profile_Name     => Qos_Profile_Name);
 
-      Ret.Reply_DataWriter := Reply_DataWriters.Ref_Access
-        ((if Publisher = null
+      Ret.Reply_DataWriter :=
+        (if Publisher = null
          then
             Participant.Create_DataWriter_With_Profile
            (A_Topic      => Ret.Reply_Topic,
@@ -97,24 +82,23 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
             Library_Name => Qos_Library_Name,
             Profile_Name => Qos_Profile_Name,
             A_Listener   => Ret.Writer_Listner'Unrestricted_Access,
-            Mask         => Mask)));
+            Mask         => Mask));
 
-      Ret.Request_DataReader := Request_DataReaders.Ref_Access
-        ((if Subscriber = null
-         then
-            Participant.Create_DataReader_With_Profile
-           (Topic        => Ret.Reply_Topic.As_TopicDescription,
-            Library_Name => Qos_Library_Name,
-            Profile_Name => Qos_Profile_Name,
-            A_Listener   => Ret.Reader_Listner'Unrestricted_Access,
-            Mask         => Mask)
-         else
-            Subscriber.Create_DataReader_With_Profile
-           (Topic        => Ret.Request_Topic.As_TopicDescription,
-            Library_Name => Qos_Library_Name,
-            Profile_Name => Qos_Profile_Name,
-            A_Listener   => Ret.Reader_Listner'Unrestricted_Access,
-            Mask         => Mask)));
+      Ret.Request_DataReader := (if Subscriber = null
+                                 then
+                                    Participant.Create_DataReader_With_Profile
+                                   (Topic        => Ret.Reply_Topic.As_TopicDescription,
+                                    Library_Name => Qos_Library_Name,
+                                    Profile_Name => Qos_Profile_Name,
+                                    A_Listener   => Ret.Reader_Listner'Unrestricted_Access,
+                                    Mask         => Mask)
+                                 else
+                                    Subscriber.Create_DataReader_With_Profile
+                                   (Topic        => Ret.Request_Topic.As_TopicDescription,
+                                    Library_Name => Qos_Library_Name,
+                                    Profile_Name => Qos_Profile_Name,
+                                    A_Listener   => Ret.Reader_Listner'Unrestricted_Access,
+                                    Mask         => Mask));
 
 
 

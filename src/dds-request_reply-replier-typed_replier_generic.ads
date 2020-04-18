@@ -7,16 +7,16 @@ with DDS.Publisher;
 with DDS.Request_Reply.Requester;
 with DDS.Subscriber;
 with DDS.Topic;
-with DDS.Request_Reply.Requester.Impl;
 with DDS.Typed_DataWriter_Generic;
 with DDS.Typed_DataReader_Generic;
+private with DDS.Request_Reply.Replier.Impl;
 
 generic
    with package Reply_DataWriters is new DDS.Typed_DataWriter_Generic (<>);
    with package Request_DataReaders is new DDS.Typed_DataReader_Generic (<>);
 package DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
-   type Ref (<>) is limited new DDS.Request_Reply.Requester.Ref with private;
+   type Ref (<>) is limited new DDS.Request_Reply.Replier.Ref with private;
    type Ref_Access is access all Ref'Class;
 
    package Replyer_Listeners is
@@ -170,13 +170,6 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       is null;
    end Replyer_Listeners;
 
-   function Get_Request_Data_Reader
-     (Self : not null access Ref)
-      return DDS.DataReader.Ref_Access;
-
-   function Get_Reply_Data_Writer
-     (Self : not null access Ref)
-      return DDS.DataWriter.Ref_Access;
 
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
@@ -400,9 +393,9 @@ private
       The_Reader : in DDS.DataReaderListener.DataReader_Access;
       Status     : in DDS.SampleLostStatus);
 
-   type Ref is limited new DDS.Request_Reply.Requester.Impl.Ref with record
-      Reply_DataWriter   : Reply_DataWriters.Ref_Access;
-      Request_DataReader : Request_DataReaders.Ref_Access;
+   type Ref is limited new
+     DDS.Request_Reply.Replier.Impl.Ref
+   with record
       Listner            : Replyer_Listeners.Ref_Access;
       Writer_Listner     : DataWriter_Listner (Ref'Access);
       Reader_Listner     : DataReader_Listner (Ref'Access);
