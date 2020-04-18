@@ -1,5 +1,5 @@
 with "../../dds-ada-request_reply.gpr";
-project DDS.Ada.Request_Reply.Tests is
+project DDS.Ada.Request_Reply.Simple_Tests is
 
    for Create_Missing_Dirs use "True"; 
    for Languages use ("Makefile", "Python", "Ada", "MarkDown");
@@ -42,4 +42,4 @@ project DDS.Ada.Request_Reply.Tests is
       for Body_Suffix ("python") use ".py";
       for Specification_Exceptions ("Makefile") use ("Makefile");
    end Naming;   
-end DDS.Ada.Request_Reply.Tests;
+end DDS.Ada.Request_Reply.Simple_Tests;
