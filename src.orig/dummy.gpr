@@ -1,15 +1,26 @@
 -- Just a copnvinience project to be able to access old hacks.
 project Dummy extends "../dds-ada-request_reply.gpr" is
 
-   DDSSRC := "/home/per/Working/projects@github.com/dds-ada-api-6.0.1/build_ndds_source/ndds601-src/";
+   HOME  := external ("HOME");
+   GIT_HUB_ROOT := external ("GIT_HUB_ROOT", HOME & "/Working/projects@github.com/");
+   RTI_CONNEXT_CORE := external ("RTI_CONNEXT_CORE", GIT_HUB_ROOT & "dds-ada-api-6.0.1/build_ndds_source/ndds601-src/");
+
+   -- The location of the rti-connext core libraries.
 
    for Create_Missing_Dirs use "True";
-   for Languages use ("Ada", "C", "Gen");
+   for Languages use ("Ada", "C", "Gen", "Java");
    for Externally_Built use "True";
-   for Source_Dirs use ("src/**", DDSSRC & "xmq_c.1.0/**");
+   for Source_Dirs use ("src/**");
+   for Source_Dirs use project'Source_Dirs & (RTI_CONNEXT_CORE & "xmq_c.1.0/srcC/**");
+   for Source_Dirs use project'Source_Dirs & (RTI_CONNEXT_CORE & "xmq_java.1.0/srcJava/**");
    for Object_Dir use ".obj";
    for Library_Dir use ".obj/lib";
    for Library_Name use "dummy";
+
+   package Naming is
+      for Implementation_Suffix ("Java") use ".java";
+      for Implementation_Suffix ("Gen") use ".gen";
+   end  Naming;
 
 end Dummy;
 

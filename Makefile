@@ -16,3 +16,8 @@ install:
 	${MAKE} -C examples ${@}
 
 tag:
+
+gps:
+	gnatstudio -P src.orig/dummy.gpr & 
+	gnatstudio -P tests/simple/dds-ada-request_reply-simple_tests.gpr & 
+
