@@ -1,35 +1,6 @@
 pragma Ada_2012;
 package body DDS.Request_Reply.Replier.Impl is
 
-   -------------------------
-   -- Create_Writer_Topic --
-   -------------------------
-
-   function Create_Writer_Topic
-     (Self : not null access Ref; Params : DDS.Entity_Params.EntityParams;
-      Name : DDS.String) return DDS.Topic.Ref_Access
-   is
-   begin
-      pragma Compile_Time_Warning
-        (Standard.True, "Create_Writer_Topic unimplemented");
-      return
-      raise Program_Error with "Unimplemented function Create_Writer_Topic";
-   end Create_Writer_Topic;
-
-   -------------------------
-   -- Create_Reader_Topic --
-   -------------------------
-
-   function Create_Reader_Topic
-     (Self : not null access Ref; Params : DDS.Entity_Params.EntityParams;
-      Name : DDS.String) return DDS.Topic.Ref_Access
-   is
-   begin
-      pragma Compile_Time_Warning
-        (Standard.True, "Create_Reader_Topic unimplemented");
-      return
-      raise Program_Error with "Unimplemented function Create_Reader_Topic";
-   end Create_Reader_Topic;
 
    -----------------------
    -- Wait_For_Requests --
@@ -45,20 +16,20 @@ package body DDS.Request_Reply.Replier.Impl is
       raise Program_Error with "Unimplemented procedure Wait_For_Requests";
    end Wait_For_Requests;
 
-   -----------------------------
-   -- Get_Request_Data_Reader --
-   -----------------------------
+   --------------------------------
+   -- Configure_Params_For_Reply --
+   --------------------------------
 
-   function Get_Request_Data_Reader
-     (Self : not null access Ref) return DDS.DataReader.Ref_Access
-   is (DDS.DataReader.Ref_Access (Self.Reply_DataWriter));
-
-   ---------------------------
-   -- Get_Reply_Data_Writer --
-   ---------------------------
-
-   function Get_Reply_Data_Writer
-     (Self : not null access Ref) return DDS.DataWriter.Ref_Access
-   is (DDS.DataWriter.Ref_Access (Self.Reply_DataWriter));
+   procedure Configure_Params_For_Reply
+     (Self                 : not null access Ref;
+      Params               : in out WriteParams_T;
+      Related_Request_Info : DDS.SampleIdentity_T)
+   is
+   begin
+      if Related_Request_Info =  AUTO_SAMPLE_IDENTITY then
+         raise BAD_PARAMETER with "AUTO_SAMPLE_IDENTITY not allowed";
+      end if;
+      Params.Related_Sample_Identity := Related_Request_Info;
+   end Configure_Params_For_Reply;
 
 end DDS.Request_Reply.Replier.Impl;

@@ -1,6 +1,7 @@
-pragma Ada_2012;
 package body DDS.Request_Reply.Impl is
    use DDS.DomainParticipant;
+   use DDS.Publisher;
+   use DDS.Subscriber;
 
    --------------------------
    -- Create_Request_Topic --
@@ -12,10 +13,7 @@ package body DDS.Request_Reply.Impl is
       Type_Name  : DDS.String) return DDS.Topic.Ref_Access
    is
    begin
-      pragma Compile_Time_Warning
-        (Standard.True, "Create_Request_Topic unimplemented");
-      return
-      raise Program_Error with "Unimplemented function Create_Request_Topic";
+      return Self.Participant.Get_Or_Create_Topic (Topic_Name, Type_Name);
    end Create_Request_Topic;
 
    ------------------------
@@ -28,10 +26,7 @@ package body DDS.Request_Reply.Impl is
       Type_Name  : DDS.String) return DDS.Topic.Ref_Access
    is
    begin
-      pragma Compile_Time_Warning
-        (Standard.True, "Create_Reply_Topic unimplemented");
-      return
-      raise Program_Error with "Unimplemented function Create_Reply_Topic";
+      return Self.Participant.Get_Or_Create_Topic (Topic_Name, Type_Name);
    end Create_Reply_Topic;
 
    ---------------------------------------
@@ -46,7 +41,7 @@ package body DDS.Request_Reply.Impl is
       Profile_Name     : DDS.String) return DDS.Topic.Ref_Access
    is
    begin
-      return Self.Participant.Create_Topic_With_Profile (Topic_Name, Type_Name, Library_Name, Profile_Name);
+      return Self.Participant.Get_Or_Create_Topic_With_Profile (Topic_Name, Type_Name, Library_Name, Profile_Name);
    end Create_Request_Topic_With_Profile;
 
    -------------------------------------
@@ -61,7 +56,7 @@ package body DDS.Request_Reply.Impl is
       Profile_Name     : DDS.String) return DDS.Topic.Ref_Access
    is
    begin
-      return Self.Participant.Create_Topic_With_Profile (Topic_Name, Type_Name, Library_Name, Profile_Name);
+      return Self.Participant.Get_Or_Create_Topic_With_Profile (Topic_Name, Type_Name, Library_Name, Profile_Name);
    end Create_Reply_Topic_With_Profile;
 
    --------------
@@ -74,12 +69,13 @@ package body DDS.Request_Reply.Impl is
       Subscriber : DDS.Subscriber.Ref_Access)
    is
    begin
-      if Self.Participant /= Publisher.Get_Participant then
+      if (Publisher /= null) and then Self.Participant /= Publisher.Get_Participant then
          raise Program_Error with "Publisher dont belong to participant";
       end if;
-      if Self.Participant /= Subscriber.Get_Participant then
+      if (Subscriber /= null) and then  Self.Participant /= Subscriber.Get_Participant then
          raise Program_Error with "Subscriber dont belong to participant";
       end if;
    end Validate;
+
 
 end DDS.Request_Reply.Impl;

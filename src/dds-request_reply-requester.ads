@@ -2,7 +2,6 @@ with DDS.ReadCondition;
 with DDS.DataReader;
 with DDS.DataWriter;
 with DDS.Topic;
-with DDS.Entity_Params;
 with DDS.Request_Reply;
 package DDS.Request_Reply.Requester is
    type Ref is limited interface and DDS.Request_Reply.Ref;
@@ -27,12 +26,5 @@ package DDS.Request_Reply.Requester is
       Max_Wait         : DDS.Duration_T;
       Min_Sample_Count : DDS.Integer) return DDS.ReturnCode_T is abstract;
 
-   function Create_Request_Topic_Name_From_Service_Name
-     (Self             : not null access Ref;
-      Service_Name     : DDS.String) return DDS.String is abstract;
-
-   function Create_Reply_Topic_Name_From_Service_Name
-     (Self             : not null access Ref;
-      Service_Name     : DDS.String) return DDS.String is abstract;
 
 end DDS.Request_Reply.Requester;

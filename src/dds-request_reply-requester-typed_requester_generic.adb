@@ -37,14 +37,17 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Create
      (Participant      : DDS.DomainParticipant.Ref_Access;
-      Service_Name     : DDS.String; Qos_Library_Name : DDS.String;
-      Qos_Profile_Name : DDS.String;
+      Service_Name     : DDS.String;
+      Library_Name     : DDS.String;
+      Profile_Name     : DDS.String;
       Publisher        : DDS.Publisher.Ref_Access     := null;
       Subscriber       : DDS.Subscriber.Ref_Access    := null;
       A_Listner        : Request_Listeners.Ref_Access := null;
       Mask             : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
    is
+
    begin
+
       pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
       return raise Program_Error with "Unimplemented function Create";
    end Create;
@@ -56,7 +59,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
       Request_Topic_Name : DDS.String; Reply_Topic_Name : DDS.String;
-      Qos_Library_Name   : DDS.String; Qos_Profile_Name : DDS.String;
+      Library_Name       : DDS.String; Profile_Name : DDS.String;
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
       A_Listner          : Request_Listeners.Ref_Access := null;
@@ -91,8 +94,10 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
-      Request_Topic_Name : DDS.String; Reply_Topic_Name : DDS.String;
-      Datawriter_Qos     : DDS.DataWriterQos; Datareader_Qos : DDS.DataReaderQos;
+      Request_Topic_Name : DDS.String;
+      Reply_Topic_Name   : DDS.String;
+      Datawriter_Qos     : DDS.DataWriterQos;
+      Datareader_Qos     : DDS.DataReaderQos;
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
       A_Listner          : Request_Listeners.Ref_Access := null;
@@ -118,7 +123,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    ------------------
 
    function Send_Request
-     (Self : not null access Ref; Data : Request_DataWriters.Treats.Data_Type)
+     (Self : not null access Ref; Data : Request_DataWriter.Treats.Data_Type)
       return DDS.ReturnCode_T
    is
    begin
@@ -132,7 +137,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    ------------------
 
    procedure Send_Request
-     (Self : not null access Ref; Data : Request_DataWriters.Treats.Data_Type)
+     (Self : not null access Ref; Data : Request_DataWriter.Treats.Data_Type)
    is
    begin
       pragma Compile_Time_Warning
@@ -145,8 +150,8 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    ------------------
 
    function Send_Request
-     (Self : not null access Ref; Data : Request_DataWriters.Treats.Data_Type)
-      return Reply_DataReaders.Treats.Data_Type
+     (Self : not null access Ref; Data : Request_DataWriter.Treats.Data_Type)
+      return Reply_DataReader.Treats.Data_Type
    is
    begin
       pragma Compile_Time_Warning
@@ -160,8 +165,8 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Send_Request
      (Self    : not null access Ref;
-      Request : Request_DataWriters.Treats.Data_Type)
-      return Reply_DataReaders.Container
+      Request : Request_DataWriter.Treats.Data_Type)
+      return Reply_DataReader.Container
    is
    begin
       pragma Compile_Time_Warning
@@ -175,10 +180,10 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Send_Request
      (Self            : not null access Ref;
-      Request         : access Request_DataWriters.Treats.Data_Type;
+      Request         : access Request_DataWriter.Treats.Data_Type;
       Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
       Timeout         : DDS.Duration_T := DURATION_INFINITE)
-      return Reply_DataReaders.Container
+      return Reply_DataReader.Container
    is
    begin
       pragma Compile_Time_Warning
@@ -192,7 +197,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    procedure Send_Request
      (Self         : not null access Ref;
-      Request      : Request_DataWriters.Treats.Data_Type;
+      Request      : Request_DataWriter.Treats.Data_Type;
       Request_Info : DDS.WriteParams_T)
    is
    begin
@@ -207,7 +212,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Receive_Reply
      (Self     :         not null access Ref;
-      Replies  : aliased Reply_DataReaders.Treats.Data_Type;
+      Replies  : aliased Reply_DataReader.Treats.Data_Type;
       Info_Seq :         not null access DDS.SampleInfo_Seq.Sequence;
       Timeout  :         DDS.Duration_T) return DDS.ReturnCode_T
    is
@@ -223,7 +228,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Receive_Reply
      (Self : not null access Ref; Timeout : DDS.Duration_T)
-      return Reply_DataReaders.Container
+      return Reply_DataReader.Container
    is
    begin
       pragma Compile_Time_Warning
@@ -237,7 +242,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Receive_Replies
      (Self            : not null access Ref;
-      Replies         : not null Reply_DataReaders.Treats.Data_Sequences
+      Replies         : not null Reply_DataReader.Treats.Data_Sequences
       .Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
@@ -255,7 +260,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    procedure Receive_Replies
      (Self            : not null access Ref;
-      Replies         : not null Reply_DataReaders.Treats.Data_Sequences
+      Replies         : not null Reply_DataReader.Treats.Data_Sequences
       .Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
@@ -274,7 +279,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    function Receive_Replies
      (Self            : not null access Ref; Min_Reply_Count : DDS.Natural;
       Max_Reply_Count : DDS.long; Timeout : DDS.Duration_T)
-      return Reply_DataReaders.Container
+      return Reply_DataReader.Container
    is
    begin
       pragma Compile_Time_Warning
@@ -288,7 +293,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Receive_Replies
      (Self            : not null access Ref;
-      Replies         : not null Reply_DataReaders.Treats.Data_Sequences
+      Replies         : not null Reply_DataReader.Treats.Data_Sequences
       .Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
@@ -307,7 +312,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    function Receive_Replies
      (Self            : not null access Ref; Min_Reply_Count : DDS.Natural;
       Max_Reply_Count : DDS.long; Timeout : Duration)
-      return Reply_DataReaders.Container
+      return Reply_DataReader.Container
    is
    begin
       pragma Compile_Time_Warning
@@ -321,7 +326,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Take_Reply
      (Self        :         not null access Ref;
-      Replies     : aliased Reply_DataReaders.Treats.Data_Type;
+      Replies     : aliased Reply_DataReader.Treats.Data_Type;
       Sample_Info :         not null access DDS.SampleInfo_Seq.Sequence;
       Timeout     :         DDS.Duration_T) return DDS.ReturnCode_T
    is
@@ -336,7 +341,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Take_Replies
      (Self            : not null access Ref;
-      Replies         : not null Reply_DataReaders.Treats.Data_Sequences
+      Replies         : not null Reply_DataReader.Treats.Data_Sequences
       .Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
@@ -355,7 +360,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    function Take_Replies
      (Self            : not null access Ref; Min_Reply_Count : DDS.Natural;
       Max_Reply_Count : DDS.long; Timeout : DDS.Duration_T)
-      return Reply_DataReaders.Container
+      return Reply_DataReader.Container
    is
    begin
       pragma Compile_Time_Warning
@@ -369,7 +374,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Take_Reply_For_Related_Request
      (Self                 :         not null access Ref;
-      Replies              : aliased Reply_DataReaders.Treats.Data_Type;
+      Replies              : aliased Reply_DataReader.Treats.Data_Type;
       Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
       Related_Request_Info :         not null access DDS.SampleIdentity_T)
       return DDS.ReturnCode_T
@@ -388,7 +393,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Take_Replies_For_Related_Request
      (Self                 : not null access Ref;
-      Replies              : not null Reply_DataReaders.Treats.Data_Sequences
+      Replies              : not null Reply_DataReader.Treats.Data_Sequences
       .Sequence_Access;
       Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
       Related_Request_Info : not null access DDS.SampleIdentity_T)
@@ -409,7 +414,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    function Take_Replies_For_Related_Request
      (Self                 : not null access Ref;
       Related_Request_Info : not null access DDS.SampleIdentity_T)
-      return Reply_DataReaders.Container
+      return Reply_DataReader.Container
    is
    begin
       pragma Compile_Time_Warning
@@ -425,7 +430,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Read_Reply
      (Self        :         not null access Ref;
-      Replies     : aliased Reply_DataReaders.Treats.Data_Type;
+      Replies     : aliased Reply_DataReader.Treats.Data_Type;
       Sample_Info :         not null access DDS.SampleInfo_Seq.Sequence;
       Timeout     :         DDS.Duration_T) return DDS.ReturnCode_T
    is
@@ -440,7 +445,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Read_Replies
      (Self            : not null access Ref;
-      Replies         : not null Reply_DataReaders.Treats.Data_Sequences
+      Replies         : not null Reply_DataReader.Treats.Data_Sequences
       .Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
@@ -459,7 +464,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    function Read_Replies
      (Self            : not null access Ref; Min_Reply_Count : DDS.Natural;
       Max_Reply_Count : DDS.long; Timeout : DDS.Duration_T)
-      return Reply_DataReaders.Container'Class
+      return Reply_DataReader.Container'Class
    is
    begin
       pragma Compile_Time_Warning
@@ -473,7 +478,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Read_Reply_For_Related_Request
      (Self                 :         not null access Ref;
-      Replies              : aliased Reply_DataReaders.Treats.Data_Type;
+      Replies              : aliased Reply_DataReader.Treats.Data_Type;
       Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
       Related_Request_Info : DDS.SampleIdentity_T) return DDS.ReturnCode_T
    is
@@ -491,7 +496,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Read_Replies_For_Related_Request
      (Self                 : not null access Ref;
-      Replies              : not null Reply_DataReaders.Treats.Data_Sequences
+      Replies              : not null Reply_DataReader.Treats.Data_Sequences
       .Sequence_Access;
       Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
       Related_Request_Info : DDS.SampleIdentity_T) return DDS.ReturnCode_T
@@ -510,7 +515,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Read_Replies_For_Related_Request
      (Self : not null access Ref; Related_Request_Info : DDS.SampleIdentity_T)
-      return Reply_DataReaders.Container'Class
+      return Reply_DataReader.Container'Class
    is
    begin
       pragma Compile_Time_Warning
@@ -526,7 +531,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    procedure Return_Loan
      (Self        : not null access Ref;
-      Replies     : not null Reply_DataReaders.Treats.Data_Sequences
+      Replies     : not null Reply_DataReader.Treats.Data_Sequences
       .Sequence_Access;
       Sample_Info : DDS.SampleInfo_Seq.Sequence_Access)
    is
@@ -541,7 +546,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    procedure Return_Loan
      (Self        : not null access Ref;
-      Replies     : Reply_DataReaders.Treats.Data_Sequences.Sequence;
+      Replies     : Reply_DataReader.Treats.Data_Sequences.Sequence;
       Sample_Info : DDS.SampleInfo_Seq.Sequence)
    is
    begin
@@ -592,7 +597,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    ----------------------------
 
    function Get_Request_DataWriter
-     (Self : not null access Ref) return Request_DataWriters.Ref_Access
+     (Self : not null access Ref) return Request_DataWriter.Ref_Access
    is
    begin
       pragma Compile_Time_Warning
@@ -607,7 +612,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    --------------------------
 
    function Get_Reply_DataReader
-     (Self : not null access Ref) return Reply_DataReaders.Ref_Access
+     (Self : not null access Ref) return Reply_DataReader.Ref_Access
    is
    begin
       pragma Compile_Time_Warning

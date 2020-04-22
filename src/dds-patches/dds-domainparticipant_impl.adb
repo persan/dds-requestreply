@@ -25,18 +25,18 @@ with DDS.SubscriptionBuiltinTopicData_TypeSupport;
 with DDS.TopicBuiltinTopicData_TypeSupport;
 with DDS.Topic_Impl;
 
-with RTIDDS.Low_Level.ndds_dds_c_dds_c_flowcontroller_h;
-with RTIDDS.Low_Level.ndds_dds_c_dds_c_builtin_h;
-with RTIDDS.Low_Level.ndds_dds_c_dds_c_common_h;
-with RTIDDS.Low_Level.ndds_dds_c_dds_c_domain_h;
-with RTIDDS.Low_Level.ndds_dds_c_dds_c_domain_impl_h;
-with RTIDDS.Low_Level.ndds_dds_c_dds_c_infrastructure_h;
-with RTIDDS.Low_Level.ndds_dds_c_dds_c_infrastructure_impl_h;
-with RTIDDS.Low_Level.ndds_dds_c_dds_c_publication_h;
-with RTIDDS.Low_Level.ndds_dds_c_dds_c_subscription_h;
-with RTIDDS.Low_Level.ndds_dds_c_dds_c_topic_h;
-with RTIDDS.Low_Level.ndds_pres_pres_participant_h;
-with RTIDDS.Low_Level.ndds_pres_pres_common_h;
+with RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Flowcontroller_H;
+with RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Builtin_H;
+with RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Common_H;
+with RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Domain_H;
+with RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Domain_Impl_H;
+with RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Infrastructure_H;
+with RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Infrastructure_Impl_H;
+with RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Publication_H;
+with RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Subscription_H;
+with RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Topic_H;
+with RTIDDS.Low_Level.Ndds_Pres_Pres_Participant_H;
+with RTIDDS.Low_Level.Ndds_Pres_Pres_Common_H;
 
 with System;
 
@@ -47,16 +47,16 @@ package body DDS.DomainParticipant_Impl is
 
    use Interfaces.C;
 
-   use RTIDDS.Low_Level.ndds_dds_c_dds_c_flowcontroller_h;
-   use RTIDDS.Low_Level.ndds_dds_c_dds_c_common_h;
-   use RTIDDS.Low_Level.ndds_dds_c_dds_c_domain_h;
-   use RTIDDS.Low_Level.ndds_dds_c_dds_c_domain_impl_h;
-   use RTIDDS.Low_Level.ndds_dds_c_dds_c_infrastructure_h;
-   use RTIDDS.Low_Level.ndds_dds_c_dds_c_infrastructure_impl_h;
-   use RTIDDS.Low_Level.ndds_dds_c_dds_c_publication_h;
-   use RTIDDS.Low_Level.ndds_dds_c_dds_c_subscription_h;
-   use RTIDDS.Low_Level.ndds_dds_c_dds_c_topic_h;
-   use RTIDDS.Low_Level.ndds_pres_pres_participant_h;
+   use RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Flowcontroller_H;
+   use RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Common_H;
+   use RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Domain_H;
+   use RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Domain_Impl_H;
+   use RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Infrastructure_H;
+   use RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Infrastructure_Impl_H;
+   use RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Publication_H;
+   use RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Subscription_H;
+   use RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Topic_H;
+   use RTIDDS.Low_Level.Ndds_Pres_Pres_Participant_H;
 
    use DDS.Topic;
    use DDS.Subscriber;
@@ -79,9 +79,9 @@ package body DDS.DomainParticipant_Impl is
    package Register_Sets is new Ada.Containers.Ordered_Sets (Element_Type => Register_Type_Procedure, "<" => "<", "=" => "=");
 
    --  Allow storage for access type
-   Default_Impl_Size      : constant DDS.Long := ((System.Address'Size + 7) / 8);
+   Default_Impl_Size      : constant DDS.long := ((System.Address'Size + 7) / 8);
    --  Always align on 64-bit boundaries
-   Default_Impl_Alignment : constant DDS.Long := 8;
+   Default_Impl_Alignment : constant DDS.long := 8;
 
    Default_UserObjectSettings : constant UserObjectSettings_T :=
                                   (Size      => Default_Impl_Size,
@@ -385,7 +385,7 @@ package body DDS.DomainParticipant_Impl is
          Is_Newly_Created'Access,
          Need_To_Enable'Access,
          1,
-         RTIDDS.Low_Level.ndds_pres_pres_common_h.PRES_GROUP_SUFFIX_NORMAL_USER_VIRTUAL_READER_GROUP);
+         RTIDDS.Low_Level.Ndds_Pres_Pres_Common_H.PRES_GROUP_SUFFIX_NORMAL_USER_VIRTUAL_READER_GROUP);
 
       if C_Subscriber = System.Null_Address then
          return null;
@@ -602,7 +602,7 @@ package body DDS.DomainParticipant_Impl is
 
    begin
       return Ret : DDS.Topic.Ref_Access do
-         Temp := self.Lookup_Topicdescription (Topic_Name);
+         Temp := Self.Lookup_Topicdescription (Topic_Name);
          if Temp = null then
             Ret := Self.Create_Topic (Topic_Name, Topic_Name, Qos, A_Listener, Mask);
          else
@@ -625,9 +625,14 @@ package body DDS.DomainParticipant_Impl is
 
    begin
       return Ret : DDS.Topic.Ref_Access do
-         Temp := self.Lookup_Topicdescription (Topic_Name);
+         Temp := Self.Lookup_Topicdescription (Topic_Name);
          if Temp = null then
-            Ret := Self.Create_Topic_With_Profile (Topic_Name, Topic_Name, Library_Name, Profile_Name, A_Listener, Mask);
+            Ret := Self.Create_Topic_With_Profile (Topic_Name   => Topic_Name,
+                                                   Type_Name    => Type_Name,
+                                                   Library_Name => Library_Name,
+                                                   Profile_Name => Profile_Name,
+                                                   A_Listener   => A_Listener,
+                                                   Mask         => Mask);
          else
             Ret := Topic.Narrow (Temp);
          end if;
@@ -663,9 +668,9 @@ package body DDS.DomainParticipant_Impl is
       Timeout    : in DDS.Duration_T)
       return DDS.Topic.Ref_Access
    is
-      C_TopicW  : access RTIDDS.Low_Level.ndds_dds_c_dds_c_topic_h.DDS_Topic;
+      C_TopicW  : access RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Topic_H.DDS_Topic;
       Topic     : DDS.Topic_Impl.Ref_Access;
-      Timeoutl  : aliased Dds_Duration_T := (Int (Timeout.Sec), Unsigned (Timeout.Nanosec));
+      Timeoutl  : aliased Dds_Duration_T := (int (Timeout.Sec), Unsigned (Timeout.Nanosec));
       use type DDS.Topic_Impl.Ref_Access;
    begin
       C_TopicW := DDS_DomainParticipant_Find_Topic (Self.GetInterface, GetInterface (Topic_Name).all, Timeoutl'Access);
@@ -777,7 +782,7 @@ package body DDS.DomainParticipant_Impl is
       CFTopic  : in out DDS.ContentFilteredTopic.Ref_Access)
    is
       CFT   : ContentFilteredTopic_Impl.Ref_Access := ContentFilteredTopic_Impl.Ref_Access (CFTopic);
-      CFT_W : access RTIDDS.Low_Level.ndds_dds_c_dds_c_topic_h.DDS_ContentFilteredTopic;
+      CFT_W : access RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Topic_H.DDS_ContentFilteredTopic;
       use type ContentFilteredTopic_Impl.Ref_Access;
    begin
       if CFT /= null then
@@ -873,8 +878,8 @@ package body DDS.DomainParticipant_Impl is
       Library_Name  : in Standard.String;
       Profile_Name  : in Standard.String)
    is
-      L   : Interfaces.C.Strings.Chars_Ptr := New_String (Library_Name);
-      P   : Interfaces.C.Strings.Chars_Ptr := New_String (Profile_Name);
+      L   : Interfaces.C.Strings.chars_ptr := New_String (Library_Name);
+      P   : Interfaces.C.Strings.chars_ptr := New_String (Profile_Name);
       Ret : DDS_ReturnCode_T;
 
    begin
@@ -905,7 +910,7 @@ package body DDS.DomainParticipant_Impl is
       A_Listener : in DDS.DomainParticipantListener.Ref_Access;
       Mask       : in DDS.StatusMask) is
    --  All callbacks initialized in declaration
-      C_Listener : aliased RTIDDS.Low_Level.ndds_dds_c_dds_c_domain_h.DDS_DomainParticipantListener :=
+      C_Listener : aliased RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Domain_H.DDS_DomainParticipantListener :=
                      DDS.DomainParticipantListener.Low_Level.DomainParticipantListener_DEFAULT;
       use type DDS.DomainParticipantListener.Ref_Access;
       function Convert is new Ada.Unchecked_Conversion (DDS.DomainParticipantListener.Ref_Access, System.Address);
@@ -1076,8 +1081,8 @@ package body DDS.DomainParticipant_Impl is
       LibName  : Standard.String;
       ProfName : Standard.String)
    is
-      L   : Interfaces.C.Strings.Chars_Ptr := New_String (LibName);
-      P   : Interfaces.C.Strings.Chars_Ptr := New_String (ProfName);
+      L   : Interfaces.C.Strings.chars_ptr := New_String (LibName);
+      P   : Interfaces.C.Strings.chars_ptr := New_String (ProfName);
       Ret : DDS_ReturnCode_T;
 
    begin
@@ -1119,8 +1124,8 @@ package body DDS.DomainParticipant_Impl is
       LibName  : Standard.String;
       ProfName : Standard.String)
    is
-      L   : Interfaces.C.Strings.Chars_Ptr := New_String (LibName);
-      P   : Interfaces.C.Strings.Chars_Ptr := New_String (ProfName);
+      L   : Interfaces.C.Strings.chars_ptr := New_String (LibName);
+      P   : Interfaces.C.Strings.chars_ptr := New_String (ProfName);
       Ret : DDS_ReturnCode_T;
    begin
       Ret := DDS_DomainParticipant_Set_Default_Datawriter_Qos_With_Profile (Self.GetInterface, L, P);
@@ -1169,8 +1174,8 @@ package body DDS.DomainParticipant_Impl is
       LibName  : Standard.String;
       ProfName : Standard.String)
    is
-      L   : Interfaces.C.Strings.Chars_Ptr := New_String (LibName);
-      P   : Interfaces.C.Strings.Chars_Ptr := New_String (ProfName);
+      L   : Interfaces.C.Strings.chars_ptr := New_String (LibName);
+      P   : Interfaces.C.Strings.chars_ptr := New_String (ProfName);
       Ret : DDS_ReturnCode_T;
    begin
       Ret :=  DDS_DomainParticipant_Set_Default_Publisher_Qos_With_Profile (Self.GetInterface, L, P);
@@ -1230,8 +1235,8 @@ package body DDS.DomainParticipant_Impl is
       LibraryName : Standard.String;
       ProfileName : Standard.String)
    is
-      L   : Interfaces.C.Strings.Chars_Ptr := New_String (LibraryName);
-      P   : Interfaces.C.Strings.Chars_Ptr := New_String (ProfileName);
+      L   : Interfaces.C.Strings.chars_ptr := New_String (LibraryName);
+      P   : Interfaces.C.Strings.chars_ptr := New_String (ProfileName);
       Ret : DDS_ReturnCode_T;
    begin
       Ret :=  DDS_DomainParticipant_Set_Default_Subscriber_Qos_With_Profile (Self.GetInterface, L, P);
@@ -1315,8 +1320,8 @@ package body DDS.DomainParticipant_Impl is
       LibraryName : Standard.String;
       ProfileName : Standard.String)
    is
-      L   : Interfaces.C.Strings.Chars_Ptr := New_String (LibraryName);
-      P   : Interfaces.C.Strings.Chars_Ptr := New_String (ProfileName);
+      L   : Interfaces.C.Strings.chars_ptr := New_String (LibraryName);
+      P   : Interfaces.C.Strings.chars_ptr := New_String (ProfileName);
       Ret : DDS_ReturnCode_T;
    begin
       Ret :=  DDS_DomainParticipant_Set_Default_Topic_Qos_With_Profile (Self.GetInterface, L, P);
@@ -1375,7 +1380,7 @@ package body DDS.DomainParticipant_Impl is
    begin
       return Ret : Dds.String do
          Copy (Ret, DDS_DomainParticipant_Get_Default_Library
-              (Self.GetInterface));
+               (Self.GetInterface));
       end return;
    end Get_Default_Library;
 
@@ -1389,7 +1394,7 @@ package body DDS.DomainParticipant_Impl is
    begin
       return Ret : Dds.String do
          Copy (Ret, DDS_DomainParticipant_Get_Default_Profile
-           (Self.GetInterface));
+               (Self.GetInterface));
       end return;
    end Get_Default_Profile;
 
@@ -1403,7 +1408,7 @@ package body DDS.DomainParticipant_Impl is
    begin
       return Ret : Dds.String do
          Copy (Ret, DDS_DomainParticipant_Get_Default_Profile_Library
-           (Self.GetInterface));
+               (Self.GetInterface));
       end return;
    end Get_Default_Profile_Library;
 
@@ -1467,11 +1472,11 @@ package body DDS.DomainParticipant_Impl is
       Participant_Handle : in DDS.InstanceHandle_T)
       return DDS.ParticipantBuiltinTopicData
    is
-      type DDS_ParticipantBuiltinTopicData_Access is access all RTIDDS.Low_Level.ndds_dds_c_dds_c_builtin_h.DDS_ParticipantBuiltinTopicData;
+      type DDS_ParticipantBuiltinTopicData_Access is access all RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Builtin_H.DDS_ParticipantBuiltinTopicData;
       function Convert is new Ada.Unchecked_Conversion (DDS.ParticipantBuiltinTopicData_Access, DDS_ParticipantBuiltinTopicData_Access);
    begin
       return Ret : DDS.ParticipantBuiltinTopicData do
-         initialize (Ret);
+         Initialize (Ret);
          Ret_Code_To_Exception
            (DDS_DomainParticipant_Get_Discovered_Participant_Data
               (Self.GetInterface,
@@ -1520,7 +1525,7 @@ package body DDS.DomainParticipant_Impl is
       Topic_Handle : in DDS.InstanceHandle_T;
       Data         : access DDS.TopicBuiltinTopicData) is
       type TopicBuiltinTopicData_Access is access all DDS.TopicBuiltinTopicData;
-      type DDS_TopicBuiltinTopicData_Access is access all RTIDDS.Low_Level.ndds_dds_c_dds_c_builtin_h.DDS_TopicBuiltinTopicData;
+      type DDS_TopicBuiltinTopicData_Access is access all RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Builtin_H.DDS_TopicBuiltinTopicData;
       function Convert is new Ada.Unchecked_Conversion (TopicBuiltinTopicData_Access, DDS_TopicBuiltinTopicData_Access);
    begin
       Ret_Code_To_Exception
@@ -1718,7 +1723,7 @@ package body DDS.DomainParticipant_Impl is
       Mask                  : in DDS.StatusMask)
       return DDS.DomainParticipant.Ref_Access
    is
-      Need_To_Enable     : aliased RTIDDS.Low_Level.ndds_dds_c_dds_c_common_h.DDS_Boolean := 0;
+      Need_To_Enable     : aliased RTIDDS.Low_Level.Ndds_Dds_C_Dds_C_Common_H.DDS_Boolean := 0;
       P_Impl             : Ref_Access;
       P_Impl_Access      : Ref_Access_Access;
       Local_Qos          : aliased DDS.DomainParticipantQos;
@@ -1749,18 +1754,18 @@ package body DDS.DomainParticipant_Impl is
       Modified_Qos.User_Object.Flow_Controller_User_Object        := Default_UserObjectSettings;
 
       P_Impl.SetInterface (DDS_DomainParticipantFactory_Create_Participant_DisabledI
-        (Participant_Factory.GetInterface,
-         Need_To_Enable'Unchecked_Access,
-         DDS_DomainId_T (Domain_Id),
-         GetInterface (Modified_Qos),
-         null, -- will reset before enable
-         DDS_StatusMask (Mask),
-         System.Null_Address,
-         System.Null_Address,
-         System.Null_Address,
-         System.Null_Address,
-         0,
-         1));
+                           (Participant_Factory.GetInterface,
+                              Need_To_Enable'Unchecked_Access,
+                              DDS_DomainId_T (Domain_Id),
+                              GetInterface (Modified_Qos),
+                              null, -- will reset before enable
+                              DDS_StatusMask (Mask),
+                              System.Null_Address,
+                              System.Null_Address,
+                              System.Null_Address,
+                              System.Null_Address,
+                              0,
+                              1));
 
       if P_Impl.GetInterface /= System.Null_Address then
          P_Impl.Entity_Initialize_I (P_Impl.GetInterface);
@@ -1851,7 +1856,7 @@ package body DDS.DomainParticipant_Impl is
    procedure Register_Builtin_TypesI (Self : not null access Ref)
    is
    begin
-      --  Builtin Types
+      -- Builtin Types
       Builtin_String_TypeSupport.Register_Type
         (Self,
          Builtin_String_TypeSupport.Get_Type_Name);

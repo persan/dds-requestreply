@@ -12,8 +12,8 @@ with DDS.Typed_DataReader_Generic;
 private with DDS.Request_Reply.Replier.Impl;
 
 generic
-   with package Reply_DataWriters is new DDS.Typed_DataWriter_Generic (<>);
-   with package Request_DataReaders is new DDS.Typed_DataReader_Generic (<>);
+   with package Reply_DataWriter is new DDS.Typed_DataWriter_Generic (<>);
+   with package Request_DataReader is new DDS.Typed_DataReader_Generic (<>);
 package DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    type Ref (<>) is limited new DDS.Request_Reply.Replier.Ref with private;
@@ -174,8 +174,8 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
       Service_Name       : DDS.String;
-      Qos_Library_Name   : DDS.String;
-      Qos_Profile_Name   : DDS.String;
+      Library_Name       : DDS.String;
+      Profile_Name       : DDS.String;
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
       A_Listner          : Replyer_Listeners.Ref_Access := null;
@@ -185,8 +185,8 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
      (Participant        : DDS.DomainParticipant.Ref_Access;
       Request_Topic_Name : DDS.String;
       Reply_Topic_Name   : DDS.String;
-      Qos_Library_Name   : DDS.String;
-      Qos_Profile_Name   : DDS.String;
+      Library_Name       : DDS.String;
+      Profile_Name       : DDS.String;
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
       A_Listner          : Replyer_Listeners.Ref_Access := null;
@@ -219,66 +219,66 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    function Send_Reply
      (Self    : not null access Ref;
-      Reply   : Reply_DataWriters.Treats.Data_Type;
+      Reply   : Reply_DataWriter.Treats.Data_Type;
       Id      : DDS.SampleIdentity_T)return DDS.ReturnCode_T;
 
    procedure Send_Reply
      (Self    : not null access Ref;
-      Reply   : Reply_DataWriters.Treats.Data_Type;
+      Reply   : Reply_DataWriter.Treats.Data_Type;
       Id      : DDS.SampleIdentity_T);
 
    function Receive_Request
      (Self     : not null access Ref;
-      Request  : in out Request_DataReaders.Treats.Data_Type;
+      Request  : in out Request_DataReader.Treats.Data_Type;
       Info_Seq : in out DDS.SampleInfo;
       Timeout  : DDS.Duration_T := DDS.DURATION_INFINITE) return DDS.ReturnCode_T;
 
 
    procedure Receive_Request
      (Self     : not null access Ref;
-      Request  : in out Request_DataReaders.Treats.Data_Type;
+      Request  : in out Request_DataReader.Treats.Data_Type;
       Info_Seq : in out DDS.SampleInfo;
       Timeout  : DDS.Duration_T := DDS.DURATION_INFINITE);
 
    function Receive_Request
      (Self     : not null access Ref;
-      Timeout  : DDS.Duration_T) return Request_DataReaders.Container;
+      Timeout  : DDS.Duration_T) return Request_DataReader.Container;
 
 
    function Receive_Request
      (Self                 : not null access Ref;
       Min_Reply_Count      : DDS.long := 1;
       Max_Reply_Count      : DDS.long := DDS.INFINITE;
-      Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE) return Request_DataReaders.Container;
+      Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE) return Request_DataReader.Container;
 
 
    function Take_Request
      (Self            : not null access Ref;
       Min_Reply_Count : DDS.Natural;
       Max_Reply_Count : DDS.long;
-      Timeout         : DDS.Duration_T) return  Request_DataReaders.Container;
+      Timeout         : DDS.Duration_T) return  Request_DataReader.Container;
 
 
    function Read_Request
      (Self            : not null access Ref;
       Min_Reply_Count : DDS.Natural;
       Max_Reply_Count : DDS.long;
-      Timeout         : DDS.Duration_T) return Request_DataReaders.Container'Class;
+      Timeout         : DDS.Duration_T) return Request_DataReader.Container'Class;
 
 
 
    procedure Delete (This : in out Ref);
 
-   function Get_Request_DataReader (Self : not null access Ref) return Request_DataReaders.Ref_Access;
-   function Get_Reply_Datawriter (Self : not null access Ref) return Reply_DataWriters.Ref_Access;
+   function Get_Request_DataReader (Self : not null access Ref) return Request_DataReader.Ref_Access;
+   function Get_Reply_Datawriter (Self : not null access Ref) return Reply_DataWriter.Ref_Access;
 
 private
    procedure Return_Loan (Self         : not null access Ref;
-                          Replies      : not null Request_DataReaders.Treats.Data_Sequences.Sequence_Access;
+                          Replies      : not null Request_DataReader.Treats.Data_Sequences.Sequence_Access;
                           Sample_Info  : DDS.SampleInfo_Seq.Sequence_Access);
 
    procedure Return_Loan (Self         : not null access Ref;
-                          Replies      : Request_DataReaders.Treats.Data_Sequences.Sequence;
+                          Replies      : Request_DataReader.Treats.Data_Sequences.Sequence;
                           Sample_Info  : DDS.SampleInfo_Seq.Sequence);
 
    type DataReader_Listner (Parent : not null access Ref )is new DDS.DataReaderListener.Ref with null record;
@@ -394,12 +394,27 @@ private
       Status     : in DDS.SampleLostStatus);
 
    type Ref is limited new
-     DDS.Request_Reply.Replier.Impl.Ref
+     DDS.Request_Reply.Replier.Impl.Ref and DDS.Request_Reply.Replier.Ref
    with record
       Listner            : Replyer_Listeners.Ref_Access;
       Writer_Listner     : DataWriter_Listner (Ref'Access);
       Reader_Listner     : DataReader_Listner (Ref'Access);
 
    end record;
+
+   function Get_Request_Data_Reader
+     (Self : not null access Ref)
+      return Request_DataReader.Ref_Access is
+     (Request_DataReader.Ref_Access (Self.Reader));
+
+   function Get_Reply_Data_Writer
+     (Self : not null access Ref)
+      return Reply_DataWriter.Ref_Access is
+     (Reply_DataWriter.Ref_Access (Self.Writer));
+
+   procedure Send_Sample (Self                 : not null access Ref;
+                          Data                 : Reply_DataWriter.Treats.Data_Type;
+                          Related_Request_Info : DDS.SampleIdentity_T;
+                          WriteParams          : in out DDS.WriteParams_T);
 
 end DDS.Request_Reply.Replier.Typed_Replier_Generic;

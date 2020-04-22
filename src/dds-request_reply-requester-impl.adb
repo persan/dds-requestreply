@@ -3,33 +3,6 @@
 --  ----------------------------------------------------------------------------
 package body DDS.Request_Reply.Requester.Impl is
 
-   -----------------------------
-   -- Get_Request_Data_Writer --
-   -----------------------------
-
-   function Get_Request_Data_Writer
-     (Self : not null access Ref) return DDS.DataWriter.Ref_Access
-   is
-   begin
-      pragma Compile_Time_Warning (Standard.True,
-                                   "Get_Request_Data_Writer unimplemented");
-      return raise Program_Error
-        with "Unimplemented function Get_Request_Data_Writer";
-   end Get_Request_Data_Writer;
-
-   ---------------------------
-   -- Get_Reply_Data_Reader --
-   ---------------------------
-
-   function Get_Reply_Data_Reader
-     (Self : not null access Ref) return DDS.DataReader.Ref_Access
-   is
-   begin
-      pragma Compile_Time_Warning (Standard.True,
-                                   "Get_Reply_Data_Reader unimplemented");
-      return raise Program_Error
-        with "Unimplemented function Get_Reply_Data_Reader";
-   end Get_Reply_Data_Reader;
 
    -------------------
    -- Touch_Samples --

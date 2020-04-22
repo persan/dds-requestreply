@@ -11,14 +11,6 @@ private package DDS.Request_Reply.Requester.Impl is
 
    type Ref_Access is access all Ref'Class;
 
-   function Get_Request_Data_Writer
-     (Self : not null access Ref)
-      return DDS.DataWriter.Ref_Access;
-
-   function Get_Reply_Data_Reader
-     (Self : not null access Ref)
-      return DDS.DataReader.Ref_Access;
-
    function Touch_Samples
      (Self           : not null access Ref;
       Max_Count      : DDS.Integer;

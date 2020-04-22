@@ -1,3 +1,5 @@
+with DDS.DataReader;
+with DDS.DataWriter;
 with DDS.Publisher;
 with DDS.Subscriber;
 private package DDS.Request_Reply.Impl is
@@ -6,6 +8,8 @@ private package DDS.Request_Reply.Impl is
       Participant        : DDS.DomainParticipant.Ref_Access;
       Request_Topic      : DDS.Topic.Ref_Access;
       Reply_Topic        : DDS.Topic.Ref_Access;
+      Reader             : DDS.DataReader.Ref_Access;
+      Writer             : DDS.DataWriter.Ref_Access;
    end record;
 
    type Ref_Access  is access all Ref'Class;
