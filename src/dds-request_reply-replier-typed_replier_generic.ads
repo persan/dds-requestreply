@@ -254,10 +254,8 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    function Take_Request
      (Self            : not null access Ref;
-      Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.long;
-      Timeout         : DDS.Duration_T) return  Request_DataReader.Container;
-
+      Max_Reply_Count : DDS.long)
+      return Request_DataReader.Container;
 
    function Read_Request
      (Self            : not null access Ref;
