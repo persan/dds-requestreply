@@ -4,11 +4,10 @@ procedure DDS.Request_Reply.Tests.Simple.Replier_Main is
 
    Replier    : Simple.Replier.Ref_Access :=
                   DDS.Request_Reply.Tests.Simple.Replier.Create
-                    (Participant        => Participant,
-                     Request_Topic_Name => Request_Topic_Name,
-                     Reply_Topic_Name   => Reply_Topic_Name,
-                     Qos_Library_Name   => Qos_Library,
-                     Qos_Profile_Name   => Qos_Profile);
+                    (Participant    => Participant,
+                     Service_Name   => Service_Name,
+                     Library_Name   => Qos_Library,
+                     Profile_Name   => Qos_Profile);
 
    Reply      : String;
    Count      : Natural := 0;

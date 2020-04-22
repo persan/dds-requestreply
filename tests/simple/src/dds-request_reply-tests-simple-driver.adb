@@ -16,12 +16,12 @@ procedure DDS.Request_Reply.Tests.Simple.Driver is
       Put ("Spawning:" & Full_Name);
       Pid := GNAT.OS_Lib.Non_Blocking_Spawn (Full_Name, Args);
       Put_Line ("  | Pid ->" & GNAT.OS_Lib.Pid_To_Integer (Pid)'Img);
-      delay 0.1;
+      delay 0.4;
    end;
-   Dummy_Status     : Standard.Integer;
    Gprbuild   : constant GNAT.OS_Lib.String_Access := GNAT.OS_Lib.Locate_Exec_On_Path ("gprbuild");
 begin
-   Dummy_Status := GNAT.OS_Lib.Spawn (Gprbuild.all, Args); -- always build prior to lauch
-   Non_Blocking_Spawn ("replier_main");
-   Non_Blocking_Spawn ("requester_main");
+   if GNAT.OS_Lib.Spawn (Gprbuild.all, Args) = 0 then -- Dont try to run if the build fails
+      Non_Blocking_Spawn ("replier_main");
+      Non_Blocking_Spawn ("requester_main");
+   end if;
 end;
