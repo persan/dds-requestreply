@@ -16,7 +16,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Publisher    : DDS.Publisher.Ref_Access     := null;
       Subscriber   : DDS.Subscriber.Ref_Access    := null;
       A_Listner    : Replyer_Listeners.Ref_Access := null;
-      Mask         : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask         : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
       Dummy              : aliased Ref;
       Request_Topic_Name : DDS.String := Dummy.Create_Request_Topic_Name_From_Service_Name (Service_Name);
@@ -50,7 +50,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
       A_Listner          : Replyer_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
       Ret : Ref_Access := new Ref;
    begin
@@ -119,7 +119,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Publisher      : DDS.Publisher.Ref_Access     := null;
       Subscriber     : DDS.Subscriber.Ref_Access    := null;
       A_Listner      : Replyer_Listeners.Ref_Access := null;
-      Mask           : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask           : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
       Dummy              : aliased Ref;
       Request_Topic_Name : DDS.String := Dummy.Create_Request_Topic_Name_From_Service_Name (Service_Name);
@@ -151,7 +151,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
       A_Listner          : Replyer_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
       Ret : Ref_Access := new Ref;
    begin

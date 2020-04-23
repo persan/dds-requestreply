@@ -43,7 +43,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Publisher        : DDS.Publisher.Ref_Access     := null;
       Subscriber       : DDS.Subscriber.Ref_Access    := null;
       A_Listner        : Request_Listeners.Ref_Access := null;
-      Mask             : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask             : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
 
    begin
@@ -63,7 +63,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
       A_Listner          : Request_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
    begin
       pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
@@ -81,7 +81,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Publisher      : DDS.Publisher.Ref_Access     := null;
       Subscriber     : DDS.Subscriber.Ref_Access    := null;
       A_Listner      : Request_Listeners.Ref_Access := null;
-      Mask           : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask           : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
    begin
       pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
@@ -101,7 +101,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
       A_Listner          : Request_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusMask := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
    begin
       pragma Compile_Time_Warning (Standard.True, "Create unimplemented");

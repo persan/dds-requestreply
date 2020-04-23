@@ -16,7 +16,7 @@ generic
    with package Request_DataReader is new DDS.Typed_DataReader_Generic (<>);
 package DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
-   type Ref (<>) is limited new DDS.Request_Reply.Replier.Ref with private;
+   type Ref is limited new DDS.Request_Reply.Replier.Ref with private ;
    type Ref_Access is access all Ref'Class;
 
    package Replyer_Listeners is
@@ -179,7 +179,7 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
       A_Listner          : Replyer_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusMask := DDS.STATUS_MASK_NONE)return Ref_Access;
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
 
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
@@ -190,7 +190,7 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
       A_Listner          : Replyer_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusMask := DDS.STATUS_MASK_NONE)return Ref_Access;
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
 
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
@@ -200,7 +200,7 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
       A_Listner          : Replyer_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusMask := DDS.STATUS_MASK_NONE)return Ref_Access;
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
 
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
@@ -211,7 +211,7 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
       A_Listner          : Replyer_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusMask := DDS.STATUS_MASK_NONE)return Ref_Access;
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
 
 
    procedure Delete (Self : in out Ref_Access);
@@ -252,16 +252,14 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE) return Request_DataReader.Container;
 
 
-   function Take_Request
+   function Take_Requests
      (Self            : not null access Ref;
       Max_Reply_Count : DDS.long)
-      return Request_DataReader.Container;
+      return Request_DataReader.Container'Class;
 
    function Read_Request
      (Self            : not null access Ref;
-      Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.long;
-      Timeout         : DDS.Duration_T) return Request_DataReader.Container'Class;
+      Max_Reply_Count : DDS.long) return Request_DataReader.Container'Class;
 
 
 
