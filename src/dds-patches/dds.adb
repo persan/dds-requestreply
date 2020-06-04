@@ -804,6 +804,45 @@ package body DDS is
       end if;
    end Duration_Is_Auto;
 
+   function "+" (L : Time_T; R : Duration_T) return Time_T is
+      use Ada.Calendar;
+   begin
+      return To_Time_T (To_Time (L) + To_Duration (R));
+   end;
+
+   function "+" (L : Duration_T; R : Time_T) return Time_T is
+      use Ada.Calendar;
+   begin
+      return To_Time_T (To_Time (R) + To_Duration (L));
+   end;
+
+   function "-" (L : Time_T; R : Duration_T) return Time_T is
+      use Ada.Calendar;
+   begin
+      return To_Time_T (To_Time (L) - To_Duration (R));
+   end;
+
+   function "+" (L : Duration_T; R : Duration_T) return Duration_T is
+   begin
+      return To_Duration_T (To_Duration (L) + To_Duration (R));
+   end;
+
+   function "-" (L : Duration_T; R : Duration_T) return Duration_T is
+   begin
+      return To_Duration_T (To_Duration (L) - To_Duration (R));
+   end;
+
+   function "<" (L : Duration_T; R : Duration_T) return Boolean is
+   begin
+      return To_Duration (L) < To_Duration (R);
+   end;
+
+   function ">" (L : Duration_T; R : Duration_T) return Boolean is
+   begin
+      return To_Duration (L) > To_Duration (R);
+   end;
+
+
    ---------------------------
    -- Ret_Code_To_Exception --
    ---------------------------

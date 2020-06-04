@@ -242,33 +242,30 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    function Receive_Request
      (Self     : not null access Ref;
-      Timeout  : DDS.Duration_T) return Request_DataReader.Container;
+      Timeout  : DDS.Duration_T) return Request_DataReader.Container'Class;
 
 
    function Receive_Request
      (Self                 : not null access Ref;
       Min_Reply_Count      : DDS.long := 1;
       Max_Reply_Count      : DDS.long := DDS.INFINITE;
-      Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE) return Request_DataReader.Container;
+      Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE) return Request_DataReader.Container'Class;
 
-
-   function Take_Requests
-     (Self            : not null access Ref;
-      Max_Reply_Count : DDS.long)
-      return Request_DataReader.Container'Class;
 
    function Read_Request
      (Self            : not null access Ref;
-      Max_Reply_Count : DDS.long) return Request_DataReader.Container'Class;
-
-
+      Max_Reply_Count : DDS.long := DDS.INFINITE)
+      return Request_DataReader.Container'Class;
 
    procedure Delete (This : in out Ref);
 
-   function Get_Request_DataReader (Self : not null access Ref) return Request_DataReader.Ref_Access;
-   function Get_Reply_Datawriter (Self : not null access Ref) return Reply_DataWriter.Ref_Access;
+   function Take_Request
+     (Self            : not null access Ref;
+      Max_Reply_Count : DDS.long := DDS.INFINITE)
+      return Request_DataReader.Container'Class;
 
 private
+
    procedure Return_Loan (Self         : not null access Ref;
                           Replies      : not null Request_DataReader.Treats.Data_Sequences.Sequence_Access;
                           Sample_Info  : DDS.SampleInfo_Seq.Sequence_Access);

@@ -22,6 +22,7 @@ library project DDS.Ada.Request_Reply extends "dds-ada.gpr" is
    package Compiler is
       for Driver ("gen") use "";
       for Driver ("C") use "";
+      for Switches ("Ada") use ("-gnatwa");
    end Compiler;
 
    package Naming is

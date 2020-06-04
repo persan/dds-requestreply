@@ -4,7 +4,6 @@ with DDS.Entity;
 with DDS.DomainParticipant;
 with DDS.TopicListener;
 with DDS.Topic;
-with DDS.DomainParticipantFactory;
 package DDS.Request_Reply is
 
    type Ref is limited interface;

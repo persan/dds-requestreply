@@ -16,14 +16,12 @@ private package DDS.Request_Reply.Impl is
    procedure Log_Exception (Log : Standard.String) is null;
 
    function Create_Request_Topic_Name_From_Service_Name
-     (Self             : not null access Ref;
-      Service_Name     : DDS.String) return DDS.String is
+     (Service_Name     : DDS.String) return DDS.String is
      (DDS.To_DDS_String (DDS.To_Standard_String (Service_Name) & "Request"));
 
 
    function Create_Reply_Topic_Name_From_Service_Name
-     (Self             : not null access Ref;
-      Service_Name     : DDS.String) return DDS.String is
+     (Service_Name     : DDS.String) return DDS.String is
      (DDS.To_DDS_String (DDS.To_Standard_String (Service_Name) & "Reply"));
 
    function Create_Request_Topic

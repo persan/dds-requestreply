@@ -1,4 +1,6 @@
 pragma Ada_2012;
+with DDS.Request_Reply.Impl;
+with DDS.DomainParticipantFactory;
 package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    -----------------------------
@@ -9,11 +11,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
      (Self : not null access Ref) return DDS.DataWriter.Ref_Access
    is
    begin
-      pragma Compile_Time_Warning
-        (Standard.True, "Get_Request_Data_Writer unimplemented");
-      return
-      raise Program_Error
-        with "Unimplemented function Get_Request_Data_Writer";
+      return Self.Writer;
    end Get_Request_Data_Writer;
 
    ---------------------------
@@ -24,11 +22,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
      (Self : not null access Ref) return DDS.DataReader.Ref_Access
    is
    begin
-      pragma Compile_Time_Warning
-        (Standard.True, "Get_Reply_Data_Reader unimplemented");
-      return
-      raise Program_Error
-        with "Unimplemented function Get_Reply_Data_Reader";
+      return Self.Reader;
    end Get_Reply_Data_Reader;
 
    ------------
@@ -45,11 +39,22 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       A_Listner        : Request_Listeners.Ref_Access := null;
       Mask             : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
-
+      Request_Topic_Name : DDS.String := DDS.Request_Reply.Impl.Create_Request_Topic_Name_From_Service_Name (Service_Name);
+      Reply_Topic_Name   : DDS.String := DDS.Request_Reply.Impl.Create_Reply_Topic_Name_From_Service_Name (Service_Name);
    begin
-
-      pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
-      return raise Program_Error with "Unimplemented function Create";
+      return Ret : Ref_Access do
+         Ret := Create (Participant        => Participant,
+                        Request_Topic_Name => Request_Topic_Name,
+                        Reply_Topic_Name   => Reply_Topic_Name ,
+                        Library_Name       => Library_Name,
+                        Profile_Name       => Profile_Name,
+                        Publisher          => Publisher,
+                        Subscriber         => Subscriber,
+                        A_Listner          => A_Listner,
+                        Mask               => Mask);
+         Finalize (Request_Topic_Name);
+         Finalize (Reply_Topic_Name);
+      end return;
    end Create;
 
    ------------
@@ -58,16 +63,40 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
-      Request_Topic_Name : DDS.String; Reply_Topic_Name : DDS.String;
-      Library_Name       : DDS.String; Profile_Name : DDS.String;
+      Request_Topic_Name : DDS.String;
+      Reply_Topic_Name   : DDS.String;
+      Library_Name       : DDS.String;
+      Profile_Name       : DDS.String;
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
       A_Listner          : Request_Listeners.Ref_Access := null;
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
+      Datawriter_Qos : DDS.DataWriterQos;
+      Datareader_Qos : DDS.DataReaderQoS;
+      Factory    : constant DDS.DomainParticipantFactory.Ref_Access := DDS.DomainParticipantFactory.Get_Instance;
    begin
-      pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
-      return raise Program_Error with "Unimplemented function Create";
+      Factory.Get_Datareader_Qos_From_Profile_W_Topic_Name
+        (QoS          => Datareader_Qos,
+         Library_Name => Library_Name,
+         Profile_Name => Profile_Name,
+         Topic_Name   => Reply_Topic_Name);
+
+      Factory.Get_Datawriter_Qos_From_Profile_W_Topic_Name
+        (QoS          => Datawriter_Qos,
+         Library_Name => Library_Name,
+         Profile_Name => Profile_Name,
+         Topic_Name   => Request_Topic_Name);
+
+      return Create (Participant        => Participant,
+                     Request_Topic_Name => Request_Topic_Name,
+                     Reply_Topic_Name   => Reply_Topic_Name,
+                     Datawriter_Qos     => Datawriter_Qos,
+                     Datareader_Qos     => Datareader_Qos,
+                     Publisher          => Publisher,
+                     Subscriber         => Subscriber,
+                     A_Listner          => A_Listner,
+                     Mask               => Mask);
    end Create;
 
    ------------
@@ -76,16 +105,30 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Create
      (Participant    : DDS.DomainParticipant.Ref_Access;
-      Service_Name   : DDS.String; Datawriter_Qos : DDS.DataWriterQos;
+      Service_Name   : DDS.String;
+      Datawriter_Qos : DDS.DataWriterQos;
       Datareader_Qos : DDS.DataReaderQos;
       Publisher      : DDS.Publisher.Ref_Access     := null;
       Subscriber     : DDS.Subscriber.Ref_Access    := null;
       A_Listner      : Request_Listeners.Ref_Access := null;
       Mask           : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
+      Request_Topic_Name : DDS.String := DDS.Request_Reply.Impl.Create_Request_Topic_Name_From_Service_Name (Service_Name);
+      Reply_Topic_Name   : DDS.String := DDS.Request_Reply.Impl.Create_Reply_Topic_Name_From_Service_Name (Service_Name);
    begin
-      pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
-      return raise Program_Error with "Unimplemented function Create";
+      return Ret : Ref_Access do
+         Ret := Create (Participant          => Participant,
+                        Request_Topic_Name   => Request_Topic_Name,
+                        Reply_Topic_Name     => Reply_Topic_Name ,
+                        Datawriter_Qos       => Datawriter_Qos,
+                        Datareader_Qos       => Datareader_Qos,
+                        Publisher            => Publisher,
+                        Subscriber           => Subscriber,
+                        A_Listner            => A_Listner,
+                        Mask                 => Mask);
+         Finalize (Request_Topic_Name);
+         Finalize (Reply_Topic_Name);
+      end return;
    end Create;
 
    ------------
@@ -104,6 +147,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
    begin
+
       pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
       return raise Program_Error with "Unimplemented function Create";
    end Create;
@@ -150,7 +194,8 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    ------------------
 
    function Send_Request
-     (Self : not null access Ref; Data : Request_DataWriter.Treats.Data_Type)
+     (Self : not null access Ref;
+      Data : Request_DataWriter.Treats.Data_Type)
       return Reply_DataReader.Treats.Data_Type
    is
    begin

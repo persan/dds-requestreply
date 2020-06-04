@@ -29,7 +29,7 @@ with DDS.DataWriterListener;
 with DDS.DataReader;
 with DDS.DataReaderListener;
 
-package DDS.DomainParticipant_Impl is
+private package DDS.DomainParticipant_Impl is
 
    type Ref is new DDS.Entity_Impl.Ref and DDS.DomainParticipant.Ref with record
       factory : access DDS.DomainParticipantFactory.Ref'Class;

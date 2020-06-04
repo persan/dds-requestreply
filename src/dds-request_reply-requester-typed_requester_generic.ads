@@ -1,13 +1,11 @@
 with DDS.DataReader;
 with DDS.DataReaderListener;
-with DDS.DataReaderListener;
 with DDS.DataWriter;
 with DDS.DataWriterListener;
 with DDS.DomainParticipant;
 with DDS.Publisher;
 with DDS.Request_Reply.Requester;
 with DDS.Subscriber;
-with DDS.Topic;
 with DDS.Typed_DataWriter_Generic;
 with DDS.Typed_DataReader_Generic;
 private with DDS.Request_Reply.Requester.Impl;
@@ -162,35 +160,35 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
       return DDS.DataReader.Ref_Access;
 
    function Create
-     (Participant        : DDS.DomainParticipant.Ref_Access;
-      Service_Name       : DDS.String;
+     (Participant    : DDS.DomainParticipant.Ref_Access;
+      Service_Name   : DDS.String;
       Library_Name   : DDS.String;
       Profile_Name   : DDS.String;
-      Publisher          : DDS.Publisher.Ref_Access := null;
-      Subscriber         : DDS.Subscriber.Ref_Access := null;
-      A_Listner          : Request_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
+      Publisher      : DDS.Publisher.Ref_Access := null;
+      Subscriber     : DDS.Subscriber.Ref_Access := null;
+      A_Listner      : Request_Listeners.Ref_Access := null;
+      Mask           : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access;
 
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
       Request_Topic_Name : DDS.String;
       Reply_Topic_Name   : DDS.String;
-      Library_Name   : DDS.String;
-      Profile_Name   : DDS.String;
+      Library_Name       : DDS.String;
+      Profile_Name       : DDS.String;
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
       A_Listner          : Request_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access;
 
    function Create
-     (Participant        : DDS.DomainParticipant.Ref_Access;
-      Service_Name       : DDS.String;
-      Datawriter_Qos     : DDS.DataWriterQos;
-      Datareader_Qos     : DDS.DataReaderQos;
-      Publisher          : DDS.Publisher.Ref_Access := null;
-      Subscriber         : DDS.Subscriber.Ref_Access := null;
-      A_Listner          : Request_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
+     (Participant      : DDS.DomainParticipant.Ref_Access;
+      Service_Name     : DDS.String;
+      Datawriter_Qos   : DDS.DataWriterQos;
+      Datareader_Qos   : DDS.DataReaderQos;
+      Publisher        : DDS.Publisher.Ref_Access := null;
+      Subscriber       : DDS.Subscriber.Ref_Access := null;
+      A_Listner        : Request_Listeners.Ref_Access := null;
+      Mask             : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access;
 
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
@@ -201,9 +199,10 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
       A_Listner          : Request_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access;
 
    procedure Delete (Self : in out Ref_Access);
+
 
    function Send_Request (Self : not null access Ref;
                           Data : Request_DataWriter.Treats.Data_Type) return DDS.ReturnCode_T;
@@ -211,8 +210,10 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
    procedure Send_Request (Self : not null access Ref;
                            Data : Request_DataWriter.Treats.Data_Type);
 
+
    function Send_Request (Self : not null access Ref;
-                          Data : Request_DataWriter.Treats.Data_Type) return Reply_DataReader.Treats.Data_Type;
+                          Data : Request_DataWriter.Treats.Data_Type)
+                          return Reply_DataReader.Treats.Data_Type;
 
 
 

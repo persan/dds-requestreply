@@ -534,6 +534,7 @@ package DDS is
 
    function "+" (L : Time_T; R : Time_T) return Time_T;
 
+
    Time_Zero       : constant Time_T := (0, 0);
    --  <dref>Time_t_ZERO</dref>
 
@@ -624,6 +625,15 @@ package DDS is
    --  Constraint error if the conversion is impossible except for the
    --  Value Duration'Last that will return "DURATION_INFINITE".
    --  </internal>
+
+   function "+" (L : Time_T; R : Duration_T) return Time_T;
+   function "+" (L : Duration_T; R : Time_T) return Time_T;
+   function "-" (L : Time_T; R : Duration_T) return Time_T;
+   function "+" (L : Duration_T; R : Duration_T) return Duration_T;
+   function "-" (L : Duration_T; R : Duration_T) return Duration_T;
+   function "<" (L : Duration_T; R : Duration_T) return Boolean;
+   function ">" (L : Duration_T; R : Duration_T) return Boolean;
+
 
    --  -------------------------------------------------
    --                 InstanceHandle_t
