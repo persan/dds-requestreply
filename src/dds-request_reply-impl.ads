@@ -4,8 +4,10 @@ with DDS.Publisher;
 with DDS.Subscriber;
 private package DDS.Request_Reply.Impl is
 
-   type Ref is limited new Request_Reply.Ref with record
+   type Ref is new Ada.Finalization.Limited_Controlled and Request_Reply.Ref with record
       Participant        : DDS.DomainParticipant.Ref_Access;
+      Publisher          : DDS.Publisher.Ref_Access;
+      Subscriber         : DDS.Subscriber.Ref_Access;
       Request_Topic      : DDS.Topic.Ref_Access;
       Reply_Topic        : DDS.Topic.Ref_Access;
       Reader             : DDS.DataReader.Ref_Access;
@@ -27,12 +29,14 @@ private package DDS.Request_Reply.Impl is
    function Create_Request_Topic
      (Self       : not null access Ref;
       Topic_Name : DDS.String;
-      Type_Name  : DDS.String) return DDS.Topic.Ref_Access;
+      Type_Name  : DDS.String;
+      QoS        : DDS.TopicQos := DDS.DomainParticipant.TOPIC_QOS_DEFAULT) return DDS.Topic.Ref_Access;
 
    function Create_Reply_Topic
      (Self       : not null access Ref;
       Topic_Name : DDS.String;
-      Type_Name  : DDS.String) return DDS.Topic.Ref_Access;
+      Type_Name  : DDS.String;
+      QoS        : DDS.TopicQos := DDS.DomainParticipant.TOPIC_QOS_DEFAULT) return DDS.Topic.Ref_Access;
 
    function Create_Request_Topic_With_Profile
      (Self               : not null access Ref;

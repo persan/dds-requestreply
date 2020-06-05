@@ -1,12 +1,9 @@
-with DDS.DataReader;
 with DDS.DataReaderListener;
 with DDS.DataWriter;
 with DDS.DataWriterListener;
 with DDS.DomainParticipant;
 with DDS.Publisher;
-with DDS.Request_Reply.Requester;
 with DDS.Subscriber;
-with DDS.Topic;
 with DDS.Typed_DataWriter_Generic;
 with DDS.Typed_DataReader_Generic;
 private with DDS.Request_Reply.Replier.Impl;

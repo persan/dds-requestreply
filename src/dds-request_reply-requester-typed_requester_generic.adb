@@ -2,7 +2,6 @@ pragma Ada_2012;
 with DDS.Request_Reply.Impl;
 with DDS.DomainParticipantFactory;
 package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
-
    -----------------------------
    -- Get_Request_Data_Writer --
    -----------------------------
@@ -28,6 +27,14 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    ------------
    -- Create --
    ------------
+   procedure Finalize (Self : in out Ref) is
+   begin
+      Self.Participant.Delete_DataWriter (Self.Writer);
+      Self.Participant.Delete_DataReader (Self.Reader);
+      Self.Participant.Delete_Topic (Self.Request_Topic);
+      Self.Participant.Delete_Topic (Self.Reply_Topic);
+      Impl.Ref (Self).Finalize;
+   end;
 
    function Create
      (Participant      : DDS.DomainParticipant.Ref_Access;
@@ -74,7 +81,8 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    is
       Datawriter_Qos : DDS.DataWriterQos;
       Datareader_Qos : DDS.DataReaderQoS;
-      Factory    : constant DDS.DomainParticipantFactory.Ref_Access := DDS.DomainParticipantFactory.Get_Instance;
+      Topic_Qos      : DDS.TopicQos;
+      Factory        : constant DDS.DomainParticipantFactory.Ref_Access := DDS.DomainParticipantFactory.Get_Instance;
    begin
       Factory.Get_Datareader_Qos_From_Profile_W_Topic_Name
         (QoS          => Datareader_Qos,
@@ -88,11 +96,18 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
          Profile_Name => Profile_Name,
          Topic_Name   => Request_Topic_Name);
 
+      Factory.Get_Topic_Qos_From_Profile_W_Topic_Name
+        (QoS          => Topic_Qos,
+         Library_Name => Library_Name,
+         Profile_Name => Profile_Name,
+         Topic_Name   => Request_Topic_Name);
+
       return Create (Participant        => Participant,
                      Request_Topic_Name => Request_Topic_Name,
                      Reply_Topic_Name   => Reply_Topic_Name,
                      Datawriter_Qos     => Datawriter_Qos,
                      Datareader_Qos     => Datareader_Qos,
+                     Topic_Qos          => Topic_Qos,
                      Publisher          => Publisher,
                      Subscriber         => Subscriber,
                      A_Listner          => A_Listner,
@@ -108,6 +123,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Service_Name   : DDS.String;
       Datawriter_Qos : DDS.DataWriterQos;
       Datareader_Qos : DDS.DataReaderQos;
+      Topic_Qos      : DDS.TopicQos := DDS.DomainParticipant.TOPIC_QOS_DEFAULT;
       Publisher      : DDS.Publisher.Ref_Access     := null;
       Subscriber     : DDS.Subscriber.Ref_Access    := null;
       A_Listner      : Request_Listeners.Ref_Access := null;
@@ -122,6 +138,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
                         Reply_Topic_Name     => Reply_Topic_Name ,
                         Datawriter_Qos       => Datawriter_Qos,
                         Datareader_Qos       => Datareader_Qos,
+                        Topic_Qos            => Topic_Qos,
                         Publisher            => Publisher,
                         Subscriber           => Subscriber,
                         A_Listner            => A_Listner,
@@ -134,22 +151,34 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    ------------
    -- Create --
    ------------
-
+   procedure Free is new Ada.Unchecked_Deallocation (Ref'Class, Ref_Access);
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
       Request_Topic_Name : DDS.String;
       Reply_Topic_Name   : DDS.String;
       Datawriter_Qos     : DDS.DataWriterQos;
       Datareader_Qos     : DDS.DataReaderQos;
+      Topic_Qos          : DDS.TopicQos                 := DDS.DomainParticipant.TOPIC_QOS_DEFAULT;
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
       A_Listner          : Request_Listeners.Ref_Access := null;
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
+      Ret : Ref_Access := new Ref;
    begin
+      Ret.Participant := Participant;
+      RET.Listner := A_Listner;
+      Ret.Validate (Publisher, Subscriber);
+      Ret.Request_Topic := Ret.Create_Request_Topic (Request_Topic_Name, Request_DataWriter.Treats.Get_Type_Name, Topic_Qos);
+      Ret.Reply_Topic := Ret.Create_Reply_Topic (Reply_Topic_Name, Reply_DataReader.Treats.Get_Type_Name, Topic_Qos);
 
-      pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
-      return raise Program_Error with "Unimplemented function Create";
+      Ret.Writer := Ret.Publisher.Create_DataWriter (Ret.Request_Topic, Datawriter_Qos, Ret.Writer_Listner'Access, Mask);
+      Ret.Reader := Ret.Subscriber.Create_DataReader (Ret.Reply_Topic.As_TopicDescription, Datareader_Qos, Ret.Reader_Listner'Access, Mask);
+      return Ret;
+   exception
+      when others =>
+         Free (Ret);
+         raise;
    end Create;
 
    ------------
@@ -158,8 +187,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    procedure Delete (Self : in out Ref_Access) is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Delete unimplemented");
-      raise Program_Error with "Unimplemented procedure Delete";
+      Free (Self);
    end Delete;
 
    ------------------
@@ -167,7 +195,8 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    ------------------
 
    function Send_Request
-     (Self : not null access Ref; Data : Request_DataWriter.Treats.Data_Type)
+     (Self : not null access Ref;
+      Data : Request_DataWriter.Treats.Data_Type)
       return DDS.ReturnCode_T
    is
    begin
@@ -181,7 +210,8 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    ------------------
 
    procedure Send_Request
-     (Self : not null access Ref; Data : Request_DataWriter.Treats.Data_Type)
+     (Self : not null access Ref;
+      Data : Request_DataWriter.Treats.Data_Type)
    is
    begin
       pragma Compile_Time_Warning

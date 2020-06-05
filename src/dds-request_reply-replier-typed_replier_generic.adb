@@ -1,5 +1,6 @@
 pragma Ada_2012;
 with DDS.Request_Reply.Impl;
+with DDS.Topic;
 package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    use type DDS.Publisher.Ref_Access;
    use type DDS.Subscriber.Ref_Access;

@@ -185,6 +185,7 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Service_Name     : DDS.String;
       Datawriter_Qos   : DDS.DataWriterQos;
       Datareader_Qos   : DDS.DataReaderQos;
+      Topic_Qos        : DDS.TopicQos := DDS.DomainParticipant.TOPIC_QOS_DEFAULT;
       Publisher        : DDS.Publisher.Ref_Access := null;
       Subscriber       : DDS.Subscriber.Ref_Access := null;
       A_Listner        : Request_Listeners.Ref_Access := null;
@@ -196,6 +197,7 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Reply_Topic_Name   : DDS.String;
       Datawriter_Qos     : DDS.DataWriterQos;
       Datareader_Qos     : DDS.DataReaderQos;
+      Topic_Qos          : DDS.TopicQos := DDS.DomainParticipant.TOPIC_QOS_DEFAULT;
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
       A_Listner          : Request_Listeners.Ref_Access := null;
@@ -505,10 +507,11 @@ private
      DDS.Request_Reply.Requester.Impl.Ref
    with record
       Listner            : Request_Listeners.Ref_Access;
-      Writer_Listner     : DataWriter_Listner (Ref'Access);
-      Reader_Listner     : DataReader_Listner (Ref'Access);
+      Writer_Listner     : aliased DataWriter_Listner (Ref'Access);
+      Reader_Listner     : aliased DataReader_Listner (Ref'Access);
    end record;
-
+   procedure Initialize (Self : in out Ref) is null;
+   procedure Finalize (Self : in out Ref);
    function Get_Reply_Data_Reader
      (Self : not null access Ref)
       return Reply_DataReader.Ref_Access is

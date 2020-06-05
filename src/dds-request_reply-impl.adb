@@ -10,10 +10,11 @@ package body DDS.Request_Reply.Impl is
    function Create_Request_Topic
      (Self       : not null access Ref;
       Topic_Name : DDS.String;
-      Type_Name  : DDS.String) return DDS.Topic.Ref_Access
+      Type_Name  : DDS.String;
+      QoS        : DDS.TopicQos := DDS.DomainParticipant.TOPIC_QOS_DEFAULT) return DDS.Topic.Ref_Access
    is
    begin
-      return Self.Participant.Get_Or_Create_Topic (Topic_Name, Type_Name);
+      return Self.Participant.Get_Or_Create_Topic (Topic_Name, Type_Name, Qos);
    end Create_Request_Topic;
 
    ------------------------
@@ -23,10 +24,11 @@ package body DDS.Request_Reply.Impl is
    function Create_Reply_Topic
      (Self       : not null access Ref;
       Topic_Name : DDS.String;
-      Type_Name  : DDS.String) return DDS.Topic.Ref_Access
+      Type_Name  : DDS.String;
+      QoS        : DDS.TopicQos := DDS.DomainParticipant.TOPIC_QOS_DEFAULT) return DDS.Topic.Ref_Access
    is
    begin
-      return Self.Participant.Get_Or_Create_Topic (Topic_Name, Type_Name);
+      return Self.Participant.Get_Or_Create_Topic (Topic_Name, Type_Name, Qos);
    end Create_Reply_Topic;
 
    ---------------------------------------
@@ -69,11 +71,24 @@ package body DDS.Request_Reply.Impl is
       Subscriber : DDS.Subscriber.Ref_Access)
    is
    begin
-      if (Publisher /= null) and then Self.Participant /= Publisher.Get_Participant then
-         raise Program_Error with "Publisher dont belong to participant";
+      if (Publisher /= null) then
+         if Self.Participant /= Publisher.Get_Participant then
+            raise Program_Error with "Publisher dont belong to participant";
+         else
+            Self.Publisher := Publisher;
+         end if;
+      else
+         Self.Publisher := Self.Participant.Get_Implicit_Publisher;
       end if;
-      if (Subscriber /= null) and then  Self.Participant /= Subscriber.Get_Participant then
-         raise Program_Error with "Subscriber dont belong to participant";
+
+      if (Subscriber /= null) then
+         if Self.Participant /= Subscriber.Get_Participant then
+            raise Program_Error with "Subscriber dont belong to participant";
+         else
+            Self.Subscriber := Self.Participant.Get_Implicit_Subscriber;
+         end if;
+      else
+         Self.Subscriber := Subscriber;
       end if;
    end Validate;
 
