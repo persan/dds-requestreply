@@ -1,9 +1,9 @@
 with Ada.Text_IO;
-with DDS.Request_Reply.Tests.Simple.Requester;
+with DDS.Request_Reply.Tests.Simple.String_Requester;
 procedure DDS.Request_Reply.Tests.Simple.Requester_Main is
 
-   Requester    : DDS.Request_Reply.Tests.Simple.Requester.Ref_Access :=
-                    DDS.Request_Reply.Tests.Simple.Requester.Create
+   Requester    : DDS.Request_Reply.Tests.Simple.String_Requester.Ref_Access :=
+                    DDS.Request_Reply.Tests.Simple.String_Requester.Create
                       (Participant        => Participant,
                        Service_Name       => Service_Name,
                        Library_Name       => Qos_Library,
@@ -31,6 +31,6 @@ begin
    end loop;
 
    --  Clean up.
-   DDS.Request_Reply.Tests.Simple.Requester.Delete (Requester);
+   DDS.Request_Reply.Tests.Simple.String_Requester.Delete (Requester);
    Factory.Delete_Participant (Participant);
 end DDS.Request_Reply.Tests.Simple.Requester_Main;

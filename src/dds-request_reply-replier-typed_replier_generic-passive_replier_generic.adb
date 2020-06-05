@@ -12,7 +12,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic.Passive_Replier_Gen
    begin
       for I of Replier.Take_Request loop
          if  I.Sample_Info.Valid_Data then
-            Self.all.Listner.Compute_And_Reply (Replier, I.Data.all, Get_Sample_Identity (I.Sample_Info.all));
+            Self.all.Listner.Compute_And_Reply (Typed_Replier_Generic.Ref_Access(Replier), I.Data.all, Get_Sample_Identity (I.Sample_Info.all));
          end if;
       end loop;
    end On_Request_Avalible;

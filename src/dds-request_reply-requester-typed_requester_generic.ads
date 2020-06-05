@@ -14,7 +14,7 @@ generic
    with package Reply_DataReader is new DDS.Typed_DataReader_Generic (<>);
 package DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
-   type Ref is limited new DDS.Request_Reply.Requester.Ref with private;
+   type Ref (<>) is limited new DDS.Request_Reply.Requester.Ref with private;
    type Ref_Access is access all Ref'Class;
 
    package Request_Listeners is

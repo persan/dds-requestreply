@@ -4,11 +4,11 @@ package DDS.Request_Reply.Tests.Simple is
    pragma Elaborate_Body;
 
    Domain_Id           : DDS.DomainId_T := 0;
-   Service_Name        : String := To_DDS_String ("myService");
-   Service_Name_Octets : String := To_DDS_String ("myOctets");
-   Qos_Library         : String := To_DDS_String ("library");
-   Qos_Profile         : String := To_DDS_String ("profile");
-   DONE                : String := To_DDS_String ("<DONE>");
+   Service_Name        : DDS.String := To_DDS_String ("myService");
+   Service_Name_Octets : DDS.String := To_DDS_String ("myOctets");
+   Qos_Library         : DDS.String := To_DDS_String ("library");
+   Qos_Profile         : DDS.String := To_DDS_String ("profile");
+   DONE                : DDS.String := To_DDS_String ("<DONE>");
 
    Factory             : constant DDS.DomainParticipantFactory.Ref_Access :=
                            DDS.DomainParticipantFactory.Get_Instance;

@@ -4,7 +4,7 @@ with DDS.DataWriter;
 package DDS.Request_Reply.Replier is
 
    type Ref is limited interface and DDS.Request_Reply.Ref;
-   type Ref_Access is access all Ref;
+   type Ref_Access is access all Ref'class;
 
 
    procedure Wait_For_Requests

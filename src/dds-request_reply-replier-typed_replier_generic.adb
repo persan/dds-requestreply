@@ -174,15 +174,6 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    -- Send_Reply --
    ----------------
 
-   function Send_Reply
-     (Self  : not null access Ref;
-      Reply : access Reply_DataWriter.Treats.Data_Type;
-      Id    : access DDS.SampleIdentity_T) return DDS.ReturnCode_T
-   is
-   begin
-      --        pragma Compile_Time_Warning (Standard.True, "Send_Reply unimplemented");
-      return raise Program_Error with "Unimplemented function Send_Reply";
-   end Send_Reply;
 
    ----------------
    -- Send_Reply --
@@ -201,15 +192,6 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    -- Send_Reply --
    ----------------
 
-   procedure Send_Reply
-     (Self  : not null access Ref;
-      Reply : access Reply_DataWriter.Treats.Data_Type;
-      Id    : access DDS.SampleIdentity_T)
-   is
-   begin
-      --        pragma Compile_Time_Warning (Standard.True, "Send_Reply unimplemented");
-      raise Program_Error with "Unimplemented procedure Send_Reply";
-   end Send_Reply;
 
    ----------------
    -- Send_Reply --
@@ -271,63 +253,17 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       return raise Program_Error with "Unimplemented function Receive_Request";
    end Receive_Request;
 
-   ----------------------
-   -- Receive_Requests --
-   ----------------------
 
-   function Receive_Requests
-     (Self               : not null access Ref;
-      Requests           : not null Request_DataReader.Treats.Data_Sequences
-      .Sequence_Access;
-      Sample_Info        : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Requests_Count : DDS.long       := 1;
-      Max_Requests_Count : DDS.long       := DDS.INFINITE;
-      Timeout            : DDS.Duration_T := DDS.DURATION_INFINITE) return DDS
-     .ReturnCode_T
-   is
-   begin
-      --        pragma Compile_Time_Warning (Standard.True,
-      --           "Receive_Requests unimplemented");
-      return raise Program_Error
-        with "Unimplemented function Receive_Requests";
-   end Receive_Requests;
 
    ----------------------
    -- Receive_Requests --
    ----------------------
 
-   procedure Receive_Requests
-     (Self            : not null access Ref;
-      Requests        : not null Request_DataReader.Treats.Data_Sequences
-      .Sequence_Access;
-      Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count : DDS.long       := 1;
-      Max_Reply_Count : DDS.long       := DDS.INFINITE;
-      Timeout         : DDS.Duration_T := DDS.DURATION_INFINITE)
-   is
-   begin
-      --        pragma Compile_Time_Warning (Standard.True,
-      --           "Receive_Requests unimplemented");
-      raise Program_Error with "Unimplemented procedure Receive_Requests";
-   end Receive_Requests;
 
    ----------------------
    -- Receive_Requests --
    ----------------------
 
-   procedure Receive_Requests
-     (Self            :        not null access Ref;
-      Requests        : in out Request_DataReader.Treats.Data_Sequences.Sequence;
-      Sample_Info     : in out DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count :        DDS.long       := 1;
-      Max_Reply_Count :        DDS.long       := DDS.INFINITE;
-      Timeout         :        DDS.Duration_T := DDS.DURATION_INFINITE)
-   is
-   begin
-      --        pragma Compile_Time_Warning (Standard.True,
-      --           "Receive_Requests unimplemented");
-      raise Program_Error with "Unimplemented procedure Receive_Requests";
-   end Receive_Requests;
 
    ---------------------
    -- Receive_Request --
@@ -359,17 +295,6 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
 
 
- function Take_Request
-     (Self            : not null access Ref;
-      Max_Reply_Count : DDS.long := DDS.INFINITE;
-      Timeout         : DDS.Duration_T)
-      return Request_DataReader.Container'Class
-   is
-   begin
-      --        pragma Compile_Time_Warning (Standard.True,
-      --                                     "Take_Request unimplemented");
-      return raise Program_Error with "Unimplemented function Take_Request";
-   end Take_Request;
 
 
 
