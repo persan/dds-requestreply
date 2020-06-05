@@ -1,2 +1,2 @@
 all:
-	@echo OK
+	gprbuild -p -j0

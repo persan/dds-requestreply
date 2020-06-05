@@ -8,7 +8,7 @@ Makefile.common:Makefile
 compile:
 	gprbuild -j0 -p
 test:
-	${MAKE} -C tests ${@}
+	${MAKE} -C tests
 
 clean:
 	git clean -xdf
