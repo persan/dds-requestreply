@@ -4,11 +4,11 @@ with Ada.Text_IO; use Ada.Text_IO;
 with DDS.DomainParticipant;
 with DDS.DomainParticipantFactory;
 with Primes.PrimeNumberRequester;
-with Primes_IDL_File.PrimeNumberRequest_TypeSupport;
+with Primes.PrimeNumberRequest_TypeSupport;
 with RTIDDS.Config;
 
 procedure Primes.Requester_Main is
-   use Primes_IDL_File;
+   use Primes;
    use DDS.DomainParticipant;
    use all type DDS.ReturnCode_T;
 
@@ -55,33 +55,27 @@ procedure Primes.Requester_Main is
       --  Create the participant
       Participant := Factory.Create_Participant (Domain_Id);
       if Participant = null then
-         Put_Line (Standard_Error, "create_participant error");
-         Ada.Command_Line.Set_Exit_Status (ADa.Command_Line.Failure);
-         return;
+         raise Program_Error with  "create_participant error";
       end if;
 
 
       --  Create the requester with that participant, and a QoS profile
       --  defined in USER_QOS_PROFILES.xml
       --
-      Requester := PrimeNumberRequester.Create (Participant      => Participant,
-                                                Service_Name     => Service_Name,
-                                                Qos_Library_Name => Qos_Library_Name,
-                                                Qos_Profile_Name => Qos_Profile_Name);
+      Requester := PrimeNumberRequester.Create (Participant  => Participant,
+                                                Service_Name =>  Service_Name,
+                                                Library_Name => Qos_Library_Name,
+                                                Profile_Name => Qos_Profile_Name);
       if Requester = null then
-         Put_Line (Standard_Error, "create requester error");
-         Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
          Requester_Shutdown (Participant, Requester, Request);
-         return;
+         raise Program_Error with  "create requester error";
       end if;
 
 
       Request := PrimeNumberRequest_TypeSupport.Create_Data;
       if Request = null then
-         Put_Line (Standard_Error, "Create data error");
-         ADa.Command_Line.Set_Exit_Status (ADa.Command_Line.Failure);
          Requester_Shutdown (Participant, Requester, Request);
-         return;
+         raise Program_Error with  "create data error";
       end if;
 
 
@@ -90,10 +84,8 @@ procedure Primes.Requester_Main is
       Retcode := Requester.Send_Request (Request.all);
 
       if Retcode /= DDS.RETCODE_OK then
-         Put_Line (Standard_Error, "send_request error:" & Retcode'Img );
-         Ada.Command_Line.Set_Exit_Status (ADa.Command_Line.Failure);
          Requester_Shutdown (Participant, Requester, Request);
-         return;
+         raise Program_Error with  "create send request error";
       end if;
 
 
@@ -153,6 +145,10 @@ procedure Primes.Requester_Main is
          end if;
       end if;
       Requester_Shutdown (Participant, Requester, Request);
+   exception
+      when others =>
+         Requester_Shutdown (Participant, Requester, Request);
+         raise;
    end;
 
 
@@ -187,5 +183,4 @@ begin
 
 
    Requester_Main (N, Primes_Per_Reply, Domain_Id);
-
 end;

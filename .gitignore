@@ -23,3 +23,4 @@ x.py
 *.orig
 
 trace
+*.deps

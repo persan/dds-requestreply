@@ -1,0 +1,13 @@
+project Template is
+   -- "/home/per/Working/projects@github.com/dds-ada-api-6.0.1/build_ndds_source/ndds601-src/xmq_c.1.0"
+   for Source_Dirs use ("@_SRC_@/**");
+
+   for Externally_Built use "True";
+
+   for Languages use ("C", "C++", "Gen");
+
+   package Naming is
+      for Spec_Suffix ("Gen") use ".gen";
+   end Naming;
+
+end Template;

@@ -267,9 +267,9 @@ private
                           Replies      : not null Request_DataReader.Treats.Data_Sequences.Sequence_Access;
                           Sample_Info  : DDS.SampleInfo_Seq.Sequence_Access);
 
-   procedure Return_Loan (Self         : not null access Ref;
-                          Replies      : Request_DataReader.Treats.Data_Sequences.Sequence;
-                          Sample_Info  : DDS.SampleInfo_Seq.Sequence);
+   procedure Return_Loan (Self        : not null access Ref;
+      Replies     : in out Request_DataReader.Treats.Data_Sequences.Sequence;
+                          Sample_Info : in out DDS.SampleInfo_Seq.Sequence);
 
    type DataReader_Listner (Parent : not null access Ref )is new DDS.DataReaderListener.Ref with null record;
    procedure On_Offered_Deadline_Missed

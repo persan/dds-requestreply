@@ -1,28 +1,17 @@
 with "dds.gpr";
-library project DDS.Ada.Request_Reply extends "dds-ada.gpr" is
+with "dds-ada.gpr";
+library project DDS.Ada.Request_Reply is
    for Languages use ("Ada");
    for Library_Name use "ddsrequestreply";
    for Source_Dirs use ("src");
-   for Source_Dirs use project'Source_Dirs & ("src/dds-patches");
    for Object_Dir use ".obj";
    for Library_Dir use "lib";
    for Library_Kind use "Static";
 
-   for Excluded_Source_Files use project'Excluded_Source_Files & ("rtidds-cdr_streams.adb");
-   for Excluded_Source_Files use project'Excluded_Source_Files & ("rtidds-cdr_streams.ads");
-
-   for Excluded_Source_Files use project'Excluded_Source_Files & ("dds-request_reply.adb");
-
-   for Excluded_Source_Files use project'Excluded_Source_Files & ("dds-request_reply-request_generic.ads");
-   for Excluded_Source_Files use project'Excluded_Source_Files & ("dds-request_reply-request_generic.adb");
-
-   for Excluded_Source_Files use project'Excluded_Source_Files & ("dds-request_reply-reply_generic.ads");
-   for Excluded_Source_Files use project'Excluded_Source_Files & ("dds-request_reply-reply_generic.adb");
-
    package Compiler is
       for Driver ("gen") use "";
       for Driver ("C") use "";
-      for Switches ("Ada") use ("-gnatwa");
+      for Switches ("Ada") use ("-gnatwa", "-gnat2020");
    end Compiler;
 
    package Naming is

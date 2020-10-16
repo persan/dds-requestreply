@@ -180,7 +180,8 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    ----------------
 
    function Send_Reply
-     (Self : not null access Ref; Reply : Reply_DataWriter.Treats.Data_Type;
+     (Self : not null access Ref;
+      Reply : Reply_DataWriter.Treats.Data_Type;
       Id   : DDS.SampleIdentity_T) return DDS.ReturnCode_T
    is
    begin
@@ -234,9 +235,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Timeout  :        DDS.Duration_T := DDS.DURATION_INFINITE)
    is
    begin
-      --        pragma Compile_Time_Warning (Standard.True,
-      --           "Receive_Request unimplemented");
-      raise Program_Error with "Unimplemented procedure Receive_Request";
+      Dds.Ret_Code_To_Exception (Self.Receive_Request (Request, Info_Seq, Timeout));
    end Receive_Request;
 
    ---------------------
@@ -248,9 +247,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       return Request_DataReader.Container'class
    is
    begin
-      --        pragma Compile_Time_Warning (Standard.True,
-      --           "Receive_Request unimplemented");
-      return raise Program_Error with "Unimplemented function Receive_Request";
+      return Request_DataReader.Ref_Access (Self.Reader).Take;
    end Receive_Request;
 
 
@@ -291,14 +288,6 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
 
 
-
-
-
-
-
-
-
-
    ------------------
    -- Read_Request --
    ------------------
@@ -309,9 +298,8 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       return Request_DataReader.Container'Class
    is
    begin
-      --        pragma Compile_Time_Warning (Standard.True,
-      --                                     "Read_Request unimplemented");
-      return raise Program_Error with "Unimplemented function Read_Request";
+      Self.Wait_For_Requests (Min_Count => 1, Max_Wait => DDS.DURATION_ZERO);
+      return Request_DataReader.Ref_Access (Self.Reader).Read;
    end Read_Request;
 
    -----------------
@@ -320,13 +308,11 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    procedure Return_Loan
      (Self        : not null access Ref;
-      Replies     : not null Request_DataReader.Treats.Data_Sequences
-      .Sequence_Access;
+      Replies     : not null Request_DataReader.Treats.Data_Sequences.Sequence_Access;
       Sample_Info : DDS.SampleInfo_Seq.Sequence_Access)
    is
    begin
-      --        pragma Compile_Time_Warning (Standard.True, "Return_Loan unimplemented");
-      raise Program_Error with "Unimplemented procedure Return_Loan";
+      Self.Return_Loan (Replies.all, Sample_Info.all);
    end Return_Loan;
 
    -----------------
@@ -335,12 +321,11 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    procedure Return_Loan
      (Self        : not null access Ref;
-      Replies     : Request_DataReader.Treats.Data_Sequences.Sequence;
-      Sample_Info : DDS.SampleInfo_Seq.Sequence)
+      Replies     : in out Request_DataReader.Treats.Data_Sequences.Sequence;
+      Sample_Info : in out DDS.SampleInfo_Seq.Sequence)
    is
    begin
-      --        pragma Compile_Time_Warning (Standard.True, "Return_Loan unimplemented");
-      raise Program_Error with "Unimplemented procedure Return_Loan";
+      Request_DataReader.Ref_Access(Self.Reader).Return_Loan(Replies,Sample_Info);
    end Return_Loan;
 
    ------------

@@ -1,6 +1,3 @@
-with Dds.Topic;
-with DDS.DataReader;
-with DDS.DataWriter;
 package DDS.Request_Reply.Replier is
 
    type Ref is limited interface and DDS.Request_Reply.Ref;

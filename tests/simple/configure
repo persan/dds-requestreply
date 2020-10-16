@@ -1,0 +1,4 @@
+#!/bin/bash
+SRC=$(locate ndds601-src | grep -E "ndds601-src/xmq_c.1.0$")
+echo ${SRC}
+sed "s#@_SRC_@#${SRC}#" <src/template.gpr.in >src/template.gpr

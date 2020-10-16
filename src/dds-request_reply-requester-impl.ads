@@ -21,6 +21,4 @@ private package DDS.Request_Reply.Requester.Impl is
       Max_Wait         : DDS.Duration_T;
       Min_Sample_Count : DDS.Integer) return DDS.ReturnCode_T;
 
-
-
 end DDS.Request_Reply.Requester.Impl;

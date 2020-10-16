@@ -7,10 +7,12 @@ package body DDS.Request_Reply.Replier.Impl is
    -----------------------
 
    procedure Wait_For_Requests
-     (Self     : not null access Ref; Min_Count : DDS.Integer;
-      Max_Wait : DDS.Duration_T)
+     (Self      : not null access Ref;
+      Min_Count : DDS.Integer;
+      Max_Wait  : DDS.Duration_T)
    is
    begin
+      Self.Wait_For_Any_Sample (Self, Min_Count, Max_Wait);
       pragma Compile_Time_Warning
         (Standard.True, "Wait_For_Requests unimplemented");
       raise Program_Error with "Unimplemented procedure Wait_For_Requests";

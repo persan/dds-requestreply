@@ -23,7 +23,8 @@ package body DDS.Request_Reply.Requester.Impl is
    -------------------------
 
    function Wait_For_Any_Sample
-     (Self             : not null access Ref; Max_Wait : DDS.Duration_T;
+     (Self             : not null access Ref;
+      Max_Wait         : DDS.Duration_T;
       Min_Sample_Count : DDS.Integer) return DDS.ReturnCode_T
    is
    begin

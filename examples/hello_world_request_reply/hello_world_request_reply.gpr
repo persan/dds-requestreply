@@ -1,12 +1,12 @@
 with "../../dds-ada-request_reply.gpr"; --@REPLACEwith "dds-ada-request_reply.gpr";
 with "dds.gpr";
+with "gnatcoll.gpr";
 
 project Hello_World_Request_Reply is
+   for Create_Missing_Dirs use "True";
    
    for Languages use ("C", "Ada", "Java", "idl");
    
-   for Main use project'Main & ("PrimeNumberReplier.c");
-   for Main use project'Main & ("PrimeNumberRequester.c");
    for Main use project'Main & ("primes-replier_main.adb");
    for Main use project'Main & ("primes-requester_main.adb");
 
@@ -18,7 +18,7 @@ project Hello_World_Request_Reply is
       for Driver ("Java") use "";
       for Driver ("idl") use "";
       for Default_Switches ("C") use Dds.Compiler'Default_Switches ("C");     
-      for Default_Switches ("Ada") use ("-gnatwa");     
+      for Default_Switches ("Ada") use ("-gnatwa", "-gnat2020"); 
    end Compiler;
  
    package Naming is 

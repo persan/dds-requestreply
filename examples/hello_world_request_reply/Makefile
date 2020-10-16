@@ -2,12 +2,15 @@
 PREFIX?=${NDDSHOME}
 TARGET?=${DESTDIR}${PREFIX}/resource/template/rti_workspace/examples/connext_dds/ada/hello_world_request_reply
 
-all:
-generate:
+src/gen/%.h:src/%.idl
 	rm -rf src/gen; mkdir -p src/gen
 	rtiddsgen -language Ada -d src/gen src/Primes.idl
 
-compil:
+all:generate compile
+
+generate:src/gen/Primes.h
+
+compile:
 	gprbuild -p -j0 -P hello_world_request_reply.gpr
 
 install:

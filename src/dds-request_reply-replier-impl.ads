@@ -1,4 +1,3 @@
-with DDS.Topic;
 with DDS.Request_Reply.Impl;
 private package  DDS.Request_Reply.Replier.Impl is
 

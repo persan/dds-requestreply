@@ -4,7 +4,7 @@ with Ada.Text_IO;
 with DDS.DomainParticipant;
 with DDS.DomainParticipantFactory;
 with Primes.PrimeNumberReplier;
-with Primes_IDL_File.PrimeNumberRequest_TypeSupport;
+with Primes.PrimeNumberRequest_TypeSupport;
 with RTIDDS.Config;
 
 procedure Primes.Replier_Main is
@@ -12,7 +12,7 @@ procedure Primes.Replier_Main is
    use Ada.Numerics.Long_Elementary_Functions;
    use Ada.Text_IO;
 
-   use Primes_IDL_File;
+   use Primes;
    
    use type DDS.DomainParticipant.Ref_Access;
    use type DDS.ReturnCode_T;
@@ -23,7 +23,7 @@ procedure Primes.Replier_Main is
 
    procedure Replier_Shutdown
      (Participant : in out DDS.DomainParticipant.Ref_Access;
-      Replier     : in PrimeNumberReplier.Ref_Access;
+      Replier     : in Primes.PrimeNumberReplier.Ref_Access;
       Request     : in out PrimeNumberRequest_Access) is
       pragma Unreferenced (Request);
    begin
