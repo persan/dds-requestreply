@@ -14,8 +14,8 @@ procedure DDS.Request_Reply.Tests.Simple.Replier_Main is
 
 begin
    Main_Loop : while True loop
-
       for I of Replier.Receive_Request loop
+         Initialize (Reply);
 
          if I.Data.all = DONE then
             Append (Reply, "FINAL " & Count'Img);

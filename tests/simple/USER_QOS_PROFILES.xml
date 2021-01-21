@@ -30,6 +30,7 @@
                     <name>HelloWorldDataReader</name>
                 </subscription_name>
             </datareader_qos>
+            
             <participant_qos>
                 <participant_name>
                     <name>HelloWorldParticipant</name>

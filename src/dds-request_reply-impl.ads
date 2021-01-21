@@ -1,5 +1,5 @@
-with DDS.DataReader;
-with DDS.DataWriter;
+with DDS.DataReader_Impl;
+with DDS.DataWriter_Impl;
 with DDS.DomainParticipant;
 with DDS.Publisher;
 with DDS.Subscriber;
@@ -14,15 +14,14 @@ private package DDS.Request_Reply.Impl is
       Participant          : DDS.DomainParticipant.Ref_Access;
       Publisher            : DDS.Publisher.Ref_Access;
       Subscriber           : DDS.Subscriber.Ref_Access;
-      Writer_Topic         : DDS.Topic.Ref_Access;
-      Reader_Topic         : DDS.TopicDescription.Ref_Access;
-      Reader               : DDS.DataReader.Ref_Access;
-      Writer               : DDS.DataWriter.Ref_Access;
+      Reply_Topic          : DDS.Topic.Ref_Access;
+      Request_Topic        : DDS.Topic.Ref_Access;
+      Reader               : DDS.DataReader_Impl.Ref_Access;
+      Writer               : DDS.DataWriter_Impl.Ref_Access;
       Waitset              : DDS.WaitSet.Ref_Access;
       Not_Read_Sample_Cond : DDS.ReadCondition.Ref_Access;
       Any_Sample_Cond      : DDS.ReadCondition.Ref_Access;
       Sample_Size          : Natural;
-
    end record;
 
    type Ref_Access  is access all Ref'Class;
@@ -77,12 +76,12 @@ private package DDS.Request_Reply.Impl is
                                   Max_Wait : DDS.Duration_T;
                                   Min_Sample_Count : DDS.Natural);
 
-   procedure Wait_For_Samples (Self : not null access Ref;
-                               Max_Wait : DDS.Duration_T;
-                               Min_Sample_Count : DDS.Natural;
-                               WaitSet : not null DDS.WaitSet.Ref_Access;
+   procedure Wait_For_Samples (Self              : not null access Ref;
+                               Max_Wait          : DDS.Duration_T;
+                               Min_Sample_Count  : DDS.Integer;
+                               WaitSet           : not null DDS.WaitSet.Ref_Access;
                                Initial_Condition : not null DDS.ReadCondition.Ref_Access;
-                               Condition : not null DDS.ReadCondition.Ref_Access);
+                               Condition         : not null DDS.ReadCondition.Ref_Access);
 
 
 end DDS.Request_Reply.Impl;

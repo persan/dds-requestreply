@@ -214,10 +214,6 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
    procedure Delete (Self : in out Ref_Access);
 
 
-   function Send_Reply
-     (Self    : not null access Ref;
-      Reply   : Reply_DataWriter.Treats.Data_Type;
-      Id      : DDS.SampleIdentity_T)return DDS.ReturnCode_T;
 
    procedure Send_Reply
      (Self    : not null access Ref;
@@ -387,9 +383,8 @@ private
      DDS.Request_Reply.Replier.Impl.Ref and DDS.Request_Reply.Replier.Ref
    with record
       Listner            : Replyer_Listeners.Ref_Access;
-      Writer_Listner     : DataWriter_Listner (Ref'Access);
-      Reader_Listner     : DataReader_Listner (Ref'Access);
-
+      Writer_Listner     : aliased DataWriter_Listner (Ref'Access);
+      Reader_Listner     : aliased DataReader_Listner (Ref'Access);
    end record;
 
    function Get_Request_Data_Reader

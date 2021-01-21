@@ -119,48 +119,69 @@ package body DDS.Request_Reply.Impl is
       Data_Count              : out Integer;
       Is_Loan                 : out Boolean;
       DataSeqContiguousBuffer : Interfaces.C.Extensions.Void_Ptr;
-      Info_Seq                : access DDS.SampleInfo_Seq.Sequence;
+      Info_Seq                : DDS.SampleInfo_Seq.Sequence;
       Data_Seq_Len            : Long_Integer;
       Data_Seq_Max_Len        : Long_Integer;
       Data_Seq_Has_Ownership  : Boolean;
       Max_Samples             : Natural;
       Read_Condition          : not null DDS.ReadCondition.Ref_Access;
-      Take                    : Boolean)return RTIDDS.Low_Level.ndds_dds_c_dds_c_infrastructure_h.DDS_ReturnCode_t is
+      Take                    : Boolean)return DDS.ReturnCode_T is
    begin
-      return raise Program_Error;
+      return DDS.ReturnCode_T'Val(Self.Reader.read_or_take_w_condition_untypedI
+                                  (Is_Loan                             => Is_Loan'Unrestricted_Access,
+                                   Received_Data                       => Received_Data,
+                                   Data_Count                          => Data_Count'Unrestricted_Access,
+                                   Info_Seq                            => Info_Seq,
+                                   Data_Seq_Len                        => Data_Seq_Len,
+                                   Data_Seq_Max_Len                    => Data_Seq_Max_Len,
+                                   Data_Seq_Has_Ownership              => Boolean'Pos(Data_Seq_Has_Ownership),
+                                   Data_Seq_Contiguous_Buffer_For_Copy => DataSeqContiguousBuffer,
+                                   Data_Size                           => Self.Sample_Size,
+                                   Max_Samples                         => Standard.Long_integer(Max_Samples),
+                                   Condition                           => Read_Condition,
+                                   Take                                => Take));
    end Get_Sample_Loaned_W_Len;
 
-   function Touch_Samples (Self          : not null access Ref;
-                           Max_Count     : DDS.Natural;
-                           ReadCondition : not null DDS.ReadCondition.Ref_Access) return RTIDDS.Low_Level.ndds_dds_c_dds_c_infrastructure_h.DDS_ReturnCode_t is
+   function Touch_Samples
+     (Self          : not null access Ref;
+      Max_Count     : DDS.Natural;
+      ReadCondition : not null DDS.ReadCondition.Ref_Access) return Integer
+   is
       Received_Data : System.Address := System.Null_Address;
       Info_Seq      : aliased DDS.SampleInfo_Seq.Sequence;
       Data_Count    : Integer := -1;
       IsLoan        : Boolean := True;
+      retCode       : DDS.ReturnCode_T;
    begin
-      return Self.Get_Sample_Loaned_W_Len
+      retCode:= Self.Get_Sample_Loaned_W_Len
         (Received_Data           => Received_Data'Address,
          Data_Count              => Data_Count,
          Is_Loan                 => IsLoan,
          DataSeqContiguousBuffer => System.Null_Address,
-         Info_Seq                => Info_Seq'Access,
+         Info_Seq                => Info_Seq,
          Data_Seq_Len            => 0,
          Data_Seq_Max_Len        => 0,
          Data_Seq_Has_Ownership  => True,
          Max_Samples             => Max_Count,
          Read_Condition          => ReadCondition,
          Take                    => False);
+      if retCode = DDS.RETCODE_OK  then
+         self.Reader.Return_Loan_UntypedI(Received_Data,Data_Count,Info_Seq);
+      elsif retCode /= DDS.RETCODE_NO_DATA then
+         Ret_Code_To_Exception(retCode,"error with getting sample loan");
+      end if;
+      return Data_Count;
    end Touch_Samples;
 
 
 
    procedure Wait_For_Samples (Self              : not null access Ref;
                                Max_Wait          : DDS.Duration_T;
-                               Min_Sample_Count  : DDS.Natural;
+                               Min_Sample_Count  : DDS.Integer;
                                WaitSet           : not null DDS.WaitSet.Ref_Access;
                                Initial_Condition : not null DDS.ReadCondition.Ref_Access;
                                Condition         : not null DDS.ReadCondition.Ref_Access) is
-      Sample_Count          : Integer := Min_Sample_Count;
+      Sample_Count          : DDS.Natural := (if Min_Sample_Count =DDS.LENGTH_UNLIMITED then DDS.Natural'last else Min_Sample_Count);
       TimeBefore, TimeAfter : DDS.Time_T;
       RemainingWait         : aliased DDS.Duration_T;
       ActiveConditions      : aliased DDS.ConditionSeq.Sequence;
@@ -176,7 +197,8 @@ package body DDS.Request_Reply.Impl is
          raise PRECONDITION_NOT_MET;
       end if;
 
-      Sample_Count := Sample_Count - Integer(Self.Touch_Samples (Min_Sample_Count, Initial_Condition));
+      Sample_Count := Sample_Count - Self.Touch_Samples (Min_Sample_Count, Initial_Condition);
+
       while Sample_Count > 0 loop
          if Sample_Count = 1 then
             WaitSet.Wait (ActiveConditions'Access, RemainingWait);
@@ -192,7 +214,7 @@ package body DDS.Request_Reply.Impl is
               Get_Length (ActiveConditions'Access) /= 1 or
               Get (ActiveConditions'Access, 0) /= DDS.Condition.Ref_Access (Condition);
             if Sample_Count > 1 then
-               Sample_Count :=  Sample_Count - Integer (Self.Touch_Samples (Min_Sample_Count, Condition));
+               Sample_Count :=  Sample_Count - Self.Touch_Samples (Min_Sample_Count, Condition);
             else
                Sample_Count := Sample_Count - 1;
             end if;

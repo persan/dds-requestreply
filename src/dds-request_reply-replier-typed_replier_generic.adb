@@ -1,9 +1,13 @@
 pragma Ada_2012;
+with Ada.Unchecked_Deallocation;
+with DDS.DataReader_Impl;
 with DDS.Request_Reply.Impl;
 with DDS.Topic;
+with DDS.DataWriter_Impl;
 package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    use type DDS.Publisher.Ref_Access;
    use type DDS.Subscriber.Ref_Access;
+   procedure free is new ada.Unchecked_Deallocation (Ref'class, ref_access);
 
    ------------
    -- Create --
@@ -53,6 +57,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
       Ret : Ref_Access := new Ref;
+
    begin
       Ret.Listner := A_Listner;
       Ret.Participant := Participant;
@@ -70,8 +75,8 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
          Library_Name     => Library_Name,
          Profile_Name     => Profile_Name);
 
-      Ret.Writer :=
-        (if Publisher = null
+      Ret.Writer := DDS.DataWriter_Impl.Ref_Access
+        ((if Publisher = null
          then
             Participant.Create_DataWriter_With_Profile
            (A_Topic      => Ret.Reply_Topic,
@@ -85,25 +90,24 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
             Library_Name => Library_Name,
             Profile_Name => Profile_Name,
             A_Listener   => Ret.Writer_Listner'Unrestricted_Access,
-            Mask         => Mask));
+            Mask         => Mask)));
 
-      Ret.Reader := (if Subscriber = null
-                     then
-                        Participant.Create_DataReader_With_Profile
-                       (Topic        => Ret.Reply_Topic.As_TopicDescription,
-                        Library_Name => Library_Name,
-                        Profile_Name => Profile_Name,
-                        A_Listener   => Ret.Reader_Listner'Unrestricted_Access,
-                        Mask         => Mask)
-                     else
-                        Subscriber.Create_DataReader_With_Profile
-                       (Topic        => Ret.Request_Topic.As_TopicDescription,
-                        Library_Name => Library_Name,
-                        Profile_Name => Profile_Name,
-                        A_Listener   => Ret.Reader_Listner'Unrestricted_Access,
-                        Mask         => Mask));
-
-
+      Ret.Reader := DDS.DataReader_Impl.Ref_Access
+        ((if Subscriber = null
+         then
+            Participant.Create_DataReader_With_Profile
+           (Topic        => Ret.Reply_Topic.As_TopicDescription,
+            Library_Name => Library_Name,
+            Profile_Name => Profile_Name,
+            A_Listener   => Ret.Reader_Listner'Unrestricted_Access,
+            Mask         => Mask)
+         else
+            Subscriber.Create_DataReader_With_Profile
+           (Topic        => Ret.Request_Topic.As_TopicDescription,
+            Library_Name => Library_Name,
+            Profile_Name => Profile_Name,
+            A_Listener   => Ret.Reader_Listner'Unrestricted_Access,
+            Mask         => Mask)));
       return Ret;
    end Create;
 
@@ -140,7 +144,6 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    ------------
    -- Create --
    ------------
-
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
       Request_Topic_Name : DDS.String;
@@ -152,12 +155,39 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       A_Listner          : Replyer_Listeners.Ref_Access := null;
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
-      Ret : Ref_Access := new Ref;
+      Ret : ref_access := new Ref;
    begin
-      --        Ret.Create_Reply_Topic (Reply_Topic_Name, Reply_DataWriter.Treats.Get_Type_Name);
-      --        Ret.Create_Request_Topic (Request_Topic_Name, Request_DataReader.Treats.Get_Type_Name);
-      --        pragma Compile_Time_Warning (Standard.True, "Create unimplemented");
-      return raise Program_Error with "Unimplemented function Create";
+      ret.Participant := Participant;
+      ret.Publisher := (if Publisher /= null then
+                           Publisher
+                        else
+                           Participant.Get_Implicit_Publisher);
+      ret.Subscriber := (if Subscriber /= null then
+                            Subscriber
+                         else
+                            Participant.Get_Implicit_Subscriber);
+
+      ret.Reply_Topic := ret.Create_Reply_Topic (Reply_Topic_Name, Reply_DataWriter.Treats.Get_Type_Name);
+
+      ret.Request_Topic := Ret.Create_Request_Topic (Request_Topic_Name, Request_DataReader.Treats.Get_Type_Name);
+
+      ret.Reader := DDS.DataReader_Impl.Ref_Access (ret.Subscriber.Create_DataReader
+                                                    (Topic      => ret.Request_Topic,
+                                                     Qos        =>  Datareader_Qos,
+                                                     A_Listener => ret.Reader_Listner'access,
+                                                     Mask       => Mask));
+
+      ret.Writer := DDS.DataWriter_Impl.Ref_Access (ret.Publisher.Create_DataWriter
+                                                    (A_Topic => Ret.Reply_Topic,
+                                                     Qos        =>  Datawriter_Qos,
+                                                     A_Listener => ret.Writer_Listner'Access,
+                                                     Mask       => Mask));
+      return ret;
+   exception
+      when others =>
+         ret.Delete;
+         free (ret);
+         raise;
    end Create;
 
    ------------
@@ -174,37 +204,18 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    -- Send_Reply --
    ----------------
 
-
-   ----------------
-   -- Send_Reply --
-   ----------------
-
-   function Send_Reply
-     (Self : not null access Ref;
-      Reply : Reply_DataWriter.Treats.Data_Type;
-      Id   : DDS.SampleIdentity_T) return DDS.ReturnCode_T
-   is
-   begin
-      --        pragma Compile_Time_Warning (Standard.True, "Send_Reply unimplemented");
-      return raise Program_Error with "Unimplemented function Send_Reply";
-   end Send_Reply;
-
-   ----------------
-   -- Send_Reply --
-   ----------------
-
-
    ----------------
    -- Send_Reply --
    ----------------
 
    procedure Send_Reply
-     (Self : not null access Ref; Reply : Reply_DataWriter.Treats.Data_Type;
-      Id   : DDS.SampleIdentity_T)
+     (Self  : not null access Ref;
+      Reply : Reply_DataWriter.Treats.Data_Type;
+      Id    : DDS.SampleIdentity_T)
    is
+      params : DDS.WriteParams_t;
    begin
-      --        pragma Compile_Time_Warning (Standard.True, "Send_Reply unimplemented");
-      raise Program_Error with "Unimplemented procedure Send_Reply";
+      self.send_Sample (Data => Reply , Related_Request_Info => Id, WriteParams => params);
    end Send_Reply;
 
    ---------------------
@@ -215,8 +226,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
      (Self     :        not null access Ref;
       Request  : in out Request_DataReader.Treats.Data_Type;
       Info_Seq : in out DDS.SampleInfo;
-      Timeout  :        DDS.Duration_T := DDS.DURATION_INFINITE) return DDS
-     .ReturnCode_T
+      Timeout  :        DDS.Duration_T := DDS.DURATION_INFINITE) return DDS.ReturnCode_T
    is
    begin
       --        pragma Compile_Time_Warning (Standard.True,
@@ -292,14 +302,14 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    -- Read_Request --
    ------------------
 
-    function Read_Request
+   function Read_Request
      (Self            : not null access Ref;
       Max_Reply_Count : DDS.long := DDS.INFINITE)
       return Request_DataReader.Container'Class
    is
    begin
       Self.Wait_For_Requests (Min_Count => 1, Max_Wait => DDS.DURATION_ZERO);
-      return Request_DataReader.Ref_Access (Self.Reader).Read;
+      return Request_DataReader.Ref_Access (Self.Reader).take (Max_Samples => 1);
    end Read_Request;
 
    -----------------
@@ -325,7 +335,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Sample_Info : in out DDS.SampleInfo_Seq.Sequence)
    is
    begin
-      Request_DataReader.Ref_Access(Self.Reader).Return_Loan(Replies,Sample_Info);
+      Request_DataReader.Ref_Access (Self.Reader).Return_Loan (Replies, Sample_Info);
    end Return_Loan;
 
    ------------

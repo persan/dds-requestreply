@@ -1,7 +1,11 @@
 pragma Ada_2012;
 with DDS.Request_Reply.Impl;
 with DDS.DomainParticipantFactory;
+with DDS.DataWriter_Impl;
+with DDS.DataReader_Impl;
 package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
+   use DDS.Subscriber;
+   use DDS.Publisher;
    -----------------------------
    -- Get_Request_Data_Writer --
    -----------------------------
@@ -10,7 +14,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
      (Self : not null access Ref) return DDS.DataWriter.Ref_Access
    is
    begin
-      return Self.Writer;
+      return DDS.DataWriter.Ref_Access (Self.Writer);
    end Get_Request_Data_Writer;
 
    ---------------------------
@@ -21,7 +25,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
      (Self : not null access Ref) return DDS.DataReader.Ref_Access
    is
    begin
-      return Self.Reader;
+      return DDS.DataReader.Ref_Access (Self.Reader);
    end Get_Reply_Data_Reader;
 
    ------------
@@ -29,8 +33,8 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    ------------
    procedure Finalize (Self : in out Ref) is
    begin
-      Self.Participant.Delete_DataWriter (Self.Writer);
-      Self.Participant.Delete_DataReader (Self.Reader);
+      Self.Participant.Delete_DataWriter (DDS.DataWriter.Ref_Access (Self.Writer));
+      Self.Participant.Delete_DataReader (DDS.DataReader.Ref_Access (self.Reader));
       Self.Participant.Delete_Topic (Self.Request_Topic);
       Self.Participant.Delete_Topic (Self.Reply_Topic);
       Impl.Ref (Self).Finalize;
@@ -171,9 +175,10 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Ret.Validate (Publisher, Subscriber);
       Ret.Request_Topic := Ret.Create_Request_Topic (Request_Topic_Name, Request_DataWriter.Treats.Get_Type_Name, Topic_Qos);
       Ret.Reply_Topic := Ret.Create_Reply_Topic (Reply_Topic_Name, Reply_DataReader.Treats.Get_Type_Name, Topic_Qos);
-
-      Ret.Writer := Ret.Publisher.Create_DataWriter (Ret.Request_Topic, Datawriter_Qos, Ret.Writer_Listner'Access, Mask);
-      Ret.Reader := Ret.Subscriber.Create_DataReader (Ret.Reply_Topic.As_TopicDescription, Datareader_Qos, Ret.Reader_Listner'Access, Mask);
+      Ret.Subscriber := (if Subscriber = null then Participant.Get_Implicit_Subscriber else Subscriber);
+      Ret.Publisher := (if Publisher = null then Participant.Get_Implicit_Publisher else Publisher);
+      Ret.Writer := DataWriter_Impl.Ref_Access (Ret.Publisher.Create_DataWriter (Ret.Request_Topic, Datawriter_Qos, Ret.Writer_Listner'Access, Mask));
+      Ret.Reader := DDS.DataReader_Impl.Ref_Access (Ret.Subscriber.Create_DataReader (Ret.Reply_Topic.As_TopicDescription, Datareader_Qos, Ret.Reader_Listner'Access, Mask));
       return Ret;
    exception
       when others =>

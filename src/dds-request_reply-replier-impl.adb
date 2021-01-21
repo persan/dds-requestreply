@@ -12,10 +12,7 @@ package body DDS.Request_Reply.Replier.Impl is
       Max_Wait  : DDS.Duration_T)
    is
    begin
-      Self.Wait_For_Any_Sample (Self, Min_Count, Max_Wait);
-      pragma Compile_Time_Warning
-        (Standard.True, "Wait_For_Requests unimplemented");
-      raise Program_Error with "Unimplemented procedure Wait_For_Requests";
+      Self.Wait_For_Any_Sample (Max_Wait => Max_Wait , Min_Sample_Count => Min_Count);
    end Wait_For_Requests;
 
    --------------------------------
@@ -33,5 +30,15 @@ package body DDS.Request_Reply.Replier.Impl is
       end if;
       Params.Related_Sample_Identity := Related_Request_Info;
    end Configure_Params_For_Reply;
+
+   procedure  send_sample
+     (Self                 : not null access Ref;
+      data                 : System.Address;
+      Params               : in out WriteParams_T;
+      Related_Request_Info : DDS.SampleIdentity_T) is
+   begin
+      self.configure_params_for_reply (Params, related_request_info);
+      --  self.Writer.Write_W_Params (data, params);
+   end;
 
 end DDS.Request_Reply.Replier.Impl;
