@@ -1,4 +1,3 @@
-
 with Ada.Command_Line;
 with Ada.Text_IO; use Ada.Text_IO;
 with DDS.DomainParticipant;
@@ -8,11 +7,10 @@ with Primes.PrimeNumberRequest_TypeSupport;
 with RTIDDS.Config;
 
 procedure Primes.Requester_Main is
-   use Primes;
    use DDS.DomainParticipant;
    use all type DDS.ReturnCode_T;
 
-   Factory : constant DDS.DomainParticipantFactory.Ref_Access := DDS.DomainParticipantFactory.Get_Instance;
+   Factory : DDS.DomainParticipantFactory.Ref_Access := DDS.DomainParticipantFactory.Get_Instance;
 
    procedure Requester_Shutdown (Participant : in out DDS.DomainParticipant.Ref_Access;
                                  Requester   : in out PrimeNumberRequester.Ref_Access;

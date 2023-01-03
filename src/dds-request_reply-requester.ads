@@ -1,7 +1,6 @@
 with DDS.ReadCondition;
 with DDS.DataReader;
 with DDS.DataWriter;
-with DDS.Request_Reply;
 package DDS.Request_Reply.Requester is
    type Ref is limited interface and DDS.Request_Reply.Ref;
    type Ref_Access is access all Ref'Class;

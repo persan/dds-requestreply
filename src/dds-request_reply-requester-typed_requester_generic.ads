@@ -4,7 +4,6 @@ with DDS.DataWriter;
 with DDS.DataWriterListener;
 with DDS.DomainParticipant;
 with DDS.Publisher;
-with DDS.Request_Reply.Requester;
 with DDS.Subscriber;
 with DDS.Typed_DataWriter_Generic;
 with DDS.Typed_DataReader_Generic;
@@ -385,7 +384,17 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Get_Request_DataWriter (Self : not null access Ref) return Request_DataWriter.Ref_Access;
    function Get_Reply_DataReader (Self : not null access Ref) return Reply_DataReader.Ref_Access;
+   pragma Warnings(Off);
+   function Touch_Samples
+     (Self           : not null access Ref;
+      Max_Count      : DDS.Integer;
+      Read_Condition : DDS.ReadCondition.Ref_Access) return Integer is (0);
 
+   function Wait_For_Any_Sample
+     (Self             : not null access Ref;
+      Max_Wait         : DDS.Duration_T;
+      Min_Sample_Count : DDS.Integer) return DDS.ReturnCode_T is (RETCODE_UNSUPPORTED);
+   pragma Warnings (On);
 private
 
    type DataReader_Listner (Parent : not null access Ref )is new DDS.DataReaderListener.Ref with null record;

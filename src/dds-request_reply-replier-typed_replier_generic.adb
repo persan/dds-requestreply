@@ -2,7 +2,6 @@ pragma Ada_2012;
 with Ada.Unchecked_Deallocation;
 with DDS.DataReader_Impl;
 with DDS.Request_Reply.Impl;
-with DDS.Topic;
 with DDS.DataWriter_Impl;
 package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    use type DDS.Publisher.Ref_Access;
@@ -20,7 +19,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Profile_Name : DDS.String;
       Publisher    : DDS.Publisher.Ref_Access     := null;
       Subscriber   : DDS.Subscriber.Ref_Access    := null;
-      A_Listner    : Replyer_Listeners.Ref_Access := null;
+      Listner      : Replyer_Listeners.Ref_Access := null;
       Mask         : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
       Request_Topic_Name : DDS.String := DDS.Request_Reply.Impl.Create_Request_Topic_Name_From_Service_Name (Service_Name);
@@ -34,7 +33,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
                      Profile_Name,
                      Publisher,
                      Subscriber,
-                     A_Listner, Mask);
+                     Listner, Mask);
       Finalize (Request_Topic_Name);
       Finalize (Reply_Topic_Name);
       return Ret;
@@ -53,62 +52,31 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Profile_Name       : DDS.String;
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
-      A_Listner          : Replyer_Listeners.Ref_Access := null;
+      Listner            : Replyer_Listeners.Ref_Access := null;
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
-      Ret : Ref_Access := new Ref;
-
+      Datawriter_Qos    : DDS.DataWriterQos;
+      Datareader_Qos    : DDS.DataReaderQos;
+      Request_Topic_QoS : DDS.TopicQos;
+      Reply_Topic_Qos   : DDS.TopicQos;
    begin
-      Ret.Listner := A_Listner;
-      Ret.Participant := Participant;
-      Ret.Validate (Publisher, Subscriber);
+      Participant.Get_Factory.Get_Datareader_Qos_From_Profile_W_Topic_Name (Datareader_Qos, Library_Name, Profile_Name, Request_Topic_Name);
+      Participant.Get_Factory.Get_Datawriter_Qos_From_Profile_W_Topic_Name (DataWriter_Qos, Library_Name, Profile_Name, Reply_Topic_Name);
+      Participant.Get_Factory.Get_Topic_Qos_From_Profile_W_Topic_Name (Request_Topic_QoS, Library_Name, Profile_Name, Request_Topic_Name);
+      Participant.Get_Factory.Get_Topic_Qos_From_Profile_W_Topic_Name (Reply_Topic_Qos, Library_Name, Profile_Name, Reply_Topic_Name);
 
-      Ret.Reply_Topic := Ret.Create_Reply_Topic_With_Profile
-        (Topic_Name       => Reply_Topic_Name,
-         Type_Name        => Reply_DataWriter.Treats.Get_Type_Name,
-         Library_Name     => Library_Name,
-         Profile_Name     => Profile_Name);
+      return Create (Participant        => Participant,
+                     Request_Topic_Name => Request_Topic_Name,
+                     Reply_Topic_Name   => Reply_Topic_Name,
+                     Datawriter_Qos     => Datawriter_Qos,
+                     Datareader_Qos     => Datareader_Qos,
+                     Reply_Topic_Qos    => Reply_Topic_Qos,
+                     Request_Topic_QoS  => Request_Topic_QoS,
+                     Publisher          => Publisher,
+                     Subscriber         => Subscriber,
+                     Listner            => Listner,
+                     Mask               => Mask);
 
-      Ret.Request_Topic := Ret.Create_Request_Topic_With_Profile
-        (Topic_Name       => Request_Topic_Name,
-         Type_Name        => Request_DataReader.Treats.Get_Type_Name,
-         Library_Name     => Library_Name,
-         Profile_Name     => Profile_Name);
-
-      Ret.Writer := DDS.DataWriter_Impl.Ref_Access
-        ((if Publisher = null
-         then
-            Participant.Create_DataWriter_With_Profile
-           (A_Topic      => Ret.Reply_Topic,
-            Library_Name => Library_Name,
-            Profile_Name => Profile_Name,
-            A_Listener   => Ret.Writer_Listner'Unrestricted_Access,
-            Mask         => Mask)
-         else
-            Publisher.Create_DataWriter_With_Profile
-           (A_Topic      => Ret.Request_Topic,
-            Library_Name => Library_Name,
-            Profile_Name => Profile_Name,
-            A_Listener   => Ret.Writer_Listner'Unrestricted_Access,
-            Mask         => Mask)));
-
-      Ret.Reader := DDS.DataReader_Impl.Ref_Access
-        ((if Subscriber = null
-         then
-            Participant.Create_DataReader_With_Profile
-           (Topic        => Ret.Reply_Topic.As_TopicDescription,
-            Library_Name => Library_Name,
-            Profile_Name => Profile_Name,
-            A_Listener   => Ret.Reader_Listner'Unrestricted_Access,
-            Mask         => Mask)
-         else
-            Subscriber.Create_DataReader_With_Profile
-           (Topic        => Ret.Request_Topic.As_TopicDescription,
-            Library_Name => Library_Name,
-            Profile_Name => Profile_Name,
-            A_Listener   => Ret.Reader_Listner'Unrestricted_Access,
-            Mask         => Mask)));
-      return Ret;
    end Create;
 
    ------------
@@ -116,26 +84,32 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    ------------
 
    function Create
-     (Participant    : DDS.DomainParticipant.Ref_Access;
-      Service_Name   : DDS.String;
-      Datawriter_Qos : DDS.DataWriterQos;
-      Datareader_Qos : DDS.DataReaderQos;
-      Publisher      : DDS.Publisher.Ref_Access     := null;
-      Subscriber     : DDS.Subscriber.Ref_Access    := null;
-      A_Listner      : Replyer_Listeners.Ref_Access := null;
-      Mask           : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
+     (Participant       : DDS.DomainParticipant.Ref_Access;
+      Service_Name      : DDS.String;
+      Datawriter_Qos    : DDS.DataWriterQos;
+      Datareader_Qos    : DDS.DataReaderQos;
+      Reply_Topic_Qos   : DDS.TopicQos;
+      Request_Topic_Qos : DDS.TopicQos;
+      Publisher         : DDS.Publisher.Ref_Access     := null;
+      Subscriber        : DDS.Subscriber.Ref_Access    := null;
+      Listner           : Replyer_Listeners.Ref_Access := null;
+      Mask              : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
       Request_Topic_Name : DDS.String := DDS.Request_Reply.Impl.Create_Request_Topic_Name_From_Service_Name (Service_Name);
       Reply_Topic_Name   : DDS.String := DDS.Request_Reply.Impl.Create_Reply_Topic_Name_From_Service_Name (Service_Name);
       Ret                : Ref_Access;
    begin
-      Ret :=  Create (Participant,
-                      Request_Topic_Name,
-                      Reply_Topic_Name,
-                      Datawriter_Qos,
-                      Datareader_Qos,
-                      Publisher, Subscriber,
-                      A_Listner, Mask);
+      Ret :=  Create (Participant        => Participant,
+                      Request_Topic_Name => Request_Topic_Name,
+                      Reply_Topic_Name   => Reply_Topic_Name,
+                      Datawriter_Qos     => Datawriter_Qos,
+                      Datareader_Qos     => Datareader_Qos,
+                      Reply_Topic_Qos    => Reply_Topic_Qos,
+                      Request_Topic_Qos  => Request_Topic_Qos,
+                      Publisher          => Publisher,
+                      Subscriber         => Subscriber,
+                      Listner            => Listner,
+                      Mask               => Mask);
       Finalize (Request_Topic_Name);
       Finalize (Reply_Topic_Name);
       return Ret;
@@ -150,13 +124,16 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Reply_Topic_Name   : DDS.String;
       Datawriter_Qos     : DDS.DataWriterQos;
       Datareader_Qos     : DDS.DataReaderQos;
+      Reply_Topic_Qos    : DDS.TopicQos;
+      Request_Topic_Qos  : DDS.TopicQos;
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
-      A_Listner          : Replyer_Listeners.Ref_Access := null;
+      Listner          : Replyer_Listeners.Ref_Access := null;
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
       Ret : ref_access := new Ref;
    begin
+      Ret.Listner := Listner;
       ret.Participant := Participant;
       ret.Publisher := (if Publisher /= null then
                            Publisher
@@ -167,21 +144,29 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
                          else
                             Participant.Get_Implicit_Subscriber);
 
-      ret.Reply_Topic := ret.Create_Reply_Topic (Reply_Topic_Name, Reply_DataWriter.Treats.Get_Type_Name);
+      Ret.Reply_Topic := Ret.Create_Reply_Topic (Reply_Topic_Name, Reply_DataWriter.Treats.Get_Type_Name, Reply_Topic_Qos);
 
-      ret.Request_Topic := Ret.Create_Request_Topic (Request_Topic_Name, Request_DataReader.Treats.Get_Type_Name);
+      Ret.Request_Topic := Ret.Create_Request_Topic (Request_Topic_Name, Request_DataReader.Treats.Get_Type_Name, Request_Topic_Qos);
 
       ret.Reader := DDS.DataReader_Impl.Ref_Access (ret.Subscriber.Create_DataReader
                                                     (Topic      => ret.Request_Topic,
-                                                     Qos        =>  Datareader_Qos,
+                                                     Qos        => Datareader_Qos,
                                                      A_Listener => ret.Reader_Listner'access,
                                                      Mask       => Mask));
 
-      ret.Writer := DDS.DataWriter_Impl.Ref_Access (ret.Publisher.Create_DataWriter
-                                                    (A_Topic => Ret.Reply_Topic,
+      Ret.Writer := DDS.DataWriter_Impl.Ref_Access (Ret.Publisher.Create_DataWriter
+                                                    (A_Topic    => Ret.Reply_Topic,
                                                      Qos        =>  Datawriter_Qos,
-                                                     A_Listener => ret.Writer_Listner'Access,
+                                                     A_Listener => Ret.Writer_Listner'Access,
                                                      Mask       => Mask));
+      Ret.Any_Sample_Cond := Ret.Reader.Create_Readcondition
+        (Sample_States   => DDS.ANY_SAMPLE_STATE,
+         View_States     => DDS.ANY_VIEW_STATE,
+         Instance_States => DDS.ANY_INSTANCE_STATE);
+      Ret.Not_Read_Sample_Cond := Ret.Reader.Create_Readcondition
+        (Sample_States   => DDS.NOT_READ_SAMPLE_STATE,
+         View_States     => DDS.ANY_VIEW_STATE,
+         Instance_States => DDS.ANY_INSTANCE_STATE);
       return ret;
    exception
       when others =>
@@ -223,15 +208,21 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    ---------------------
 
    function Receive_Request
-     (Self     :        not null access Ref;
-      Request  : in out Request_DataReader.Treats.Data_Type;
-      Info_Seq : in out DDS.SampleInfo;
-      Timeout  :        DDS.Duration_T := DDS.DURATION_INFINITE) return DDS.ReturnCode_T
+     (Self       :        not null access Ref;
+      Request    : in out Request_DataReader.Treats.Data_Type;
+      SampleInfo : in out DDS.SampleInfo;
+      Timeout    :        DDS.Duration_T := DDS.DURATION_INFINITE) return DDS.ReturnCode_T
    is
    begin
-      --        pragma Compile_Time_Warning (Standard.True,
-      --           "Receive_Request unimplemented");
-      return raise Program_Error with "Unimplemented function Receive_Request";
+      return Ret : DDS.ReturnCode_T := DDS.RETCODE_NO_DATA do
+         for I of Self.Receive_Request (Min_Reply_Count => 1, Max_Reply_Count => 1, Timeout => Timeout) loop
+            if I.Sample_Info.Valid_Data then
+               Request_DataReader.Treats.Copy (Request, I.Data.all);
+               Copy (SampleInfo, I.Sample_Info.all);
+               Ret := DDS.RETCODE_OK;
+            end if;
+         end loop;
+      end return;
    end Receive_Request;
 
    ---------------------

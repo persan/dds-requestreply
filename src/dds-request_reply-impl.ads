@@ -4,7 +4,6 @@ with DDS.DomainParticipant;
 with DDS.Publisher;
 with DDS.Subscriber;
 with DDS.Topic;
-with DDS.TopicDescription;
 with DDS.WaitSet;
 with DDS.ReadCondition;
 
@@ -18,7 +17,7 @@ private package DDS.Request_Reply.Impl is
       Request_Topic        : DDS.Topic.Ref_Access;
       Reader               : DDS.DataReader_Impl.Ref_Access;
       Writer               : DDS.DataWriter_Impl.Ref_Access;
-      Waitset              : DDS.WaitSet.Ref_Access;
+      Waitset              : aliased DDS.WaitSet.Ref;
       Not_Read_Sample_Cond : DDS.ReadCondition.Ref_Access;
       Any_Sample_Cond      : DDS.ReadCondition.Ref_Access;
       Sample_Size          : Natural;

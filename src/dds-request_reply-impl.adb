@@ -1,6 +1,5 @@
 with DDS.Condition;
 with DDS.ConditionSeq;
-with GNAT.Source_Info;
 with Interfaces.C.Extensions;
 package body DDS.Request_Reply.Impl is
    use DDS.DomainParticipant;
@@ -108,7 +107,7 @@ package body DDS.Request_Reply.Impl is
    begin
       Self.Wait_For_Samples (Max_Wait,
                              Min_Sample_Count,
-                             Self.Waitset,
+                             Self.Waitset'Access,
                              Self.Any_Sample_Cond,
                              Self.Not_Read_Sample_Cond);
    end Wait_For_Any_Sample;

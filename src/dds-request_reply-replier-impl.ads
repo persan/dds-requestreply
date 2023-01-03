@@ -17,9 +17,10 @@ private package  DDS.Request_Reply.Replier.Impl is
       Params               : in out WriteParams_T;
       Related_Request_Info : DDS.SampleIdentity_T);
 
-   procedure  send_sample
+   procedure  Send_Sample
      (Self                 : not null access Ref;
       data                 : System.Address;
       Params               : in out WriteParams_T;
       Related_Request_Info : DDS.SampleIdentity_T);
+
 end DDS.Request_Reply.Replier.Impl;

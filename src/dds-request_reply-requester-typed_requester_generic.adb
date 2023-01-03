@@ -1,4 +1,4 @@
-pragma Ada_2012;
+pragma Warnings (Off);
 with DDS.Request_Reply.Impl;
 with DDS.DomainParticipantFactory;
 with DDS.DataWriter_Impl;
@@ -249,6 +249,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       return Reply_DataReader.Container
    is
    begin
+
       pragma Compile_Time_Warning
         (Standard.True, "Send_Request unimplemented");
       return raise Program_Error with "Unimplemented function Send_Request";
@@ -421,8 +422,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Take_Replies
      (Self            : not null access Ref;
-      Replies         : not null Reply_DataReader.Treats.Data_Sequences
-      .Sequence_Access;
+      Replies         : not null Reply_DataReader.Treats.Data_Sequences.Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count : DDS.Natural; Max_Reply_Count : DDS.long;
       Timeout         : DDS.Duration_T) return DDS.ReturnCode_T

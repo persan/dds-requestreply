@@ -175,7 +175,7 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Profile_Name       : DDS.String;
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
-      A_Listner          : Replyer_Listeners.Ref_Access := null;
+      Listner          : Replyer_Listeners.Ref_Access := null;
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
 
    function Create
@@ -186,7 +186,7 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Profile_Name       : DDS.String;
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
-      A_Listner          : Replyer_Listeners.Ref_Access := null;
+      Listner          : Replyer_Listeners.Ref_Access := null;
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
 
    function Create
@@ -194,9 +194,11 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Service_Name       : DDS.String;
       Datawriter_Qos     : DDS.DataWriterQos;
       Datareader_Qos     : DDS.DataReaderQos;
+      Reply_Topic_Qos    : DDS.TopicQos;
+      Request_Topic_Qos  : DDS.TopicQos;
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
-      A_Listner          : Replyer_Listeners.Ref_Access := null;
+      Listner          : Replyer_Listeners.Ref_Access := null;
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
 
    function Create
@@ -205,10 +207,12 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Reply_Topic_Name   : DDS.String;
       Datawriter_Qos     : DDS.DataWriterQos;
       Datareader_Qos     : DDS.DataReaderQos;
-      Publisher          : DDS.Publisher.Ref_Access := null;
-      Subscriber         : DDS.Subscriber.Ref_Access := null;
-      A_Listner          : Replyer_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
+      Reply_Topic_Qos    : DDS.TopicQos;
+      Request_Topic_Qos  : DDS.TopicQos;
+      Publisher          : DDS.Publisher.Ref_Access     := null;
+      Subscriber         : DDS.Subscriber.Ref_Access    := null;
+      Listner            : Replyer_Listeners.Ref_Access := null;
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access;
 
 
    procedure Delete (Self : in out Ref_Access);
@@ -221,10 +225,10 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Id      : DDS.SampleIdentity_T);
 
    function Receive_Request
-     (Self     : not null access Ref;
-      Request  : in out Request_DataReader.Treats.Data_Type;
-      Info_Seq : in out DDS.SampleInfo;
-      Timeout  : DDS.Duration_T := DDS.DURATION_INFINITE) return DDS.ReturnCode_T;
+     (Self       :        not null access Ref;
+      Request    : in out Request_DataReader.Treats.Data_Type;
+      SampleInfo : in out DDS.SampleInfo;
+      Timeout    :        DDS.Duration_T := DDS.DURATION_INFINITE) return DDS.ReturnCode_T;
 
 
    procedure Receive_Request
@@ -385,6 +389,7 @@ private
       Listner            : Replyer_Listeners.Ref_Access;
       Writer_Listner     : aliased DataWriter_Listner (Ref'Access);
       Reader_Listner     : aliased DataReader_Listner (Ref'Access);
+      Mask               : DDS.StatusKind;
    end record;
 
    function Get_Request_Data_Reader
