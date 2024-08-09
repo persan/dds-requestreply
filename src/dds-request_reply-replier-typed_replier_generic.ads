@@ -1,3 +1,32 @@
+-- ---------------------------------------------------------------------
+--                                                                    --
+--               Copyright (c) per.sandberg@bahnhof.se                --
+--                                                                    --
+--  Permission is hereby granted, free of charge, to any person       --
+--  obtaining a copy of this software and associated documentation    --
+--  files (the "Software"), to deal in the Software without           --
+--  restriction, including without limitation the rights to use,      --
+--  copy, modify, merge, publish, distribute, sublicense, and/or sell --
+--  copies of the Software, and to permit persons to whom the Software--
+--  is furnished to do so, subject to the following conditions:       --
+--                                                                    --
+--  The above copyright notice and this permission notice             --
+--  (including the next paragraph) shall be included in all copies or --
+--  substantial portions of the Software.                             --
+--                                                                    --
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,   --
+--  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF--
+--  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND             --
+--  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT       --
+--  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,      --
+--  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,--
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER     --
+--  DEALINGS IN THE SOFTWARE.                                         --
+--                                                                    --
+--  <spdx: MIT>
+--                                                                    --
+-- ---------------------------------------------------------------------
+
 with DDS.DataReaderListener;
 with DDS.DataWriter;
 with DDS.DataWriterListener;
@@ -175,7 +204,7 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Profile_Name       : DDS.String;
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
-      Listner          : Replyer_Listeners.Ref_Access := null;
+      Listner            : Replyer_Listeners.Ref_Access := null;
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
 
    function Create
@@ -186,7 +215,7 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Profile_Name       : DDS.String;
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
-      Listner          : Replyer_Listeners.Ref_Access := null;
+      Listner            : Replyer_Listeners.Ref_Access := null;
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
 
    function Create
@@ -198,7 +227,7 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Request_Topic_Qos  : DDS.TopicQos;
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
-      Listner          : Replyer_Listeners.Ref_Access := null;
+      Listner            : Replyer_Listeners.Ref_Access := null;
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return Ref_Access;
 
    function Create
@@ -244,21 +273,21 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    function Receive_Request
      (Self                 : not null access Ref;
-      Min_Reply_Count      : DDS.long := 1;
-      Max_Reply_Count      : DDS.long := DDS.INFINITE;
+      Min_Reply_Count      : DDS.Long := 1;
+      Max_Reply_Count      : DDS.Long := DDS.INFINITE;
       Timeout              : DDS.Duration_T := DDS.DURATION_INFINITE) return Request_DataReader.Container'Class;
 
 
    function Read_Request
      (Self            : not null access Ref;
-      Max_Reply_Count : DDS.long := DDS.INFINITE)
+      Max_Reply_Count : DDS.Long := DDS.INFINITE)
       return Request_DataReader.Container'Class;
 
    procedure Delete (This : in out Ref);
 
    function Take_Request
      (Self            : not null access Ref;
-      Max_Reply_Count : DDS.long := DDS.INFINITE)
+      Max_Reply_Count : DDS.Long := DDS.INFINITE)
       return Request_DataReader.Container'Class;
 
 private
@@ -268,7 +297,7 @@ private
                           Sample_Info  : DDS.SampleInfo_Seq.Sequence_Access);
 
    procedure Return_Loan (Self        : not null access Ref;
-      Replies     : in out Request_DataReader.Treats.Data_Sequences.Sequence;
+                          Replies     : in out Request_DataReader.Treats.Data_Sequences.Sequence;
                           Sample_Info : in out DDS.SampleInfo_Seq.Sequence);
 
    type DataReader_Listner (Parent : not null access Ref )is new DDS.DataReaderListener.Ref with null record;

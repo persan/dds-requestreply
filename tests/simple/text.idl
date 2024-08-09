@@ -1,0 +1,10 @@
+module fofof {
+  long text;
+}
+@TopLevel
+module fa {
+  @Key
+  fofof::text data;
+  string
+  double
+}

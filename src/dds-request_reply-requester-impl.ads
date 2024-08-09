@@ -1,15 +1,43 @@
-pragma Ada_2022;
+-- ---------------------------------------------------------------------
+--                                                                    --
+--               Copyright (c) per.sandberg@bahnhof.se                --
+--                                                                    --
+--  Permission is hereby granted, free of charge, to any person       --
+--  obtaining a copy of this software and associated documentation    --
+--  files (the "Software"), to deal in the Software without           --
+--  restriction, including without limitation the rights to use,      --
+--  copy, modify, merge, publish, distribute, sublicense, and/or sell --
+--  copies of the Software, and to permit persons to whom the Software--
+--  is furnished to do so, subject to the following conditions:       --
+--                                                                    --
+--  The above copyright notice and this permission notice             --
+--  (including the next paragraph) shall be included in all copies or --
+--  substantial portions of the Software.                             --
+--                                                                    --
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,   --
+--  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF--
+--  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND             --
+--  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT       --
+--  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,      --
+--  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,--
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER     --
+--  DEALINGS IN THE SOFTWARE.                                         --
+--                                                                    --
+--  <spdx: MIT>
+--                                                                    --
+-- ---------------------------------------------------------------------
+
+
 --  ----------------------------------------------------------------------------
 --  Note this is an implementation package and is subject to change att any time.
 --  ----------------------------------------------------------------------------
-
 with DDS.ReadCondition;
 with DDS.Request_Reply.Impl;
+with DDS.TopicDescription;
+with DDS.EntityParams;
 with DDS.DomainParticipant;
 with DDS.ContentFilteredTopic;
 with DDS.Topic;
-with DDS.EntityParams;
-with DDS.TopicDescription;
 private package DDS.Request_Reply.Requester.Impl is
 
    type Ref is abstract limited new DDS.Request_Reply.Impl.Ref and DDS.Request_Reply.Requester.Ref with record
@@ -25,11 +53,6 @@ private package DDS.Request_Reply.Requester.Impl is
 
 
 
-   --@RequesterUntypedImpl.c:47
-   function Create_Correlation_Cft (Participant      : not null DDS.DomainParticipant.Ref_Access;
-                                    Topic            : not null DDS.Topic.Ref_Access;
-                                    Correlation_Guid : DDS.Guid_T) return DDS.ContentFilteredTopic.Ref_Access
-     with Obsolescent => "use DDS.DomainParticipant.create_correlation_ContentFilteredTopic";
 
    --@RequesterUntypedImpl.c:131
    function Create_Reader_Topic (Self            : not null access Ref;
@@ -82,5 +105,15 @@ private package DDS.Request_Reply.Requester.Impl is
       Related_Request_Id      : DDS.SampleIdentity_T;
       Take                    : Boolean) return DDS.ReturnCode_T;
 
+   function Create_Correlation_Cft
+     (Participant      : not null DDS.DomainParticipant.Ref_Access;
+      Topic            : not null DDS.Topic.Ref_Access;
+      Correlation_Guid : DDS.Guid_T)
+      return DDS.ContentFilteredTopic.Ref_Access;
+
+   function Wait_For_Replies (Self            : not null access Ref;
+                              Min_Reply_Count : DDS.Long;
+                              Max_Wait        : DDS.Duration_T)
+                              return ReturnCode_T;
 
 end DDS.Request_Reply.Requester.Impl;

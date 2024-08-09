@@ -5,10 +5,11 @@ with "gnatcoll.gpr";
 project Hello_World_Request_Reply is
    for Create_Missing_Dirs use "True";
    
-   for Languages use ("C", "Ada", "Java", "idl");
+   for Languages use ("C", "Ada", "idl");
    
-   for Main use project'Main & ("primes-replier_main.adb");
+   --  for Main use project'Main & ("main.adb");
    for Main use project'Main & ("primes-requester_main.adb");
+   for Main use project'Main & ("primes-replier_main.adb");
 
    for Source_Dirs use ("src/**");
    for Object_Dir use ".obj";
@@ -22,6 +23,7 @@ project Hello_World_Request_Reply is
       for Switches ("C") use DDS.Compiler'Default_Switches ("C");     
       for Switches ("Ada") use DDS.Ada.Request_Reply.Compiler'Default_Switches ("Ada"); 
    end Compiler;
+   
    package Binder renames DDS.Binder;
  
    package Naming is 

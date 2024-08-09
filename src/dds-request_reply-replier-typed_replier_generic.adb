@@ -1,4 +1,32 @@
-pragma Ada_2012;
+-- ---------------------------------------------------------------------
+--                                                                    --
+--               Copyright (c) per.sandberg@bahnhof.se                --
+--                                                                    --
+--  Permission is hereby granted, free of charge, to any person       --
+--  obtaining a copy of this software and associated documentation    --
+--  files (the "Software"), to deal in the Software without           --
+--  restriction, including without limitation the rights to use,      --
+--  copy, modify, merge, publish, distribute, sublicense, and/or sell --
+--  copies of the Software, and to permit persons to whom the Software--
+--  is furnished to do so, subject to the following conditions:       --
+--                                                                    --
+--  The above copyright notice and this permission notice             --
+--  (including the next paragraph) shall be included in all copies or --
+--  substantial portions of the Software.                             --
+--                                                                    --
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,   --
+--  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF--
+--  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND             --
+--  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT       --
+--  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,      --
+--  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,--
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER     --
+--  DEALINGS IN THE SOFTWARE.                                         --
+--                                                                    --
+--  <spdx: MIT>
+--                                                                    --
+-- ---------------------------------------------------------------------
+
 with Ada.Unchecked_Deallocation;
 with DDS.DataReader_Impl;
 with DDS.Request_Reply.Impl;
@@ -6,7 +34,7 @@ with DDS.DataWriter_Impl;
 package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    use type DDS.Publisher.Ref_Access;
    use type DDS.Subscriber.Ref_Access;
-   procedure free is new ada.Unchecked_Deallocation (Ref'class, ref_access);
+   procedure Free is new Ada.Unchecked_Deallocation (Ref'Class, Ref_Access);
 
    ------------
    -- Create --
@@ -128,18 +156,22 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Request_Topic_Qos  : DDS.TopicQos;
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
-      Listner          : Replyer_Listeners.Ref_Access := null;
+      Listner            : Replyer_Listeners.Ref_Access := null;
       Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
    is
-      Ret : ref_access := new Ref;
+      Ret : Ref_Access := new Ref;
    begin
       Ret.Listner := Listner;
-      ret.Participant := Participant;
-      ret.Publisher := (if Publisher /= null then
+      Ret.Mask := Mask;
+      Ret.Participant := Participant;
+      Ret.Publisher := (if Publisher /= null
+                        then
                            Publisher
                         else
                            Participant.Get_Implicit_Publisher);
-      ret.Subscriber := (if Subscriber /= null then
+
+      Ret.Subscriber := (if Subscriber /= null
+                         then
                             Subscriber
                          else
                             Participant.Get_Implicit_Subscriber);
@@ -148,17 +180,19 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
       Ret.Request_Topic := Ret.Create_Request_Topic (Request_Topic_Name, Request_DataReader.Treats.Get_Type_Name, Request_Topic_Qos);
 
-      ret.Reader := DDS.DataReader_Impl.Ref_Access (ret.Subscriber.Create_DataReader
-                                                    (Topic      => ret.Request_Topic,
-                                                     Qos        => Datareader_Qos,
-                                                     A_Listener => ret.Reader_Listner'access,
-                                                     Mask       => Mask));
+      Ret.Reader := DataReader_Impl.Ref_Access
+        (Ret.Subscriber.Create_DataReader
+           (Topic      => Ret.Request_Topic.As_TopicDescription,
+            Qos        => Datareader_Qos,
+            A_Listener => Ret.Reader_Listner'Access,
+            Mask       => DDS.STATUS_MASK_ALL));
 
-      Ret.Writer := DDS.DataWriter_Impl.Ref_Access (Ret.Publisher.Create_DataWriter
-                                                    (A_Topic    => Ret.Reply_Topic,
-                                                     Qos        =>  Datawriter_Qos,
-                                                     A_Listener => Ret.Writer_Listner'Access,
-                                                     Mask       => Mask));
+      Ret.Writer := DataWriter_Impl.Ref_Access
+        (Ret.Publisher.Create_DataWriter
+           (A_Topic    => Ret.Reply_Topic,
+            Qos        => Datawriter_Qos,
+            A_Listener => Ret.Writer_Listner'Access,
+            Mask       => DDS.STATUS_MASK_ALL));
       Ret.Any_Sample_Cond := Ret.Reader.Create_Readcondition
         (Sample_States   => DDS.ANY_SAMPLE_STATE,
          View_States     => DDS.ANY_VIEW_STATE,
@@ -167,11 +201,11 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
         (Sample_States   => DDS.NOT_READ_SAMPLE_STATE,
          View_States     => DDS.ANY_VIEW_STATE,
          Instance_States => DDS.ANY_INSTANCE_STATE);
-      return ret;
+      return Ret;
    exception
       when others =>
-         ret.Delete;
-         free (ret);
+         Ret.Delete;
+         Free (Ret);
          raise;
    end Create;
 
@@ -198,9 +232,9 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Reply : Reply_DataWriter.Treats.Data_Type;
       Id    : DDS.SampleIdentity_T)
    is
-      params : DDS.WriteParams_t;
+      Params : DDS.WriteParams_T;
    begin
-      self.send_Sample (Data => Reply , Related_Request_Info => Id, WriteParams => params);
+      Self.Send_Sample (Data => Reply , Related_Request_Info => Id, WriteParams => Params);
    end Send_Reply;
 
    ---------------------
@@ -245,7 +279,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    function Receive_Request
      (Self : not null access Ref; Timeout : DDS.Duration_T)
-      return Request_DataReader.Container'class
+      return Request_DataReader.Container'Class
    is
    begin
       return Request_DataReader.Ref_Access (Self.Reader).Take;
@@ -269,7 +303,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    function Take_Request
      (Self            : not null access Ref;
-      Max_Reply_Count : DDS.long       := DDS.INFINITE)
+      Max_Reply_Count : DDS.Long       := DDS.INFINITE)
       return Request_DataReader.Container'Class is
    begin
       return Self.Get_Request_Data_Reader.Take (Max_Samples   => Max_Reply_Count);
@@ -277,8 +311,8 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    function Receive_Request
      (Self            : not null access Ref;
-      Min_Reply_Count : DDS.long := 1;
-      Max_Reply_Count : DDS.long       := DDS.INFINITE;
+      Min_Reply_Count : DDS.Long := 1;
+      Max_Reply_Count : DDS.Long       := DDS.INFINITE;
       Timeout         : DDS.Duration_T := DDS.DURATION_INFINITE)
       return Request_DataReader.Container'Class
    is
@@ -295,12 +329,12 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    function Read_Request
      (Self            : not null access Ref;
-      Max_Reply_Count : DDS.long := DDS.INFINITE)
+      Max_Reply_Count : DDS.Long := DDS.INFINITE)
       return Request_DataReader.Container'Class
    is
    begin
       Self.Wait_For_Requests (Min_Count => 1, Max_Wait => DDS.DURATION_ZERO);
-      return Request_DataReader.Ref_Access (Self.Reader).take (Max_Samples => 1);
+      return Request_DataReader.Ref_Access (Self.Reader).Take (Max_Samples => 1);
    end Read_Request;
 
    -----------------
@@ -658,6 +692,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
          Self.Parent.Listner.On_Sample_Lost (Self.Parent.all'Access, Status);
       end if;
    end On_Sample_Lost;
+
    procedure Send_Sample (Self                 : not null access Ref;
                           Data                 : Reply_DataWriter.Treats.Data_Type;
                           Related_Request_Info : DDS.SampleIdentity_T;

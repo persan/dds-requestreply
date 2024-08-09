@@ -1,5 +1,38 @@
+-- ---------------------------------------------------------------------
+--                                                                    --
+--               Copyright (c) per.sandberg@bahnhof.se                --
+--                                                                    --
+--  Permission is hereby granted, free of charge, to any person       --
+--  obtaining a copy of this software and associated documentation    --
+--  files (the "Software"), to deal in the Software without           --
+--  restriction, including without limitation the rights to use,      --
+--  copy, modify, merge, publish, distribute, sublicense, and/or sell --
+--  copies of the Software, and to permit persons to whom the Software--
+--  is furnished to do so, subject to the following conditions:       --
+--                                                                    --
+--  The above copyright notice and this permission notice             --
+--  (including the next paragraph) shall be included in all copies or --
+--  substantial portions of the Software.                             --
+--                                                                    --
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,   --
+--  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF--
+--  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND             --
+--  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT       --
+--  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,      --
+--  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,--
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER     --
+--  DEALINGS IN THE SOFTWARE.                                         --
+--                                                                    --
+--  <spdx: MIT>
+--                                                                    --
+-- ---------------------------------------------------------------------
+
 with DDS.WaitSet;
 pragma Warnings (Off);
+with DDS.DomainParticipant;
+with DDS.Topic;
+with DDS.ContentFilteredTopic;
+with DDS.EntityParams;
 --  ----------------------------------------------------------------------------
 --  Note this is an implementation package and is subject to change att any time.
 --  ----------------------------------------------------------------------------
@@ -13,22 +46,19 @@ package body DDS.Request_Reply.Requester.Impl is
    ----------------------------
    -- create_correlation_cft --
    ----------------------------
-   --@RequesterUntypedImpl.c:47
    function Create_Correlation_Cft
      (Participant      : not null DDS.DomainParticipant.Ref_Access;
       Topic            : not null DDS.Topic.Ref_Access;
       Correlation_Guid : DDS.Guid_T)
       return DDS.ContentFilteredTopic.Ref_Access
    is
-
    begin
-      return null;
+      return Participant.Create_Correlation_ContentFilteredTopic (Topic, Correlation_Guid);
    end Create_Correlation_Cft;
 
    -------------------------
-   -- create_reader_topic ---*
+   -- create_reader_topic ---
    -------------------------
-   --@RequesterUntypedImpl.c:131 RTI_Connext_RequesterUntypedImpl_create_reader_topic
    function Create_Reader_Topic
      (Self            : not null access Ref;
       Params          : not null DDS.EntityParams.Ref_Access;
@@ -45,15 +75,13 @@ package body DDS.Request_Reply.Requester.Impl is
 
       raise DDS.ERROR with "Unable to create " & To_Standard_String (Reply_Topic_Name) when Topic = null;
       Self.Writer.Get_Qos (CurrentWriterQos);
-
-      return
-      raise Program_Error with "Unimplemented function create_reader_topic";
+      return Topic.As_TopicDescription;
    end Create_Reader_Topic;
+
 
    -------------------------
    -- create_writer_topic --
    -------------------------
-   --@RequesterUntypedImpl.c:179
    function Create_Writer_Topic
      (Self              : not null access Ref;
       Params            : not null DDS.EntityParams.Ref_Access;
@@ -67,7 +95,6 @@ package body DDS.Request_Reply.Requester.Impl is
    ------------
    -- create --
    ------------
-   --@RequesterUntypedImpl.c:179
    function Create
      (Params : not null DDS.EntityParams.Ref_Access; Reply_Size : Integer)
       return Ref_Access

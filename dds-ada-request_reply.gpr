@@ -11,8 +11,9 @@ library project DDS.Ada.Request_Reply is
    package Compiler is
       for Driver ("gen") use "";
       for Driver ("C") use "";
-      for Default_Switches ("Ada") use Dds.Compiler'Default_Switches ("Ada") & ("-gnatX0");
-end Compiler;
+      for Default_Switches ("Ada") use
+        Dds.Compiler'Default_Switches ("Ada") & ("-gnatX0");
+   end Compiler;
 
    package Naming is
       for SPEC_Suffix ("gen") use ".gen";

@@ -1,3 +1,31 @@
+-- ---------------------------------------------------------------------
+--                                                                    --
+--               Copyright (c) per.sandberg@bahnhof.se                --
+--                                                                    --
+--  Permission is hereby granted, free of charge, to any person       --
+--  obtaining a copy of this software and associated documentation    --
+--  files (the "Software"), to deal in the Software without           --
+--  restriction, including without limitation the rights to use,      --
+--  copy, modify, merge, publish, distribute, sublicense, and/or sell --
+--  copies of the Software, and to permit persons to whom the Software--
+--  is furnished to do so, subject to the following conditions:       --
+--                                                                    --
+--  The above copyright notice and this permission notice             --
+--  (including the next paragraph) shall be included in all copies or --
+--  substantial portions of the Software.                             --
+--                                                                    --
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,   --
+--  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF--
+--  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND             --
+--  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT       --
+--  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,      --
+--  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,--
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER     --
+--  DEALINGS IN THE SOFTWARE.                                         --
+--                                                                    --
+--  <spdx: MIT>
+--                                                                    --
+-- ---------------------------------------------------------------------
 with DDS.DataReader;
 with DDS.DataReaderListener;
 with DDS.DataWriter;
@@ -182,8 +210,8 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
    function Create
      (Participant      : DDS.DomainParticipant.Ref_Access;
       Service_Name     : DDS.String;
-      Datawriter_Qos   : DDS.DataWriterQos;
-      Datareader_Qos   : DDS.DataReaderQos;
+      Datawriter_Qos   : DDS.DataWriterQos := DDS.Publisher.DATAWRITER_QOS_DEFAULT;
+      Datareader_Qos   : DDS.DataReaderQos := DDS.Subscriber.DATAREADER_QOS_DEFAULT;
       Topic_Qos        : DDS.TopicQos := DDS.DomainParticipant.TOPIC_QOS_DEFAULT;
       Publisher        : DDS.Publisher.Ref_Access := null;
       Subscriber       : DDS.Subscriber.Ref_Access := null;
@@ -194,8 +222,8 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
      (Participant        : DDS.DomainParticipant.Ref_Access;
       Request_Topic_Name : DDS.String;
       Reply_Topic_Name   : DDS.String;
-      Datawriter_Qos     : DDS.DataWriterQos;
-      Datareader_Qos     : DDS.DataReaderQos;
+      Datawriter_Qos     : DDS.DataWriterQos := DDS.Publisher.DATAWRITER_QOS_DEFAULT;
+      Datareader_Qos     : DDS.DataReaderQos := DDS.Subscriber.DATAREADER_QOS_DEFAULT;
       Topic_Qos          : DDS.TopicQos := DDS.DomainParticipant.TOPIC_QOS_DEFAULT;
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
@@ -205,8 +233,6 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
    procedure Delete (Self : in out Ref_Access);
 
 
-   function Send_Request (Self : not null access Ref;
-                          Data : Request_DataWriter.Treats.Data_Type) return DDS.ReturnCode_T;
 
    procedure Send_Request (Self : not null access Ref;
                            Data : Request_DataWriter.Treats.Data_Type);
@@ -220,14 +246,14 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Send_Request
      (Self    : not null access Ref;
-      Request : Request_DataWriter.Treats.Data_Type) return Reply_DataReader.Container;
+      Request : Request_DataWriter.Treats.Data_Type) return Reply_DataReader.Container'Class;
 
    function Send_Request
      (Self            : not null access Ref;
-      Request         : access Request_DataWriter.Treats.Data_Type;
+      Request         : Request_DataWriter.Treats.Data_Type;
       Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.long;
-      Timeout         : DDS.Duration_T := DURATION_INFINITE) return Reply_DataReader.Container;
+      Max_Reply_Count : DDS.Long;
+      Timeout         : DDS.Duration_T := DURATION_INFINITE) return Reply_DataReader.Container'Class;
 
    procedure Send_Request
      (Self         : not null access Ref;
@@ -242,14 +268,14 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Receive_Reply
      (Self     : not null access Ref;
-      Timeout  : DDS.Duration_T) return Reply_DataReader.Container;
+      Timeout  : DDS.Duration_T) return Reply_DataReader.Container'Class;
 
    function Receive_Replies
      (Self                 : not null access Ref;
       Replies              : not null Reply_DataReader.Treats.Data_Sequences.Sequence_Access;
       Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count      : DDS.Natural;
-      Max_Reply_Count      : DDS.long;
+      Max_Reply_Count      : DDS.Long;
       Timeout              : DDS.Duration_T) return DDS.ReturnCode_T;
 
 
@@ -258,29 +284,14 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Replies              : not null Reply_DataReader.Treats.Data_Sequences.Sequence_Access;
       Sample_Info          : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count      : DDS.Natural;
-      Max_Reply_Count      : DDS.long;
+      Max_Reply_Count      : DDS.Long;
       Timeout              : DDS.Duration_T);
 
    function Receive_Replies
      (Self                 : not null access Ref;
       Min_Reply_Count      : DDS.Natural;
-      Max_Reply_Count      : DDS.long;
-      Timeout              : DDS.Duration_T) return Reply_DataReader.Container;
-
-   function Receive_Replies
-     (Self            : not null access Ref;
-      Replies         : not null Reply_DataReader.Treats.Data_Sequences.Sequence_Access;
-      Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
-      Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.long;
-      Timeout         : Duration) return DDS.ReturnCode_T;
-
-   function Receive_Replies
-     (Self            : not null access Ref;
-      Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.long;
-      Timeout         : Duration) return Reply_DataReader.Container;
-
+      Max_Reply_Count      : DDS.Long;
+      Timeout              : DDS.Duration_T) return Reply_DataReader.Container'Class;
 
    function Take_Reply
      (Self        : not null access Ref;
@@ -293,14 +304,14 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Replies         : not null Reply_DataReader.Treats.Data_Sequences.Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.long;
+      Max_Reply_Count : DDS.Long;
       Timeout         : DDS.Duration_T) return DDS.ReturnCode_T;
 
    function Take_Replies
      (Self            : not null access Ref;
       Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.long;
-      Timeout         : DDS.Duration_T) return  Reply_DataReader.Container;
+      Max_Reply_Count : DDS.Long;
+      Timeout         : DDS.Duration_T) return  Reply_DataReader.Container'Class;
 
 
 
@@ -318,7 +329,7 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Take_Replies_For_Related_Request
      (Self                 : not null access Ref;
-      Related_Request_Info : not null access DDS.SampleIdentity_T) return Reply_DataReader.Container;
+      Related_Request_Info : not null access DDS.SampleIdentity_T) return Reply_DataReader.Container'Class;
 
 
    function Read_Reply
@@ -332,13 +343,13 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Replies         : not null Reply_DataReader.Treats.Data_Sequences.Sequence_Access;
       Sample_Info     : not null access DDS.SampleInfo_Seq.Sequence;
       Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.long;
+      Max_Reply_Count : DDS.Long;
       Timeout         : DDS.Duration_T) return DDS.ReturnCode_T;
 
    function Read_Replies
      (Self            : not null access Ref;
       Min_Reply_Count : DDS.Natural;
-      Max_Reply_Count : DDS.long;
+      Max_Reply_Count : DDS.Long;
       Timeout         : DDS.Duration_T) return Reply_DataReader.Container'Class;
 
 
@@ -365,26 +376,27 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
                           Replies      : not null Reply_DataReader.Treats.Data_Sequences.Sequence_Access;
                           Sample_Info  : DDS.SampleInfo_Seq.Sequence_Access);
 
-   procedure Return_Loan (Self         : not null access Ref;
-                          Replies      : Reply_DataReader.Treats.Data_Sequences.Sequence;
-                          Sample_Info  : DDS.SampleInfo_Seq.Sequence);
+   procedure Return_Loan (Self        : not null access Ref;
+      Replies     : in out Reply_DataReader.Treats.Data_Sequences.Sequence;
+                          Sample_Info : in out DDS.SampleInfo_Seq.Sequence);
    procedure Delete (This : in out Ref);
 
    procedure Wait_For_Replies
      (This      : in out Ref;
-      Min_Count : Dds.long;
+      Min_Count : Dds.Long;
       Max_Wait  : DDS.Duration_T);
 
 
    procedure Wait_For_Replies_For_Related_Reques
      (This               : in out Ref;
-      Min_Count          : Dds.long;
+      Min_Count          : Dds.Long;
       Max_Wait           : DDS.Duration_T;
       Related_Request_Id : DDS.SampleIdentity_T);
 
    function Get_Request_DataWriter (Self : not null access Ref) return Request_DataWriter.Ref_Access;
    function Get_Reply_DataReader (Self : not null access Ref) return Reply_DataReader.Ref_Access;
-   pragma Warnings(Off);
+
+   pragma Warnings (Off);
    function Touch_Samples
      (Self           : not null access Ref;
       Max_Count      : DDS.Integer;
@@ -395,138 +407,144 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Max_Wait         : DDS.Duration_T;
       Min_Sample_Count : DDS.Integer) return DDS.ReturnCode_T is (RETCODE_UNSUPPORTED);
    pragma Warnings (On);
+
 private
+   package Listners_Impl is
+      type DataReader_Listner (Parent : not null access Ref )is new DDS.DataReaderListener.Ref with null record;
 
-   type DataReader_Listner (Parent : not null access Ref )is new DDS.DataReaderListener.Ref with null record;
-   procedure On_Offered_Deadline_Missed
-     (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class;
-      Status : in DDS.OfferedDeadlineMissedStatus);
+      procedure On_Offered_Deadline_Missed
+        (Self   : not null access DataReader_Listner;
+         Writer : access DDS.DataWriter.Ref'Class;
+         Status : in DDS.OfferedDeadlineMissedStatus);
 
-   procedure On_Data_Available
-     (Self       : not null access DataReader_Listner;
-      The_Reader : in DDS.DataReaderListener.DataReader_Access);
+      procedure On_Data_Available
+        (Self       : not null access DataReader_Listner;
+         The_Reader : in DDS.DataReaderListener.DataReader_Access);
 
-   procedure On_Offered_Incompatible_Qos
-     (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class;
-      Status : in DDS.OfferedIncompatibleQosStatus);
-   --  <dref>DataWriterListener_on_offered_incompatible_qos</dref>
+      procedure On_Offered_Incompatible_Qos
+        (Self   : not null access DataReader_Listner;
+         Writer : access DDS.DataWriter.Ref'Class;
+         Status : in DDS.OfferedIncompatibleQosStatus);
+      --  <dref>DataWriterListener_on_offered_incompatible_qos</dref>
 
-   procedure On_Liveliness_Lost
-     (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class;
-      Status : in DDS.LivelinessLostStatus);
-   --  <dref>DataWriterListener_on_liveliness_lost</dref>
+      procedure On_Liveliness_Lost
+        (Self   : not null access DataReader_Listner;
+         Writer : access DDS.DataWriter.Ref'Class;
+         Status : in DDS.LivelinessLostStatus);
+      --  <dref>DataWriterListener_on_liveliness_lost</dref>
 
-   procedure On_Publication_Matched
-     (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class;
-      Status : in DDS.PublicationMatchedStatus);
-   --  <dref>DataWriterListener_on_publication_matched</dref>
+      procedure On_Publication_Matched
+        (Self   : not null access DataReader_Listner;
+         Writer : access DDS.DataWriter.Ref'Class;
+         Status : in DDS.PublicationMatchedStatus);
+      --  <dref>DataWriterListener_on_publication_matched</dref>
 
-   procedure On_Reliable_Writer_Cache_Changed
-     (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class;
-      Status : in DDS.ReliableWriterCacheChangedStatus);
-   --  <dref>DataWriterListener_on_reliable_writer_cache_changed</dref>
+      procedure On_Reliable_Writer_Cache_Changed
+        (Self   : not null access DataReader_Listner;
+         Writer : access DDS.DataWriter.Ref'Class;
+         Status : in DDS.ReliableWriterCacheChangedStatus);
+      --  <dref>DataWriterListener_on_reliable_writer_cache_changed</dref>
 
-   procedure On_Reliable_Reader_Activity_Changed
-     (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class;
-      Status : in DDS.ReliableReaderActivityChangedStatus);
-
-
-   procedure On_Destination_Unreachable
-     (Self     : not null access DataReader_Listner;
-      Writer   : access DDS.DataWriter.Ref'Class;
-      Instance : in DDS.InstanceHandle_T;
-      Locator  : in DDS.Locator_T);
-
-   procedure On_Data_Request
-     (Self     : not null access DataReader_Listner;
-      Writer   : access DDS.DataWriter.Ref'Class;
-      Cookie   : in DDS.Cookie_T;
-      Request  : in out System.Address);
-
-   procedure On_Data_Return
-     (Self     : not null access DataReader_Listner;
-      Writer   : access DDS.DataWriter.Ref'Class;
-      Arg      : System.Address;
-      Cookie   : in DDS.Cookie_T);
-   procedure On_Sample_Removed
-     (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class;
-      Cookie : in DDS.Cookie_T);
-
-   procedure On_Instance_Replaced
-     (Self     : not null access DataReader_Listner;
-      Writer   : access DDS.DataWriter.Ref'Class;
-      Instance : in DDS.InstanceHandle_T);
-   --  <dref>DataWriterListener_on_instance_replaced</dref>
-
-   procedure On_Application_Acknowledgment
-     (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class;
-      Info   : in DDS.AcknowledgmentInfo);
-   --  <dref>DataWriterListener_on_application_acknowledgment</dref>
-
-   procedure On_Service_Request_Accepted
-     (Self   : not null access DataReader_Listner;
-      Writer : access DDS.DataWriter.Ref'Class;
-      Info   : in DDS.ServiceRequestAcceptedStatus);
+      procedure On_Reliable_Reader_Activity_Changed
+        (Self   : not null access DataReader_Listner;
+         Writer : access DDS.DataWriter.Ref'Class;
+         Status : in DDS.ReliableReaderActivityChangedStatus);
 
 
-   type DataWriter_Listner (Parent : not null access Ref )is new DDS.DataWriterListener.Ref with null record;
-   procedure On_Requested_Deadline_Missed
-     (Self       : not null access DataWriter_Listner;
-      The_Reader : in DDS.DataReaderListener.DataReader_Access;
-      Status     : in DDS.RequestedDeadlineMissedStatus);
+      procedure On_Destination_Unreachable
+        (Self     : not null access DataReader_Listner;
+         Writer   : access DDS.DataWriter.Ref'Class;
+         Instance : in DDS.InstanceHandle_T;
+         Locator  : in DDS.Locator_T);
 
-   procedure On_Requested_Incompatible_Qos
-     (Self       : not null access DataWriter_Listner;
-      The_Reader : in DDS.DataReaderListener.DataReader_Access;
-      Status     : in DDS.RequestedIncompatibleQosStatus);
+      procedure On_Data_Request
+        (Self     : not null access DataReader_Listner;
+         Writer   : access DDS.DataWriter.Ref'Class;
+         Cookie   : in DDS.Cookie_T;
+         Request  : in out System.Address);
 
-   procedure On_Sample_Rejected
-     (Self       : not null access DataWriter_Listner;
-      The_Reader : in DDS.DataReaderListener.DataReader_Access;
-      Status     : in DDS.SampleRejectedStatus);
+      procedure On_Data_Return
+        (Self     : not null access DataReader_Listner;
+         Writer   : access DDS.DataWriter.Ref'Class;
+         Arg      : System.Address;
+         Cookie   : in DDS.Cookie_T);
+      procedure On_Sample_Removed
+        (Self   : not null access DataReader_Listner;
+         Writer : access DDS.DataWriter.Ref'Class;
+         Cookie : in DDS.Cookie_T);
 
-   procedure On_Liveliness_Changed
-     (Self       : not null access DataWriter_Listner;
-      The_Reader : in DDS.DataReaderListener.DataReader_Access;
-      Status     : in DDS.LivelinessChangedStatus);
+      procedure On_Instance_Replaced
+        (Self     : not null access DataReader_Listner;
+         Writer   : access DDS.DataWriter.Ref'Class;
+         Instance : in DDS.InstanceHandle_T);
+      --  <dref>DataWriterListener_on_instance_replaced</dref>
 
-   procedure On_Data_Available
-     (Self       : not null access DataWriter_Listner;
-      The_Reader : in DDS.DataReaderListener.DataReader_Access);
+      procedure On_Application_Acknowledgment
+        (Self   : not null access DataReader_Listner;
+         Writer : access DDS.DataWriter.Ref'Class;
+         Info   : in DDS.AcknowledgmentInfo);
+      --  <dref>DataWriterListener_on_application_acknowledgment</dref>
 
-   procedure On_Subscription_Matched
-     (Self       : not null access DataWriter_Listner;
-      The_Reader : in DDS.DataReaderListener.DataReader_Access;
-      Status     : in DDS.SubscriptionMatchedStatus);
+      procedure On_Service_Request_Accepted
+        (Self   : not null access DataReader_Listner;
+         Writer : access DDS.DataWriter.Ref'Class;
+         Info   : in DDS.ServiceRequestAcceptedStatus);
 
-   procedure On_Sample_Lost
-     (Self       : not null access DataWriter_Listner;
-      The_Reader : in DDS.DataReaderListener.DataReader_Access;
-      Status     : in DDS.SampleLostStatus);
+
+      type DataWriter_Listner (Parent : not null access Ref )is new DDS.DataWriterListener.Ref with null record;
+      procedure On_Requested_Deadline_Missed
+        (Self       : not null access DataWriter_Listner;
+         The_Reader : in DDS.DataReaderListener.DataReader_Access;
+         Status     : in DDS.RequestedDeadlineMissedStatus);
+
+      procedure On_Requested_Incompatible_Qos
+        (Self       : not null access DataWriter_Listner;
+         The_Reader : in DDS.DataReaderListener.DataReader_Access;
+         Status     : in DDS.RequestedIncompatibleQosStatus);
+
+      procedure On_Sample_Rejected
+        (Self       : not null access DataWriter_Listner;
+         The_Reader : in DDS.DataReaderListener.DataReader_Access;
+         Status     : in DDS.SampleRejectedStatus);
+
+      procedure On_Liveliness_Changed
+        (Self       : not null access DataWriter_Listner;
+         The_Reader : in DDS.DataReaderListener.DataReader_Access;
+         Status     : in DDS.LivelinessChangedStatus);
+
+      procedure On_Data_Available
+        (Self       : not null access DataWriter_Listner;
+         The_Reader : in DDS.DataReaderListener.DataReader_Access);
+
+      procedure On_Subscription_Matched
+        (Self       : not null access DataWriter_Listner;
+         The_Reader : in DDS.DataReaderListener.DataReader_Access;
+         Status     : in DDS.SubscriptionMatchedStatus);
+
+      procedure On_Sample_Lost
+        (Self       : not null access DataWriter_Listner;
+         The_Reader : in DDS.DataReaderListener.DataReader_Access;
+         Status     : in DDS.SampleLostStatus);
+   end Listners_Impl;
 
    type Ref is limited new
      DDS.Request_Reply.Requester.Impl.Ref
    with record
       Listner            : Request_Listeners.Ref_Access;
-      Writer_Listner     : aliased DataWriter_Listner (Ref'Access);
-      Reader_Listner     : aliased DataReader_Listner (Ref'Access);
+      Writer_Listner     : aliased Listners_Impl.DataWriter_Listner (Ref'Access);
+      Reader_Listner     : aliased Listners_Impl.DataReader_Listner (Ref'Access);
+      Mask               : DDS.StatusKind;
    end record;
+
    procedure Initialize (Self : in out Ref) is null;
    procedure Finalize (Self : in out Ref);
-   function Get_Reply_Data_Reader
+
+   function Get_Reply_DataReader
      (Self : not null access Ref)
       return Reply_DataReader.Ref_Access is
      (Reply_DataReader.Ref_Access (Self.Reader));
 
-   function Get_Request_Data_Writer
+   function Get_Request_DataWriter
      (Self : not null access Ref)
       return Request_DataWriter.Ref_Access is
      (Request_DataWriter.Ref_Access (Self.Writer));

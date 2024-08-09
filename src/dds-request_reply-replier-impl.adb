@@ -1,4 +1,33 @@
-pragma Ada_2012;
+-- ---------------------------------------------------------------------
+--                                                                    --
+--               Copyright (c) per.sandberg@bahnhof.se                --
+--                                                                    --
+--  Permission is hereby granted, free of charge, to any person       --
+--  obtaining a copy of this software and associated documentation    --
+--  files (the "Software"), to deal in the Software without           --
+--  restriction, including without limitation the rights to use,      --
+--  copy, modify, merge, publish, distribute, sublicense, and/or sell --
+--  copies of the Software, and to permit persons to whom the Software--
+--  is furnished to do so, subject to the following conditions:       --
+--                                                                    --
+--  The above copyright notice and this permission notice             --
+--  (including the next paragraph) shall be included in all copies or --
+--  substantial portions of the Software.                             --
+--                                                                    --
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,   --
+--  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF--
+--  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND             --
+--  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT       --
+--  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,      --
+--  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,--
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER     --
+--  DEALINGS IN THE SOFTWARE.                                         --
+--                                                                    --
+--  <spdx: MIT>
+--                                                                    --
+-- ---------------------------------------------------------------------
+
+
 package body DDS.Request_Reply.Replier.Impl is
 
 
@@ -31,14 +60,15 @@ package body DDS.Request_Reply.Replier.Impl is
       Params.Related_Sample_Identity := Related_Request_Info;
    end Configure_Params_For_Reply;
 
-   procedure  send_sample
+   procedure  Send_Sample
      (Self                 : not null access Ref;
-      data                 : System.Address;
+      Data                 : System.Address;
       Params               : in out WriteParams_T;
-      Related_Request_Info : DDS.SampleIdentity_T) is
+      Related_Request_Info : DDS.SampleIdentity_T;
+      MetpImpl         : not null access DDS.MetpTypeSupport.ref'Class) is
    begin
-      self.configure_params_for_reply (Params, related_request_info);
-      --  self.Writer.Write_W_Params (data, params);
+      Self.Configure_Params_For_Reply (Params, Related_Request_Info);
+      Self.Writer.Write_W_Params (Data, Params,MetpImpl);
    end;
 
 end DDS.Request_Reply.Replier.Impl;
