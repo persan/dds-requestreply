@@ -180,11 +180,11 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    function Get_Request_Data_Writer
      (Self : not null access Ref)
-      return DDS.DataWriter.Ref_Access;
+      return not null DDS.DataWriter.Ref_Access;
 
    function Get_Reply_Data_Reader
      (Self : not null access Ref)
-      return DDS.DataReader.Ref_Access;
+      return not null DDS.DataReader.Ref_Access;
 
    function Create
      (Participant    : DDS.DomainParticipant.Ref_Access;
@@ -194,7 +194,7 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Publisher      : DDS.Publisher.Ref_Access := null;
       Subscriber     : DDS.Subscriber.Ref_Access := null;
       A_Listner      : Request_Listeners.Ref_Access := null;
-      Mask           : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access;
+      Mask           : DDS.StatusKind := DDS.STATUS_MASK_NONE) return not null Ref_Access;
 
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
@@ -205,7 +205,7 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
       A_Listner          : Request_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access;
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return not null Ref_Access;
 
    function Create
      (Participant      : DDS.DomainParticipant.Ref_Access;
@@ -216,7 +216,7 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Publisher        : DDS.Publisher.Ref_Access := null;
       Subscriber       : DDS.Subscriber.Ref_Access := null;
       A_Listner        : Request_Listeners.Ref_Access := null;
-      Mask             : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access;
+      Mask             : DDS.StatusKind := DDS.STATUS_MASK_NONE) return not null Ref_Access;
 
    function Create
      (Participant        : DDS.DomainParticipant.Ref_Access;
@@ -228,7 +228,7 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
       A_Listner          : Request_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access;
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return not null Ref_Access;
 
    procedure Delete (Self : in out Ref_Access);
 

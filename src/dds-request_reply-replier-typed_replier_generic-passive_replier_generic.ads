@@ -26,7 +26,6 @@
 --  <spdx: MIT>
 --                                                                    --
 -- ---------------------------------------------------------------------
-
 pragma Extensions_Allowed (all);
 generic
    type Base is abstract tagged limited private;

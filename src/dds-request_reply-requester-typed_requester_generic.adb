@@ -26,7 +26,7 @@
 --  <spdx: MIT>
 --                                                                    --
 -- ---------------------------------------------------------------------
-pragma Warnings (Off);
+
 with DDS.Request_Reply.Impl;
 with DDS.DomainParticipantFactory;
 with DDS.DataWriter_Impl;
@@ -39,7 +39,8 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    -----------------------------
 
    function Get_Request_Data_Writer
-     (Self : not null access Ref) return DDS.DataWriter.Ref_Access
+     (Self : not null access Ref)
+      return not null DDS.DataWriter.Ref_Access
    is
    begin
       return DDS.DataWriter.Ref_Access (Self.Writer);
@@ -50,7 +51,8 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    ---------------------------
 
    function Get_Reply_Data_Reader
-     (Self : not null access Ref) return DDS.DataReader.Ref_Access
+     (Self : not null access Ref)
+      return not null DDS.DataReader.Ref_Access
    is
    begin
       return DDS.DataReader.Ref_Access (Self.Reader);
@@ -69,31 +71,31 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    end;
 
    function Create
-     (Participant      : DDS.DomainParticipant.Ref_Access;
-      Service_Name     : DDS.String;
-      Library_Name     : DDS.String;
-      Profile_Name     : DDS.String;
-      Publisher        : DDS.Publisher.Ref_Access     := null;
-      Subscriber       : DDS.Subscriber.Ref_Access    := null;
-      A_Listner        : Request_Listeners.Ref_Access := null;
-      Mask             : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
+     (Participant    : DDS.DomainParticipant.Ref_Access;
+      Service_Name   : DDS.String;
+      Library_Name   : DDS.String;
+      Profile_Name   : DDS.String;
+      Publisher      : DDS.Publisher.Ref_Access := null;
+      Subscriber     : DDS.Subscriber.Ref_Access := null;
+      A_Listner      : Request_Listeners.Ref_Access := null;
+      Mask           : DDS.StatusKind := DDS.STATUS_MASK_NONE) return not null Ref_Access
    is
       Request_Topic_Name : DDS.String := DDS.Request_Reply.Impl.Create_Request_Topic_Name_From_Service_Name (Service_Name);
       Reply_Topic_Name   : DDS.String := DDS.Request_Reply.Impl.Create_Reply_Topic_Name_From_Service_Name (Service_Name);
+      Ret : Ref_Access;
    begin
-      return Ret : Ref_Access do
-         Ret := Create (Participant        => Participant,
-                        Request_Topic_Name => Request_Topic_Name,
-                        Reply_Topic_Name   => Reply_Topic_Name ,
-                        Library_Name       => Library_Name,
-                        Profile_Name       => Profile_Name,
-                        Publisher          => Publisher,
-                        Subscriber         => Subscriber,
-                        A_Listner          => A_Listner,
-                        Mask               => Mask);
-         Finalize (Request_Topic_Name);
-         Finalize (Reply_Topic_Name);
-      end return;
+      Ret := Create (Participant        => Participant,
+                     Request_Topic_Name => Request_Topic_Name,
+                     Reply_Topic_Name   => Reply_Topic_Name ,
+                     Library_Name       => Library_Name,
+                     Profile_Name       => Profile_Name,
+                     Publisher          => Publisher,
+                     Subscriber         => Subscriber,
+                     A_Listner          => A_Listner,
+                     Mask               => Mask);
+      Finalize (Request_Topic_Name);
+      Finalize (Reply_Topic_Name);
+      return ret;
    end Create;
 
    ------------
@@ -106,10 +108,10 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Reply_Topic_Name   : DDS.String;
       Library_Name       : DDS.String;
       Profile_Name       : DDS.String;
-      Publisher          : DDS.Publisher.Ref_Access     := null;
-      Subscriber         : DDS.Subscriber.Ref_Access    := null;
+      Publisher          : DDS.Publisher.Ref_Access := null;
+      Subscriber         : DDS.Subscriber.Ref_Access := null;
       A_Listner          : Request_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return not null Ref_Access
    is
       Datawriter_Qos : DDS.DataWriterQos;
       Datareader_Qos : DDS.DataReaderQoS;
@@ -159,25 +161,25 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Publisher        : DDS.Publisher.Ref_Access := null;
       Subscriber       : DDS.Subscriber.Ref_Access := null;
       A_Listner        : Request_Listeners.Ref_Access := null;
-      Mask             : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask             : DDS.StatusKind := DDS.STATUS_MASK_NONE) return not null Ref_Access
    is
       Request_Topic_Name : DDS.String := DDS.Request_Reply.Impl.Create_Request_Topic_Name_From_Service_Name (Service_Name);
       Reply_Topic_Name   : DDS.String := DDS.Request_Reply.Impl.Create_Reply_Topic_Name_From_Service_Name (Service_Name);
+      Ret : Ref_Access;
    begin
-      return Ret : Ref_Access do
-         Ret := Create (Participant          => Participant,
-                        Request_Topic_Name   => Request_Topic_Name,
-                        Reply_Topic_Name     => Reply_Topic_Name ,
-                        Datawriter_Qos       => Datawriter_Qos,
-                        Datareader_Qos       => Datareader_Qos,
-                        Topic_Qos            => Topic_Qos,
-                        Publisher            => Publisher,
-                        Subscriber           => Subscriber,
-                        A_Listner            => A_Listner,
-                        Mask                 => Mask);
-         Finalize (Request_Topic_Name);
-         Finalize (Reply_Topic_Name);
-      end return;
+      Ret := Create (Participant          => Participant,
+                     Request_Topic_Name   => Request_Topic_Name,
+                     Reply_Topic_Name     => Reply_Topic_Name ,
+                     Datawriter_Qos       => Datawriter_Qos,
+                     Datareader_Qos       => Datareader_Qos,
+                     Topic_Qos            => Topic_Qos,
+                     Publisher            => Publisher,
+                     Subscriber           => Subscriber,
+                     A_Listner            => A_Listner,
+                     Mask                 => Mask);
+      Finalize (Request_Topic_Name);
+      Finalize (Reply_Topic_Name);
+      return Ret;
    end Create;
 
    ------------
@@ -194,7 +196,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Publisher          : DDS.Publisher.Ref_Access := null;
       Subscriber         : DDS.Subscriber.Ref_Access := null;
       A_Listner          : Request_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return not null Ref_Access
    is
       Ret : Ref_Access := new Ref;
    begin
@@ -259,6 +261,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
             end return;
          end if;
       end loop;
+      return raise Constraint_Error with "No data";
    end Send_Request;
 
    ------------------
@@ -287,9 +290,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       return Reply_DataReader.Container'Class
    is
    begin
-      pragma Compile_Time_Warning
-        (Standard.True, "Send_Request unimplemented");
-      return raise Program_Error with "Unimplemented function Send_Request";
+      return Raise Program_Error with "Send_Request Not implemented";
    end Send_Request;
 
    ------------------
@@ -322,7 +323,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Timeout  :         DDS.Duration_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Receive_Reply unimplemented");
       return raise Program_Error with "Unimplemented function Receive_Reply";
    end Receive_Reply;
 
@@ -336,8 +336,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       return Reply_DataReader.Container'Class
    is
    begin
-      pragma Compile_Time_Warning
-        (Standard.True, "Receive_Reply unimplemented");
       return raise Program_Error with "Unimplemented function Receive_Reply";
    end Receive_Reply;
 
@@ -389,7 +387,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Timeout         : DDS.Duration_T)
       return Reply_DataReader.Container'Class
    is
-      Reader : Reply_DataReader.Ref_Access := Reply_DataReader.Ref_Access (Self.Reader);
+      Reader : constant Reply_DataReader.Ref_Access := Reply_DataReader.Ref_Access (Self.Reader);
    begin
       Self.Reader.Wait (DATA_READER_CACHE_STATUS, Timeout);
       return Reader.Take (Max_Samples => Max_Reply_Count);
@@ -409,7 +407,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Timeout     :         DDS.Duration_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Take_Reply unimplemented");
       return raise Program_Error with "Unimplemented function Take_Reply";
    end Take_Reply;
 
@@ -425,8 +422,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Timeout         : DDS.Duration_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning
-        (Standard.True, "Take_Replies unimplemented");
       return raise Program_Error with "Unimplemented function Take_Replies";
    end Take_Replies;
 
@@ -440,7 +435,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       return Reply_DataReader.Container'Class
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Take_Replies unimplemented");
       return raise Program_Error with "Unimplemented function Take_Replies";
    end Take_Replies;
 
@@ -456,7 +450,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Take_Reply_For_Related_Request unimplemented");
       return raise Program_Error with "Unimplemented function Take_Reply_For_Related_Request";
    end Take_Reply_For_Related_Request;
 
@@ -473,7 +466,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Take_Replies_For_Related_Request unimplemented");
       return raise Program_Error with "Unimplemented function Take_Replies_For_Related_Request";
    end Take_Replies_For_Related_Request;
 
@@ -487,7 +479,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       return Reply_DataReader.Container'Class
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Take_Replies_For_Related_Request unimplemented");
       return raise Program_Error with "Unimplemented function Take_Replies_For_Related_Request";
    end Take_Replies_For_Related_Request;
 
@@ -502,7 +493,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Timeout     :         DDS.Duration_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Read_Reply unimplemented");
       return raise Program_Error with "Unimplemented function Read_Reply";
    end Read_Reply;
 
@@ -519,7 +509,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Timeout         : DDS.Duration_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Read_Replies unimplemented");
       return raise Program_Error with "Unimplemented function Read_Replies";
    end Read_Replies;
 
@@ -533,7 +522,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       return Reply_DataReader.Container'Class
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Read_Replies unimplemented");
       return raise Program_Error with "Unimplemented function Read_Replies";
    end Read_Replies;
 
@@ -548,7 +536,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Related_Request_Info : DDS.SampleIdentity_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Read_Reply_For_Related_Request unimplemented");
       return raise Program_Error with "Unimplemented function Read_Reply_For_Related_Request";
    end Read_Reply_For_Related_Request;
 
@@ -563,7 +550,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Related_Request_Info : DDS.SampleIdentity_T) return DDS.ReturnCode_T
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Read_Replies_For_Related_Request unimplemented");
       return raise Program_Error with "Unimplemented function Read_Replies_For_Related_Request";
    end Read_Replies_For_Related_Request;
 
@@ -577,7 +563,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       return Reply_DataReader.Container'Class
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Read_Replies_For_Related_Request unimplemented");
       return raise Program_Error with "Unimplemented function Read_Replies_For_Related_Request";
    end Read_Replies_For_Related_Request;
 
@@ -591,7 +576,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Sample_Info : DDS.SampleInfo_Seq.Sequence_Access)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Return_Loan unimplemented");
       raise Program_Error with "Unimplemented procedure Return_Loan";
    end Return_Loan;
 
@@ -614,7 +598,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
 
    procedure Delete (This : in out Ref) is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Delete unimplemented");
       raise Program_Error with "Unimplemented procedure Delete";
    end Delete;
 
@@ -626,7 +609,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
      (This : in out Ref; Min_Count : Dds.Long; Max_Wait : DDS.Duration_T)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Wait_For_Replies unimplemented");
       raise Program_Error with "Unimplemented procedure Wait_For_Replies";
    end Wait_For_Replies;
 
@@ -641,7 +623,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Related_Request_Id : DDS.SampleIdentity_T)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Wait_For_Replies_For_Related_Reques unimplemented");
       raise Program_Error with "Unimplemented procedure Wait_For_Replies_For_Related_Reques";
    end Wait_For_Replies_For_Related_Reques;
 

@@ -10,15 +10,21 @@ project DDS.Ada.Request_Reply.Unittest is
    for Source_Dirs use ("src/**");
    for Object_Dir use ".obj";
    for Exec_Dir use "bin";
+
+   package builder renames dds.builder;
    package Compiler is
       for Driver ("gen") use "";
       for Driver ("c") use "";
-      for Default_Switches ("ada") use Dds.Compiler'Default_Switches ("Ada") & ("-gnatX");
+      for Default_Switches ("ada") use Dds.Compiler'Default_Switches ("Ada") & ("-gnatX", "-g");
    end Compiler;
 
    package Naming is
       for Spec_Suffix ("gen") use ".gen";
    end Naming;
+
+   package Binder is
+      for Default_Switches ("ada") use  ("-E");
+   end Binder;
 
    for Main use ("dds-request_reply-requester-impl-unittest-main.ads");
 

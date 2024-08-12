@@ -28,18 +28,13 @@
 -- ---------------------------------------------------------------------
 
 with DDS.WaitSet;
-pragma Warnings (Off);
-with DDS.DomainParticipant;
-with DDS.Topic;
-with DDS.ContentFilteredTopic;
-with DDS.EntityParams;
+
 --  ----------------------------------------------------------------------------
 --  Note this is an implementation package and is subject to change att any time.
 --  ----------------------------------------------------------------------------
 package body DDS.Request_Reply.Requester.Impl is
    use DDS.ContentFilteredTopic;
    use DDS.ReadCondition;
-   use DDS.Topic;
 
    -------------------
    -- Touch_Samples --
@@ -50,7 +45,7 @@ package body DDS.Request_Reply.Requester.Impl is
      (Participant      : not null DDS.DomainParticipant.Ref_Access;
       Topic            : not null DDS.Topic.Ref_Access;
       Correlation_Guid : DDS.Guid_T)
-      return DDS.ContentFilteredTopic.Ref_Access
+      return not null  DDS.ContentFilteredTopic.Ref_Access
    is
    begin
       return Participant.Create_Correlation_ContentFilteredTopic (Topic, Correlation_Guid);
@@ -58,50 +53,26 @@ package body DDS.Request_Reply.Requester.Impl is
 
    -------------------------
    -- create_reader_topic ---
-   -------------------------
-   function Create_Reader_Topic
-     (Self            : not null access Ref;
-      Params          : not null DDS.EntityParams.Ref_Access;
-      Reply_Type_Name : String)
-      return DDS.TopicDescription.Ref_Access
-   is
-      Topic            : DDS.Topic.Ref_Access;
-      CurrentWriterQos : DDS.DataWriterQos;
-      TopicDesc        : DDS.TopicDescription.Ref_Access;
-      Reply_Topic_Name : DDS.String;
-   begin
-      Topic := Self.Participant.Get_Or_Create_Topic (Topic_Name => Reply_Topic_Name,
-                                                     Type_Name  =>  Reply_Type_Name);
+   --  -------------------------
+   --  function Create_Reader_Topic
+   --    (Self            : not null access Ref;
+   --     Params          : not null DDS.EntityParams.Ref_Access;
+   --     Reply_Type_Name : String)
+   --     return not null DDS.TopicDescription.Ref_Access
+   --  is
+   --     Topic            : DDS.Topic.Ref_Access;
+   --     CurrentWriterQos : DDS.DataWriterQos;
+   --     TopicDesc        : DDS.TopicDescription.Ref_Access;
+   --     Reply_Topic_Name : DDS.String;
+   --  begin
+   --     Topic := Self.Participant.Get_Or_Create_Topic (Topic_Name => Reply_Topic_Name,
+   --                                                    Type_Name  =>  Reply_Type_Name);
+   --
+   --     raise DDS.ERROR with "Unable to create " & To_Standard_String (Reply_Topic_Name) when Topic = null;
+   --     Self.Writer.Get_Qos (CurrentWriterQos);
+   --     return Topic.As_TopicDescription;
+   --  end Create_Reader_Topic;
 
-      raise DDS.ERROR with "Unable to create " & To_Standard_String (Reply_Topic_Name) when Topic = null;
-      Self.Writer.Get_Qos (CurrentWriterQos);
-      return Topic.As_TopicDescription;
-   end Create_Reader_Topic;
-
-
-   -------------------------
-   -- create_writer_topic --
-   -------------------------
-   function Create_Writer_Topic
-     (Self              : not null access Ref;
-      Params            : not null DDS.EntityParams.Ref_Access;
-      Request_Type_Name : String) return DDS.TopicDescription.Ref_Access
-   is
-   begin
-      return
-      raise Program_Error with "Unimplemented function create_writer_topic";
-   end Create_Writer_Topic;
-
-   ------------
-   -- create --
-   ------------
-   function Create
-     (Params : not null DDS.EntityParams.Ref_Access; Reply_Size : Integer)
-      return Ref_Access
-   is
-   begin
-      return raise Program_Error with "Unimplemented function create";
-   end Create;
 
    --@RequesterUntypedImpl.c:342
    function Create_Query_Expression_For_Correlation_Sequence_Number
@@ -113,16 +84,16 @@ package body DDS.Request_Reply.Requester.Impl is
    --@ .c:361: RTI_Connext_RequesterUntypedImpl_create_correlation_condition
    RequestReplyIndex : constant DDS.String := To_DDS_String ("RequestReplyIndex");
    function Create_Correlation_Condition (Self            : not null access Ref;
-                                          State_Kind      : DDS.SampleStateMask;
-                                          Sequence_Number : DDS.SequenceNumber_T) return DDS.ReadCondition.Ref_Access
+      State_Kind      : DDS.SampleStateMask;
+                                          Sequence_Number : DDS.SequenceNumber_T) return not null DDS.ReadCondition.Ref_Access
    is
       Sample_Info : DDS.SampleInfo;
+      Condition : DDS.ReadCondition.Ref_Access;
    begin
       if Sequence_Number in DDS.AUTO_SEQUENCE_NUMBER | DDS.SEQUENCE_NUMBER_MAX | DDS.SEQUENCE_NUMBER_ZERO | DDS.SEQUENCE_NUMBER_UNKNOWN then
          raise DDS.ERROR with "Invalid correlation sequence number" & Sequence_Number'Img;
       end if;
       Sample_Info.Related_Original_Publication_Virtual_Sequence_Number := Sequence_Number;
-      return Condition : DDS.ReadCondition.Ref_Access do
 
          Condition := ReadCondition.Ref_Access (Self.Reader.Create_Indexcondition
                                                 (Sample_State    => State_Kind,
@@ -131,10 +102,11 @@ package body DDS.Request_Reply.Requester.Impl is
                                                  Index_Name      => RequestReplyIndex,
                                                  Sample_Info     => Sample_Info));
 
-         if Condition = null  then
-            raise DDS.ERROR with "Invalid correlation sequence number";
+      if Condition = null  then
+         return raise DDS.ERROR with "Invalid correlation sequence number";
+      else
+         return Condition;
          end if;
-      end return;
    end Create_Correlation_Condition;
 
    function Wait_For_Replies_For_Related_Request
@@ -204,7 +176,7 @@ package body DDS.Request_Reply.Requester.Impl is
       Waitset.Attach_Condition (Correlation_Condition);
       Self.Wait_For_Samples (Max_Wait, Min_Sample_Count, Waitset'Unrestricted_Access, Initial_Condition, Correlation_Condition);
       Finalize_Self;
-      return Retcode;
+      RETURN Retcode;
    exception
       when others =>
          Finalize_Self;

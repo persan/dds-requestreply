@@ -28,6 +28,7 @@
 -- ---------------------------------------------------------------------
 
 with Ada.Unchecked_Deallocation;
+with DDS.DataReader;
 with DDS.DataReader_Impl;
 with DDS.Request_Reply.Impl;
 with DDS.DataWriter_Impl;
@@ -41,14 +42,14 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    ------------
 
    function Create
-     (Participant  : DDS.DomainParticipant.Ref_Access;
-      Service_Name : DDS.String;
-      Library_Name : DDS.String;
-      Profile_Name : DDS.String;
-      Publisher    : DDS.Publisher.Ref_Access     := null;
-      Subscriber   : DDS.Subscriber.Ref_Access    := null;
-      Listner      : Replyer_Listeners.Ref_Access := null;
-      Mask         : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
+     (Participant        : DDS.DomainParticipant.Ref_Access;
+      Service_Name       : DDS.String;
+      Library_Name       : DDS.String;
+      Profile_Name       : DDS.String;
+      Publisher          : DDS.Publisher.Ref_Access := null;
+      Subscriber         : DDS.Subscriber.Ref_Access := null;
+      Listner            : Replyer_Listeners.Ref_Access := null;
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return not null Ref_Access
    is
       Request_Topic_Name : DDS.String := DDS.Request_Reply.Impl.Create_Request_Topic_Name_From_Service_Name (Service_Name);
       Reply_Topic_Name   : DDS.String := DDS.Request_Reply.Impl.Create_Reply_Topic_Name_From_Service_Name (Service_Name);
@@ -78,10 +79,10 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Reply_Topic_Name   : DDS.String;
       Library_Name       : DDS.String;
       Profile_Name       : DDS.String;
-      Publisher          : DDS.Publisher.Ref_Access     := null;
-      Subscriber         : DDS.Subscriber.Ref_Access    := null;
+      Publisher          : DDS.Publisher.Ref_Access := null;
+      Subscriber         : DDS.Subscriber.Ref_Access := null;
       Listner            : Replyer_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return not null  Ref_Access
    is
       Datawriter_Qos    : DDS.DataWriterQos;
       Datareader_Qos    : DDS.DataReaderQos;
@@ -112,16 +113,16 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    ------------
 
    function Create
-     (Participant       : DDS.DomainParticipant.Ref_Access;
-      Service_Name      : DDS.String;
-      Datawriter_Qos    : DDS.DataWriterQos;
-      Datareader_Qos    : DDS.DataReaderQos;
-      Reply_Topic_Qos   : DDS.TopicQos;
-      Request_Topic_Qos : DDS.TopicQos;
-      Publisher         : DDS.Publisher.Ref_Access     := null;
-      Subscriber        : DDS.Subscriber.Ref_Access    := null;
-      Listner           : Replyer_Listeners.Ref_Access := null;
-      Mask              : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
+     (Participant        : DDS.DomainParticipant.Ref_Access;
+      Service_Name       : DDS.String;
+      Datawriter_Qos     : DDS.DataWriterQos;
+      Datareader_Qos     : DDS.DataReaderQos;
+      Reply_Topic_Qos    : DDS.TopicQos;
+      Request_Topic_Qos  : DDS.TopicQos;
+      Publisher          : DDS.Publisher.Ref_Access := null;
+      Subscriber         : DDS.Subscriber.Ref_Access := null;
+      Listner            : Replyer_Listeners.Ref_Access := null;
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE)return not null  Ref_Access
    is
       Request_Topic_Name : DDS.String := DDS.Request_Reply.Impl.Create_Request_Topic_Name_From_Service_Name (Service_Name);
       Reply_Topic_Name   : DDS.String := DDS.Request_Reply.Impl.Create_Reply_Topic_Name_From_Service_Name (Service_Name);
@@ -157,7 +158,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Publisher          : DDS.Publisher.Ref_Access     := null;
       Subscriber         : DDS.Subscriber.Ref_Access    := null;
       Listner            : Replyer_Listeners.Ref_Access := null;
-      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return Ref_Access
+      Mask               : DDS.StatusKind := DDS.STATUS_MASK_NONE) return not null Ref_Access
    is
       Ret : Ref_Access := new Ref;
    begin
@@ -215,8 +216,11 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    procedure Delete (Self : in out Ref_Access) is
    begin
-      --        pragma Compile_Time_Warning (Standard.True, "Delete unimplemented");
-      raise Program_Error with "Unimplemented procedure Delete";
+      Self.Reader.Delete_Readcondition(Self.Any_Sample_Cond);
+      Self.Reader.Delete_Readcondition(Self.Not_Read_Sample_Cond);
+      Self.Subscriber.Delete_DataReader(DDS.DataReader.Ref_Access(Self.Reader));
+      Self.Publisher.Delete_DataWriter(DDS.DataWriter.Ref_Access(Self.Writer));
+      self:=null;
    end Delete;
 
    ----------------
@@ -273,33 +277,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Dds.Ret_Code_To_Exception (Self.Receive_Request (Request, Info_Seq, Timeout));
    end Receive_Request;
 
-   ---------------------
-   -- Receive_Request --
-   ---------------------
 
-   function Receive_Request
-     (Self : not null access Ref; Timeout : DDS.Duration_T)
-      return Request_DataReader.Container'Class
-   is
-   begin
-      return Request_DataReader.Ref_Access (Self.Reader).Take;
-   end Receive_Request;
-
-
-
-   ----------------------
-   -- Receive_Requests --
-   ----------------------
-
-
-   ----------------------
-   -- Receive_Requests --
-   ----------------------
-
-
-   ---------------------
-   -- Receive_Request --
-   ---------------------
 
    function Take_Request
      (Self            : not null access Ref;
@@ -369,12 +347,13 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    procedure Delete (This : in out Ref) is
    begin
-      --        pragma Compile_Time_Warning (Standard.True, "Delete unimplemented");
-      raise Program_Error with "Unimplemented procedure Delete";
+      this.Reader.Delete_Readcondition(this.Not_Read_Sample_Cond);
+      this.Reader.Delete_Readcondition(This.Any_Sample_Cond);
+      this.Subscriber.Delete_DataReader(DDS.DataReader.Ref_Access(this.Reader));
+      this.Publisher.Delete_DataWriter(DDS.DataWriter.Ref_Access(This.Writer));
    end Delete;
 
 
-   --===========================================================================
    --===========================================================================
 
    use type Replyer_Listeners.Ref_Access;

@@ -37,11 +37,11 @@ package DDS.Request_Reply.Requester is
 
    function Get_Request_Data_Writer
      (Self : not null access Ref)
-      return DDS.DataWriter.Ref_Access is abstract;
+      return not null DDS.DataWriter.Ref_Access is abstract;
 
    function Get_Reply_Data_Reader
      (Self : not null access Ref)
-      return DDS.DataReader.Ref_Access is abstract;
+      return not null DDS.DataReader.Ref_Access is abstract;
 
    function Touch_Samples
      (Self           : not null access Ref;

@@ -27,7 +27,6 @@
 --                                                                    --
 -- ---------------------------------------------------------------------
 
-pragma Extensions_Allowed (all);
 with DDS.Condition;
 with DDS.ConditionSeq;
 with Interfaces.C.Extensions;
@@ -158,7 +157,7 @@ package body DDS.Request_Reply.Impl is
 
    begin
       return Self.Reader.Read_Or_Take_W_Condition_UntypedI
-        (Is_Loan                             => Is_Loan'Unrestricted_Access,
+        (Is_Loan                             => Is_Loan,
          Received_Data                       => Received_Data,
          Data_Count                          => Data_Count'Unrestricted_Access,
          Info_Seq                            => Info_Seq,
@@ -204,7 +203,6 @@ package body DDS.Request_Reply.Impl is
    end Touch_Samples;
 
 
-
    procedure Wait_For_Samples (Self              : not null access Ref;
                                Max_Wait          : DDS.Duration_T;
                                Min_Sample_Count  : DDS.Integer;
@@ -226,7 +224,6 @@ package body DDS.Request_Reply.Impl is
       if Initial_Condition.Get_Sample_State_Mask /= DDS.ANY_SAMPLE_STATE then
          raise PRECONDITION_NOT_MET;
       end if;
-
       Sample_Count := Sample_Count - Self.Touch_Samples (Min_Sample_Count, Initial_Condition);
 
       while Sample_Count > 0 loop

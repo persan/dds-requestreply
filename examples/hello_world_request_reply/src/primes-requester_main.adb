@@ -1,9 +1,36 @@
+-- ---------------------------------------------------------------------
+--                                                                    --
+--               Copyright (c) per.sandberg@bahnhof.se                --
+--                                                                    --
+--  Permission is hereby granted, free of charge, to any person       --
+--  obtaining a copy of this software and associated documentation    --
+--  files (the "Software"), to deal in the Software without           --
+--  restriction, including without limitation the rights to use,      --
+--  copy, modify, merge, publish, distribute, sublicense, and/or sell --
+--  copies of the Software, and to permit persons to whom the Software--
+--  is furnished to do so, subject to the following conditions:       --
+--                                                                    --
+--  The above copyright notice and this permission notice             --
+--  (including the next paragraph) shall be included in all copies or --
+--  substantial portions of the Software.                             --
+--                                                                    --
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,   --
+--  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF--
+--  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND             --
+--  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT       --
+--  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,      --
+--  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,--
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER     --
+--  DEALINGS IN THE SOFTWARE.                                         --
+--                                                                    --
+--  <spdx: MIT>
+--                                                                    --
+-- ---------------------------------------------------------------------
 with Ada.Command_Line;
 with Ada.Text_IO; use Ada.Text_IO;
 with DDS.DomainParticipant;
 with DDS.DomainParticipantFactory;
 with Primes.PrimeNumberRequester;
-with Primes.PrimeNumberRequest_TypeSupport;
 with DDS.Logger.LoggerDevice.Errors_And_Warnings_As_Exceptions; pragma Warnings (Off, DDS.Logger.LoggerDevice.Errors_And_Warnings_As_Exceptions);
 with GNAT.Time_Stamp;
 with Ada.Directories;
@@ -15,11 +42,11 @@ procedure Primes.Requester_Main is
 
    procedure Requester_Shutdown (Participant : in out DDS.DomainParticipant.Ref_Access;
                                  Requester   : in out PrimeNumberRequester.Ref_Access;
-                                 Request     : in out PrimeNumberRequest_Access) is
+                                 Request     : in out PrimeNumberRequest) is
    begin
 
 
-      PrimeNumberRequest_TypeSupport.Delete_Data (Request);
+      Request.finalize;
       PrimeNumberRequester.Delete (Requester);
 
       if Participant /= null then
@@ -42,23 +69,21 @@ procedure Primes.Requester_Main is
       Info_Seq         : aliased DDS.SampleInfo_Seq.Sequence;
       Participant      : DDS.DomainParticipant.Ref_Access;
       Requester        : PrimeNumberRequester.Ref_Access;
-      Request          : PrimeNumberRequest_Access := PrimeNumberRequest_TypeSupport.Create_Data;
+      Request          : PrimeNumberRequest;
       MAX_WAIT         : constant DDS.Duration_T := DDS.To_Duration_T (2.0);
       In_Progress      : Boolean := False;
       Publication_Matched_Status : DDS.PublicationMatchedStatus;
+
       use type PrimeNumberRequester.Ref_Access;
       use PrimeNumberReply_Seq;
       use DDS.SampleInfo_Seq;
       use type DDS.Long;
    begin
+      Request.initialize;
       DDS.Logger.Get_Instance.Set_Verbosity (DDS.VERBOSITY_ALL);
 
       --  Create the participant
       Participant := Factory.Create_Participant (Domain_Id);
-      if Participant = null then
-         raise Program_Error with  "create_participant error";
-      end if;
-
 
       --  Create the requester with that participant, and a QoS profile
       --  defined in USER_QOS_PROFILES.xml
@@ -67,29 +92,18 @@ procedure Primes.Requester_Main is
                                                 Service_Name => Service_Name,
                                                 Library_Name => Qos_Library_Name,
                                                 Profile_Name => Qos_Profile_Name);
-      if Requester = null then
-         Requester_Shutdown (Participant, Requester, Request);
-         raise Program_Error with  "create requester error";
-      end if;
 
 
-      Request := PrimeNumberRequest_TypeSupport.Create_Data;
-      if Request = null then
-         Requester_Shutdown (Participant, Requester, Request);
-         raise Program_Error with  "create data error";
-      end if;
 
-      Request.all := (N                => N,
-                      Primes_Per_Reply => Primes_Per_Reply);
-      delay 0.01; -- force rechedule for discovery.
       loop
-         requester.Get_Request_Data_Writer.Get_Publication_Matched_Status(Publication_Matched_Status);
+         Requester.Get_Request_Data_Writer.Get_Publication_Matched_Status(Publication_Matched_Status);
          exit when Publication_Matched_Status.total_count > 0;
          Put_Line(GNAT.Time_Stamp.Current_Time & ":" & Command_Name & " Waiting for server");
-         delay 0.5;
+         Requester.Get_Request_Data_Writer.wait(DDS.PUBLICATION_MATCHED_STATUS,DDS.To_Duration_T(60.0));
       end loop;
 
-      Requester.Send_Request (Request.all);
+
+      Requester.Send_Request ((N  => N, Primes_Per_Reply => Primes_Per_Reply));
 
       Retcode := Requester.Receive_Replies
         (Replies         => Replies'Unrestricted_Access,

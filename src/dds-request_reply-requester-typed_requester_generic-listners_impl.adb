@@ -27,7 +27,6 @@
 --                                                                    --
 -- ---------------------------------------------------------------------
 
-pragma Warnings (Off);
 separate (DDS.Request_Reply.Requester.Typed_Requester_Generic)
 package body Listners_Impl is
 --------------------------------
@@ -160,7 +159,6 @@ package body Listners_Impl is
       Cookie : in DDS.Cookie_T)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "On_Data_Return unimplemented");
       raise Program_Error with "Unimplemented procedure On_Data_Return";
    end On_Data_Return;
 
@@ -187,8 +185,6 @@ package body Listners_Impl is
       Instance : in DDS.InstanceHandle_T)
    is
    begin
-      pragma Compile_Time_Warning
-        (Standard.True, "On_Instance_Replaced unimplemented");
       raise Program_Error with "Unimplemented procedure On_Instance_Replaced";
    end On_Instance_Replaced;
 
@@ -202,7 +198,6 @@ package body Listners_Impl is
       Info   : in DDS.AcknowledgmentInfo)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "On_Application_Acknowledgment unimplemented");
       raise Program_Error with "Unimplemented procedure On_Application_Acknowledgment";
    end On_Application_Acknowledgment;
 
@@ -216,7 +211,6 @@ package body Listners_Impl is
       Info   : in DDS.ServiceRequestAcceptedStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "On_Service_Request_Accepted unimplemented");
       raise Program_Error with "Unimplemented procedure On_Service_Request_Accepted";
    end On_Service_Request_Accepted;
 
@@ -230,8 +224,6 @@ package body Listners_Impl is
       Status     : in DDS.RequestedDeadlineMissedStatus)
    is
    begin
-      pragma Compile_Time_Warning
-        (Standard.True, "On_Requested_Deadline_Missed unimplemented");
       raise Program_Error
         with "Unimplemented procedure On_Requested_Deadline_Missed";
    end On_Requested_Deadline_Missed;
@@ -246,8 +238,6 @@ package body Listners_Impl is
       Status     : in DDS.RequestedIncompatibleQosStatus)
    is
    begin
-      pragma Compile_Time_Warning
-        (Standard.True, "On_Requested_Incompatible_Qos unimplemented");
       raise Program_Error
         with "Unimplemented procedure On_Requested_Incompatible_Qos";
    end On_Requested_Incompatible_Qos;
@@ -262,8 +252,6 @@ package body Listners_Impl is
       Status     : in DDS.SampleRejectedStatus)
    is
    begin
-      pragma Compile_Time_Warning
-        (Standard.True, "On_Sample_Rejected unimplemented");
       raise Program_Error with "Unimplemented procedure On_Sample_Rejected";
    end On_Sample_Rejected;
 
@@ -277,8 +265,6 @@ package body Listners_Impl is
       Status     : in DDS.LivelinessChangedStatus)
    is
    begin
-      pragma Compile_Time_Warning
-        (Standard.True, "On_Liveliness_Changed unimplemented");
       raise Program_Error with "Unimplemented procedure On_Liveliness_Changed";
    end On_Liveliness_Changed;
 
@@ -291,7 +277,6 @@ package body Listners_Impl is
       The_Reader : in DDS.DataReaderListener.DataReader_Access)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "On_Data_Available unimplemented");
       raise Program_Error with "Unimplemented procedure On_Data_Available";
    end On_Data_Available;
 
@@ -305,7 +290,6 @@ package body Listners_Impl is
       Status     : in DDS.SubscriptionMatchedStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "On_Subscription_Matched unimplemented");
       raise Program_Error with "Unimplemented procedure On_Subscription_Matched";
    end On_Subscription_Matched;
 
@@ -319,7 +303,6 @@ package body Listners_Impl is
       Status     : in DDS.SampleLostStatus)
    is
    begin
-      pragma Compile_Time_Warning (Standard.True, "On_Sample_Lost unimplemented");
       raise Program_Error with "Unimplemented procedure On_Sample_Lost";
    end On_Sample_Lost;
 

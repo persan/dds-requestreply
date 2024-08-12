@@ -1,3 +1,31 @@
+-- ---------------------------------------------------------------------
+--                                                                    --
+--               Copyright (c) per.sandberg@bahnhof.se                --
+--                                                                    --
+--  Permission is hereby granted, free of charge, to any person       --
+--  obtaining a copy of this software and associated documentation    --
+--  files (the "Software"), to deal in the Software without           --
+--  restriction, including without limitation the rights to use,      --
+--  copy, modify, merge, publish, distribute, sublicense, and/or sell --
+--  copies of the Software, and to permit persons to whom the Software--
+--  is furnished to do so, subject to the following conditions:       --
+--                                                                    --
+--  The above copyright notice and this permission notice             --
+--  (including the next paragraph) shall be included in all copies or --
+--  substantial portions of the Software.                             --
+--                                                                    --
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,   --
+--  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF--
+--  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND             --
+--  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT       --
+--  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,      --
+--  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,--
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER     --
+--  DEALINGS IN THE SOFTWARE.                                         --
+--                                                                    --
+--  <spdx: MIT>
+--                                                                    --
+-- ---------------------------------------------------------------------
 with Ada.Command_Line;
 with Ada.Numerics.Long_Elementary_Functions;
 with Ada.Text_IO; 
@@ -5,8 +33,9 @@ with DDS.DomainParticipant;
 with DDS.DomainParticipantFactory;
 with Primes.PrimeNumberReplier;
 with Primes.PrimeNumberRequest_TypeSupport;
-with DDS.Logger.LoggerDevice.Errors_And_Warnings_As_Exceptions; 
-pragma Warnings (Off, DDS.Logger.LoggerDevice.Errors_And_Warnings_As_Exceptions);
+with DDS.Logger;
+-- with DDS.Logger.LoggerDevice.Errors_And_Warnings_As_Exceptions; 
+-- pragma Warnings (Off, DDS.Logger.LoggerDevice.Errors_And_Warnings_As_Exceptions);
 
 procedure Primes.Replier_Main is
 
@@ -19,7 +48,7 @@ procedure Primes.Replier_Main is
    use type DDS.Long;
    
    Factory          : DDS.DomainParticipantFactory.Ref_Access := DDS.DomainParticipantFactory.Get_Instance;
-   MAX_WAIT         : constant DDS.Duration_T := DDS.To_Duration_T (10.0);
+   MAX_WAIT         : constant DDS.Duration_T := DDS.To_Duration_T (90.0);
 
    procedure Replier_Shutdown
      (Participant : in out DDS.DomainParticipant.Ref_Access;
@@ -112,25 +141,27 @@ procedure Primes.Replier_Main is
    begin
       --  Create the participant
       Participant := Factory.Create_Participant (Domain_Id);
-      if Participant = null then
-         Put_Line (Standard_Error, "create_participant error");
-         return;
-      end if;
-      DDS.Logger.Get_Instance.Set_Verbosity (DDS.VERBOSITY_ALL);
+      DDS.Logger.Get_Instance.Set_Verbosity (DDS.VERBOSITY_WARNING);
 
       --   Create the replier with that participant, and a QoS profile
       --       defined in USER_QOS_PROFILES.xml
       Replier := PrimeNumberReplier.Create (Participant, Service_Name , Qos_Library_Name, Qos_Profile_Name);
-      Request := PrimeNumberRequest_TypeSupport.Create_Data;
       
       --
       --  Receive requests and process them
       --
       Retcode := Replier.Receive_Request (Request.all, Request_Info, Timeout => MAX_WAIT);
       
+      --  for R of Replier.Receive_Request(Timeout => MAX_WAIT) loop
+      --     if R.Sample_Info.Valid_Data then
+      --        Request_Id:=R.Sample_Info.Get_Sample_Identity;
+      --  
+      --     end if;
+      --  end loop;
+         
       while Retcode = DDS.RETCODE_OK  loop
          if Request_Info.Valid_Data then
-            Request_Info.Get_Sample_Identity (Request_Id);
+            Request_Id:=Request_Info.Get_Sample_Identity;
             
             --  This constant is defined in Primes.idl
             if Request.N <= 0 or

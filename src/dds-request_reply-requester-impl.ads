@@ -33,8 +33,6 @@
 --  ----------------------------------------------------------------------------
 with DDS.ReadCondition;
 with DDS.Request_Reply.Impl;
-with DDS.TopicDescription;
-with DDS.EntityParams;
 with DDS.DomainParticipant;
 with DDS.ContentFilteredTopic;
 with DDS.Topic;
@@ -46,7 +44,6 @@ private package DDS.Request_Reply.Requester.Impl is
    type Ref_Access is access all Ref'Class;
 
 
-   --@RequesterUntypedImpl.c:41
    CFTBuilder_GUID_FIELD_NAME       : constant Standard.String := "@related_sample_identity.writer_guid.value";
    CFTBuilder_GUID_SIZE             : constant := 16;
    CFTBuilder_MAX_TOPIC_NAME_LENGTH : constant :=  255-(16 * 4 + 1);
@@ -54,35 +51,17 @@ private package DDS.Request_Reply.Requester.Impl is
 
 
 
-   --@RequesterUntypedImpl.c:131
-   function Create_Reader_Topic (Self            : not null access Ref;
-                                 Params          : not null DDS.EntityParams.Ref_Access;
-                                 Reply_Type_Name : String) return DDS.TopicDescription.Ref_Access;
-
-   --@RequesterUntypedImpl.c:179
-   function Create_Writer_Topic (Self              : not null access Ref;
-                                 Params            : not null DDS.EntityParams.Ref_Access;
-                                 Request_Type_Name : String) return DDS.TopicDescription.Ref_Access;
-
-   --@RequesterUntypedImpl.c:179
-   function Create (Params     : not null DDS.EntityParams.Ref_Access;
-                    Reply_Size : Integer) return Ref_Access;
-
-   --@RequesterUntypedImpl.c:339
    CORRELATION_SN_FIELD_NAME        : constant Standard.String := "@related_sample_identity.sequence_number";
 
 
-   --@RequesterUntypedImpl.c:342
    function Create_Query_Expression_For_Correlation_Sequence_Number
      (Sequence_Number : DDS.SequenceNumber_T) return Standard.String;
 
-   --@RequesterUntypedImpl.c:361
    function Create_Correlation_Condition
      (Self            : not null access Ref;
       State_Kind      : DDS.SampleStateMask;
-      Sequence_Number : DDS.SequenceNumber_T) return DDS.ReadCondition.Ref_Access;
+      Sequence_Number : DDS.SequenceNumber_T) return not null DDS.ReadCondition.Ref_Access;
 
-   --@RequesterUntypedImpl.c:394
    function Wait_For_Replies
      (Self                 : not null access Ref;
       Max_Wait             : DDS.Duration_T;
@@ -90,7 +69,6 @@ private package DDS.Request_Reply.Requester.Impl is
       Related_Request_Info : DDS.SampleIdentity_T) return DDS.ReturnCode_T;
 
 
-   --@RequesterUntypedImpl.c:472
    function Get_Reply_Loaned
      (Self                    : not null access Ref;
       Received_Data           : System.Address;
@@ -109,7 +87,7 @@ private package DDS.Request_Reply.Requester.Impl is
      (Participant      : not null DDS.DomainParticipant.Ref_Access;
       Topic            : not null DDS.Topic.Ref_Access;
       Correlation_Guid : DDS.Guid_T)
-      return DDS.ContentFilteredTopic.Ref_Access;
+      return not null  DDS.ContentFilteredTopic.Ref_Access;
 
    function Wait_For_Replies (Self            : not null access Ref;
                               Min_Reply_Count : DDS.Long;
