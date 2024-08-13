@@ -202,6 +202,8 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
         (Sample_States   => DDS.NOT_READ_SAMPLE_STATE,
          View_States     => DDS.ANY_VIEW_STATE,
          Instance_States => DDS.ANY_INSTANCE_STATE);
+      Ret.Waitset.Attach_Condition(Ret.Any_Sample_Cond);
+      Ret.Waitset.Attach_Condition(Ret.Not_Read_Sample_Cond);
       return Ret;
    exception
       when others =>

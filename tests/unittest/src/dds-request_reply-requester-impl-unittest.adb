@@ -1,7 +1,8 @@
+with AUnit.Assertions;
 with GNAT.Source_Info;
 with AUnit; use AUnit;
 package body DDS.Request_Reply.Requester.Impl.Unittest is
-
+   use Aunit.Assertions;
    ----------
    -- Name --
    ----------
@@ -54,13 +55,28 @@ package body DDS.Request_Reply.Requester.Impl.Unittest is
 
    procedure Test_Wait_For_Replies (Test : in out Aunit.Test_Cases.Test_Case'Class) is
       T    : Test_Case renames Test_Case(Test);
-      Data : DDS.String;
-      Info : DDS.SampleInfo;
+       Data : DDS.String;
+       Info : DDS.SampleInfo;
+      task sender is
+      end sender;
+      task body sender is
+      begin
+         delay 1.0;
+         T.Requester.Send_Request(Test_Data);
+      end sender;
+      use type Ada.calendar.time;
+      T0 : constant Ada.calendar.time := Ada.calendar.Clock;
+      T1 : Ada.calendar.time := Ada.calendar.Clock;
+      delta_t : Duration;
    begin
-      T.Requester.Send_Request(Test_Data);
-      T.Replier.Receive_Request(Data,Info);
-      T.Replier.Send_Reply(Data,Info);
 
+      T.Replier.Wait_for_requests(1,DDS.To_Duration_t(10.0));
+      T1 := Ada.calendar.Clock;
+      delta_t := T1 - T0;
+      Assert (delta_t > 0.9 and delta_t < 1.1, "Dit not wait for request");
+      T.Replier.Receive_Request(Data,Info);
+
+      -- T.Requester.Read_Reply(
    end;
 
    procedure Test_Wait_For_Replies2 (Test : in out Aunit.Test_Cases.Test_Case'Class) is

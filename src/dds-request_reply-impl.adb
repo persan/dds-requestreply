@@ -209,10 +209,10 @@ package body DDS.Request_Reply.Impl is
                                WaitSet           : not null DDS.WaitSet.Ref_Access;
                                Initial_Condition : not null DDS.ReadCondition.Ref_Access;
                                Condition         : not null DDS.ReadCondition.Ref_Access) is
-      Sample_Count          : DDS.Natural := (if Min_Sample_Count = DDS.LENGTH_UNLIMITED then DDS.Natural'Last else Min_Sample_Count);
-      TimeBefore, TimeAfter : DDS.Time_T;
-      RemainingWait         : aliased DDS.Duration_T;
-      ActiveConditions      : aliased DDS.ConditionSeq.Sequence;
+      Remaining_Sample_Count : DDS.Natural := (if Min_Sample_Count = DDS.LENGTH_UNLIMITED then DDS.Natural'Last else Min_Sample_Count);
+      TimeBefore, TimeAfter  : DDS.Time_T;
+      RemainingWait          : aliased DDS.Duration_T;
+      ActiveConditions       : aliased DDS.ConditionSeq.Sequence;
       use DDS.ConditionSeq;
       use Dds.Condition;
    begin
@@ -224,11 +224,12 @@ package body DDS.Request_Reply.Impl is
       if Initial_Condition.Get_Sample_State_Mask /= DDS.ANY_SAMPLE_STATE then
          raise PRECONDITION_NOT_MET;
       end if;
-      Sample_Count := Sample_Count - Self.Touch_Samples (Min_Sample_Count, Initial_Condition);
+      Remaining_Sample_Count := Remaining_Sample_Count - Self.Touch_Samples (Min_Sample_Count, Initial_Condition);
 
-      while Sample_Count > 0 loop
-         if Sample_Count = 1 then
+      while Remaining_Sample_Count > 0 loop
+         if Remaining_Sample_Count = 1 then
             WaitSet.Wait (ActiveConditions'Access, RemainingWait);
+            Remaining_Sample_Count :=  Remaining_Sample_Count - Self.Touch_Samples (Min_Sample_Count, Condition);
          else
 
             TimeBefore := Self.Participant.Get_Current_Time;
@@ -240,10 +241,10 @@ package body DDS.Request_Reply.Impl is
             exit when
               Get_Length (ActiveConditions'Access) /= 1 or
               Get (ActiveConditions'Access, 0) /= DDS.Condition.Ref_Access (Condition);
-            if Sample_Count > 1 then
-               Sample_Count :=  Sample_Count - Self.Touch_Samples (Min_Sample_Count, Condition);
+            if Remaining_Sample_Count > 1 then
+               Remaining_Sample_Count :=  Remaining_Sample_Count - Self.Touch_Samples (Min_Sample_Count, Condition);
             else
-               Sample_Count := Sample_Count - 1;
+               Remaining_Sample_Count := Remaining_Sample_Count - 1;
             end if;
          end if;
       end loop;
