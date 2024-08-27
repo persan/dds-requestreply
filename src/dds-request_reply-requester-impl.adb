@@ -51,44 +51,23 @@ package body DDS.Request_Reply.Requester.Impl is
       return Participant.Create_Correlation_ContentFilteredTopic (Topic, Correlation_Guid);
    end Create_Correlation_Cft;
 
-   -------------------------
-   -- create_reader_topic ---
-   --  -------------------------
-   --  function Create_Reader_Topic
-   --    (Self            : not null access Ref;
-   --     Params          : not null DDS.EntityParams.Ref_Access;
-   --     Reply_Type_Name : String)
-   --     return not null DDS.TopicDescription.Ref_Access
-   --  is
-   --     Topic            : DDS.Topic.Ref_Access;
-   --     CurrentWriterQos : DDS.DataWriterQos;
-   --     TopicDesc        : DDS.TopicDescription.Ref_Access;
-   --     Reply_Topic_Name : DDS.String;
-   --  begin
-   --     Topic := Self.Participant.Get_Or_Create_Topic (Topic_Name => Reply_Topic_Name,
-   --                                                    Type_Name  =>  Reply_Type_Name);
-   --
-   --     raise DDS.ERROR with "Unable to create " & To_Standard_String (Reply_Topic_Name) when Topic = null;
-   --     Self.Writer.Get_Qos (CurrentWriterQos);
-   --     return Topic.As_TopicDescription;
-   --  end Create_Reader_Topic;
 
-
-   --@RequesterUntypedImpl.c:342
    function Create_Query_Expression_For_Correlation_Sequence_Number
      (Sequence_Number : DDS.SequenceNumber_T) return Standard.String is
    begin
-      return raise Program_Error;
+      return CORRELATION_SN_FIELD_NAME &".low = "&Sequence_Number.Low'image & "and "&CORRELATION_SN_FIELD_NAME&".high =" & Sequence_Number.High'image;
    end;
 
-   --@ .c:361: RTI_Connext_RequesterUntypedImpl_create_correlation_condition
+
    RequestReplyIndex : constant DDS.String := To_DDS_String ("RequestReplyIndex");
-   function Create_Correlation_Condition (Self            : not null access Ref;
+
+   function Create_Correlation_Condition
+     (Self            : not null access Ref;
       State_Kind      : DDS.SampleStateMask;
-                                          Sequence_Number : DDS.SequenceNumber_T) return not null DDS.ReadCondition.Ref_Access
+      Sequence_Number : DDS.SequenceNumber_T) return not null DDS.ReadCondition.Ref_Access
    is
       Sample_Info : DDS.SampleInfo;
-      Condition : DDS.ReadCondition.Ref_Access;
+      Condition   : DDS.ReadCondition.Ref_Access;
    begin
       if Sequence_Number in DDS.AUTO_SEQUENCE_NUMBER | DDS.SEQUENCE_NUMBER_MAX | DDS.SEQUENCE_NUMBER_ZERO | DDS.SEQUENCE_NUMBER_UNKNOWN then
          raise DDS.ERROR with "Invalid correlation sequence number" & Sequence_Number'Img;
@@ -106,7 +85,7 @@ package body DDS.Request_Reply.Requester.Impl is
          return raise DDS.ERROR with "Invalid correlation sequence number";
       else
          return Condition;
-         end if;
+      end if;
    end Create_Correlation_Condition;
 
    function Wait_For_Replies_For_Related_Request
@@ -115,14 +94,16 @@ package body DDS.Request_Reply.Requester.Impl is
       Max_Wait             : DDS.Duration_T;
       Related_Request_Info : DDS.SampleIdentity_T) return ReturnCode_T is
       RetCode : DDS.ReturnCode_T := DDS.RETCODE_OK;
+      Self_Classwide : constant not null access ref'class := self;
    begin
       if Related_Request_Info /= NULL_SAMPLE_IDENTITY then
          RetCode := Self.Wait_For_Replies (Max_Wait, Min_Reply_Count, Related_Request_Info);
       else
-         RetCode := Ref_Access (Self).Wait_For_Any_Sample (Max_Wait, Min_Reply_Count);
+         RetCode := Self_Classwide.Wait_For_Any_Sample (Max_Wait, Min_Reply_Count);
       end if;
+
       if RetCode not in  DDS.RETCODE_OK |  DDS.RETCODE_TIMEOUT then
-         raise DDS.ERROR with "wait for samples failed";
+         dds.Ret_Code_To_Exception(RetCode);
       end if;
       return RetCode;
    end;
@@ -135,7 +116,6 @@ package body DDS.Request_Reply.Requester.Impl is
       return Self.Wait_For_Replies_For_Related_Request (Min_Reply_Count, Max_Wait, DDS.NULL_SAMPLE_IDENTITY);
    end;
 
-   -- RequesterUntypedImpl.c:394
    function Wait_For_Replies (Self                 : not null access Ref;
                               Max_Wait             : Duration_T;
                               Min_Sample_Count     : Long;
@@ -162,19 +142,10 @@ package body DDS.Request_Reply.Requester.Impl is
       end Finalize_Self;
    begin
       Correlation_Condition := Self.Create_Correlation_Condition (DDS.NOT_READ_SAMPLE_STATE, Related_Request_Info.Sequence_Number);
-      if Correlation_Condition = null then
-         raise DDS.ERROR with "Error creating correlation condition";
-      end if;
-
-
-      --
       Initial_Condition := Self.Create_Correlation_Condition (DDS.ANY_SAMPLE_STATE, Related_Request_Info.Sequence_Number);
-      if Initial_Condition = null then
-         raise DDS.ERROR with "Error creating correlation condition";
-      end if;
 
       Waitset.Attach_Condition (Correlation_Condition);
-      Self.Wait_For_Samples (Max_Wait, Min_Sample_Count, Waitset'Unrestricted_Access, Initial_Condition, Correlation_Condition);
+      Retcode:= Self.Wait_For_Samples (Max_Wait, Min_Sample_Count, Waitset'Unrestricted_Access, Initial_Condition, Correlation_Condition);
       Finalize_Self;
       RETURN Retcode;
    exception
@@ -188,7 +159,8 @@ package body DDS.Request_Reply.Requester.Impl is
    ----------------------
    --@RequesterUntypedImpl.c:472
    function Get_Reply_Loaned
-     (Self                    : not null access Ref; Received_Data : System.Address;
+     (Self                    : not null access Ref;
+      Received_Data           : System.Address;
       Data_Count              : out DDS.Integer;
       Is_Loan                 : out Boolean;
       DataSeqContiguousBuffer : System.Address;

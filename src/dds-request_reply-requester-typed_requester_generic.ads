@@ -270,6 +270,13 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
      (Self     : not null access Ref;
       Timeout  : DDS.Duration_T) return Reply_DataReader.Container'Class;
 
+   procedure Receive_Reply
+     (Self     : not null access Ref;
+      Handler  : not null access procedure (Requester : not null access ref; data : Reply_DataReader.Treats.Data_Type);
+      Min_Reply_Count : DDS.Natural;
+      Max_Reply_Count : DDS.Long;
+      Timeout  : DDS.Duration_T);
+
    function Receive_Replies
      (Self                 : not null access Ref;
       Replies              : not null Reply_DataReader.Treats.Data_Sequences.Sequence_Access;
@@ -379,16 +386,14 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
    procedure Return_Loan (Self        : not null access Ref;
       Replies     : in out Reply_DataReader.Treats.Data_Sequences.Sequence;
                           Sample_Info : in out DDS.SampleInfo_Seq.Sequence);
-   procedure Delete (This : in out Ref);
+   procedure Delete (Self : in out Ref);
 
    procedure Wait_For_Replies
-     (This      : in out Ref;
-      Min_Count : Dds.Long;
-      Max_Wait  : DDS.Duration_T);
+     (Self : in out Ref; Min_Count : Dds.Long; Max_Wait : DDS.Duration_T);
 
 
    procedure Wait_For_Replies_For_Related_Reques
-     (This               : in out Ref;
+     (Self               : in out Ref;
       Min_Count          : Dds.Long;
       Max_Wait           : DDS.Duration_T;
       Related_Request_Id : DDS.SampleIdentity_T);
@@ -405,7 +410,7 @@ package DDS.Request_Reply.Requester.Typed_Requester_Generic is
    function Wait_For_Any_Sample
      (Self             : not null access Ref;
       Max_Wait         : DDS.Duration_T;
-      Min_Sample_Count : DDS.Integer) return DDS.ReturnCode_T is (RETCODE_UNSUPPORTED);
+      Min_Sample_Count : DDS.Integer) return DDS.ReturnCode_T;
    pragma Warnings (On);
 
 private

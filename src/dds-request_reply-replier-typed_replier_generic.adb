@@ -32,6 +32,7 @@ with DDS.DataReader;
 with DDS.DataReader_Impl;
 with DDS.Request_Reply.Impl;
 with DDS.DataWriter_Impl;
+with DDS.WaitSet;
 package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    use type DDS.Publisher.Ref_Access;
    use type DDS.Subscriber.Ref_Access;
@@ -202,6 +203,7 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
         (Sample_States   => DDS.NOT_READ_SAMPLE_STATE,
          View_States     => DDS.ANY_VIEW_STATE,
          Instance_States => DDS.ANY_INSTANCE_STATE);
+      Ret.Waitset := new DDS.Waitset.Ref;
       Ret.Waitset.Attach_Condition(Ret.Any_Sample_Cond);
       Ret.Waitset.Attach_Condition(Ret.Not_Read_Sample_Cond);
       return Ret;
@@ -242,6 +244,13 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
    begin
       Self.Send_Sample (Data => Reply , Related_Request_Info => Id, WriteParams => Params);
    end Send_Reply;
+   procedure Send_Reply
+     (Self    : not null access Ref;
+      Reply   : Reply_DataWriter.Treats.Data_Type;
+      Id      : DDS.SampleInfo) is
+   begin
+      null;
+   end;
 
    ---------------------
    -- Receive_Request --
@@ -279,6 +288,20 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Dds.Ret_Code_To_Exception (Self.Receive_Request (Request, Info_Seq, Timeout));
    end Receive_Request;
 
+   procedure Receive_Requests
+     (Self             : not null access Ref;
+      Request_Handler  : not null access procedure (Requester :not null access Ref;
+                                                    Request  : Request_DataReader.Treats.Data_Type;
+                                                    Info :  DDS.SampleInfo);
+      Min_Reply_Count      : DDS.Long := 1;
+      Max_Reply_Count      : DDS.Long := DDS.INFINITE;
+      Max_Wait         : DDS.Duration_T := DDS.DURATION_INFINITE) is
+   begin
+      Self.Wait_For_Requests (Min_Count => 1, Max_Wait => Max_Wait);
+      for Request of Self.Take_Request (Max_Reply_Count => Natural'Last) loop
+         Request_Handler(self,Request.data.all,Request.Sample_Info.all);
+      end loop;
+   end;
 
 
    function Take_Request
@@ -349,8 +372,11 @@ package body DDS.Request_Reply.Replier.Typed_Replier_Generic is
 
    procedure Delete (This : in out Ref) is
    begin
+      this.Waitset.Detach_Condition(this.Not_Read_Sample_Cond);
+      this.Waitset.Detach_Condition(this.Any_Sample_Cond);
       this.Reader.Delete_Readcondition(this.Not_Read_Sample_Cond);
       this.Reader.Delete_Readcondition(This.Any_Sample_Cond);
+      DDS.Waitset.free(this.Waitset);
       this.Subscriber.Delete_DataReader(DDS.DataReader.Ref_Access(this.Reader));
       this.Publisher.Delete_DataWriter(DDS.DataWriter.Ref_Access(This.Writer));
    end Delete;

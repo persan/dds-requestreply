@@ -307,7 +307,6 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Temp_Request_Info.Identity  := DDS.AUTO_SAMPLE_IDENTITY;
       Temp_Request_Info.Replace_Auto:= True;
       Temp_Request_Info.Flush_On_Write := True;
-
       Self.Writer.Write_W_Params (Request'Address, Temp_Request_Info, Self.Writer.Get_Metp);
    end Send_Request;
 
@@ -339,6 +338,21 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       return raise Program_Error with "Unimplemented function Receive_Reply";
    end Receive_Reply;
 
+   procedure Receive_Reply
+     (Self     : not null access Ref;
+      Handler  : not null access procedure (Requester : not null access ref; data : Reply_DataReader.Treats.Data_Type);
+      Min_Reply_Count : DDS.Natural;
+      Max_Reply_Count : DDS.Long;
+      Timeout  : DDS.Duration_T)
+   is
+      Reader : constant Reply_DataReader.Ref_Access := Reply_DataReader.Ref_Access (Self.Reader);
+   begin
+      Self.Wait_For_Replies (Min_Reply_Count, Timeout);
+      for i of Reader.Take(Max_Samples  => Max_Reply_Count) loop
+         Handler(self,i.Data.all);
+      end loop;
+   end Receive_Reply;
+
    ---------------------
    -- Receive_Replies --
    ---------------------
@@ -352,12 +366,10 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
       Timeout         : DDS.Duration_T) return DDS.ReturnCode_T
    is
    begin
-      Self.Reader.Wait (DATA_AVAILABLE_STATUS, Timeout);
-
+      Self.Wait_For_Replies (Min_Reply_Count, Timeout);
       return Reply_DataReader.Ref_Access (Self.Reader).Take (Received_Data => Replies,
                                                              Info_Seq      => Sample_Info,
                                                              Max_Samples   => Max_Reply_Count);
-
    end Receive_Replies;
 
    ---------------------
@@ -596,7 +608,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    -- Delete --
    ------------
 
-   procedure Delete (This : in out Ref) is
+   procedure Delete (Self : in out Ref) is
    begin
       raise Program_Error with "Unimplemented procedure Delete";
    end Delete;
@@ -606,10 +618,10 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    ----------------------
 
    procedure Wait_For_Replies
-     (This : in out Ref; Min_Count : Dds.Long; Max_Wait : DDS.Duration_T)
+     (Self : in out Ref; Min_Count : Dds.Long; Max_Wait : DDS.Duration_T)
    is
    begin
-      raise Program_Error with "Unimplemented procedure Wait_For_Replies";
+      DDS.Ret_Code_To_Exception(Self.Wait_For_Replies(Min_Count,Max_Wait));
    end Wait_For_Replies;
 
    -----------------------------------------
@@ -617,7 +629,7 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    -----------------------------------------
 
    procedure Wait_For_Replies_For_Related_Reques
-     (This               : in out Ref;
+     (Self               : in out Ref;
       Min_Count          : Dds.Long;
       Max_Wait           : DDS.Duration_T;
       Related_Request_Id : DDS.SampleIdentity_T)
@@ -629,6 +641,22 @@ package body DDS.Request_Reply.Requester.Typed_Requester_Generic is
    ----------------------------
    -- Get_Request_DataWriter --
    ----------------------------
+   function Wait_For_Any_Sample
+     (Self             : not null access Ref;
+      Max_Wait         : DDS.Duration_T;
+      Min_Sample_Count : DDS.Integer) return DDS.ReturnCode_T is
+      ret : DDS.ReturnCode_T;
+   begin
+      ret := self.wait_for_samples(Max_Wait,
+                                   min_sample_count,
+                                   self.Waitset,
+                                   self.Any_Sample_Cond,
+                                   self.Not_Read_Sample_Cond);
+      if ret not in DDS.RETCODE_OK | DDS.RETCODE_TIMEOUT then
+         Ret_Code_To_Exception(ret);
+      end if;
+      return ret;
+   end;
 
 
 

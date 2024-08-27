@@ -136,7 +136,7 @@ package body DDS.Request_Reply.Impl is
    begin
       Self.Wait_For_Samples (Max_Wait,
                              Min_Sample_Count,
-                             Self.Waitset'Access,
+                             Self.Waitset,
                              Self.Any_Sample_Cond,
                              Self.Not_Read_Sample_Cond);
    end Wait_For_Any_Sample;
@@ -249,5 +249,54 @@ package body DDS.Request_Reply.Impl is
          end if;
       end loop;
    end Wait_For_Samples;
+
+function Wait_For_Samples (Self              : not null access Ref;
+                           Max_Wait          : DDS.Duration_T;
+                           Min_Sample_Count  : DDS.Integer;
+                           WaitSet           : not null DDS.WaitSet.Ref_Access;
+                           Initial_Condition : not null DDS.ReadCondition.Ref_Access;
+                           Condition         : not null DDS.ReadCondition.Ref_Access) return DDS.ReturnCode_T is
+      Remaining_Sample_Count : DDS.Natural := (if Min_Sample_Count = DDS.LENGTH_UNLIMITED then DDS.Natural'Last else Min_Sample_Count);
+      TimeBefore, TimeAfter  : DDS.Time_T;
+      RemainingWait          : aliased DDS.Duration_T := Max_Wait;
+      ActiveConditions       : aliased DDS.ConditionSeq.Sequence;
+      use DDS.ConditionSeq;
+      use Dds.Condition;
+   begin
+
+      if Condition.Get_Sample_State_Mask /= DDS.NOT_READ_SAMPLE_STATE then
+         return DDS.RETCODE_PRECONDITION_NOT_MET;
+      end if;
+
+      if Initial_Condition.Get_Sample_State_Mask /= DDS.ANY_SAMPLE_STATE then
+         return DDS.RETCODE_PRECONDITION_NOT_MET;
+      end if;
+
+      Remaining_Sample_Count := Remaining_Sample_Count - Self.Touch_Samples (Min_Sample_Count, Initial_Condition);
+
+      while Remaining_Sample_Count > 0 loop
+         if Remaining_Sample_Count = 1 then
+            WaitSet.Wait (ActiveConditions'Access, RemainingWait);
+            Remaining_Sample_Count :=  Remaining_Sample_Count - Self.Touch_Samples (Min_Sample_Count, Condition);
+         else
+
+            TimeBefore := Self.Participant.Get_Current_Time;
+            WaitSet.Wait (ActiveConditions'Access, RemainingWait);
+            TimeAfter := Self.Participant.Get_Current_Time;
+
+            RemainingWait := RemainingWait -(TimeAfter - TimeBefore);
+
+            exit when
+              Get_Length (ActiveConditions'Access) /= 1 or
+              Get (ActiveConditions'Access, 0) /= DDS.Condition.Ref_Access (Condition);
+            if Remaining_Sample_Count > 1 then
+               Remaining_Sample_Count :=  Remaining_Sample_Count - Self.Touch_Samples (Min_Sample_Count, Condition);
+            else
+               Remaining_Sample_Count := Remaining_Sample_Count - 1;
+            end if;
+         end if;
+      end loop;
+      return DDS.RETCODE_OK;
+   end;
 
 end DDS.Request_Reply.Impl;

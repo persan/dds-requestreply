@@ -253,6 +253,11 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Reply   : Reply_DataWriter.Treats.Data_Type;
       Id      : DDS.SampleIdentity_T);
 
+   procedure Send_Reply
+     (Self    : not null access Ref;
+      Reply   : Reply_DataWriter.Treats.Data_Type;
+      Id      : DDS.SampleInfo);
+
    function Receive_Request
      (Self       :        not null access Ref;
       Request    : in out Request_DataReader.Treats.Data_Type;
@@ -266,6 +271,15 @@ package DDS.Request_Reply.Replier.Typed_Replier_Generic is
       Info_Seq : in out DDS.SampleInfo;
       Timeout  : DDS.Duration_T := DDS.DURATION_INFINITE);
 
+
+   procedure Receive_Requests
+     (Self             : not null access Ref;
+      Request_Handler  : not null access procedure (Requester :not null access Ref;
+                                                    Request  : Request_DataReader.Treats.Data_Type;
+                                                    Info :  DDS.SampleInfo);
+      Min_Reply_Count      : DDS.Long := 1;
+      Max_Reply_Count      : DDS.Long := DDS.INFINITE;
+      Max_Wait         : DDS.Duration_T := DDS.DURATION_INFINITE);
 
    function Receive_Request
      (Self                 : not null access Ref;

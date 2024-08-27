@@ -46,7 +46,7 @@ private package DDS.Request_Reply.Impl is
       Request_Topic        : DDS.Topic.Ref_Access;
       Reader               : DDS.DataReader_Impl.Ref_Access;
       Writer               : DDS.DataWriter_Impl.Ref_Access;
-      Waitset              : aliased DDS.WaitSet.Ref;
+      Waitset              : DDS.WaitSet.Ref_Access;
       Not_Read_Sample_Cond : DDS.ReadCondition.Ref_Access;
       Any_Sample_Cond      : DDS.ReadCondition.Ref_Access;
       Sample_Size          : Natural;
@@ -100,8 +100,8 @@ private package DDS.Request_Reply.Impl is
    function CreateContentFilteredTopicName ( Self             : not null access Ref;
                                              RelatedTopicName : DDS.String;
                                              Guid             : Guid_T) return Standard.String;
-   procedure Wait_For_Any_Sample (Self : not null access Ref;
-                                  Max_Wait : DDS.Duration_T;
+   procedure Wait_For_Any_Sample (Self             : not null access Ref;
+                                  Max_Wait         : DDS.Duration_T;
                                   Min_Sample_Count : DDS.Natural);
 
    procedure Wait_For_Samples (Self              : not null access Ref;
@@ -109,7 +109,17 @@ private package DDS.Request_Reply.Impl is
                                Min_Sample_Count  : DDS.Integer;
                                WaitSet           : not null DDS.WaitSet.Ref_Access;
                                Initial_Condition : not null DDS.ReadCondition.Ref_Access;
-                               Condition         : not null DDS.ReadCondition.Ref_Access);
+                               Condition         : not null DDS.ReadCondition.Ref_Access)with
+     pre => (Initial_Condition.Get_Sample_State_Mask = DDS.ANY_SAMPLE_STATE) and
+     (Condition.Get_Sample_State_Mask = DDS.NOT_READ_SAMPLE_STATE);
 
+   function Wait_For_Samples (Self              : not null access Ref;
+                              Max_Wait          : DDS.Duration_T;
+                              Min_Sample_Count  : DDS.Integer;
+                              WaitSet           : not null DDS.WaitSet.Ref_Access;
+                              Initial_Condition : not null DDS.ReadCondition.Ref_Access;
+                              Condition         : not null DDS.ReadCondition.Ref_Access) return DDS.ReturnCode_T with
+     pre => (Initial_Condition.Get_Sample_State_Mask = DDS.ANY_SAMPLE_STATE) and
+     (Condition.Get_Sample_State_Mask = DDS.NOT_READ_SAMPLE_STATE);
 
 end DDS.Request_Reply.Impl;

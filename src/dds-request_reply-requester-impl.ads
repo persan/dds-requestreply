@@ -60,7 +60,9 @@ private package DDS.Request_Reply.Requester.Impl is
    function Create_Correlation_Condition
      (Self            : not null access Ref;
       State_Kind      : DDS.SampleStateMask;
-      Sequence_Number : DDS.SequenceNumber_T) return not null DDS.ReadCondition.Ref_Access;
+      Sequence_Number : DDS.SequenceNumber_T) return not null DDS.ReadCondition.Ref_Access with
+     pre => (Sequence_Number in DDS.AUTO_SEQUENCE_NUMBER | DDS.SEQUENCE_NUMBER_MAX | DDS.SEQUENCE_NUMBER_ZERO | DDS.SEQUENCE_NUMBER_UNKNOWN);
+
 
    function Wait_For_Replies
      (Self                 : not null access Ref;

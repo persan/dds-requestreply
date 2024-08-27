@@ -1,6 +1,7 @@
 with AUnit.Assertions;
 with GNAT.Source_Info;
 with AUnit; use AUnit;
+with Ada.Text_IO; use Ada.Text_IO;
 package body DDS.Request_Reply.Requester.Impl.Unittest is
    use Aunit.Assertions;
    ----------
@@ -48,9 +49,35 @@ package body DDS.Request_Reply.Requester.Impl.Unittest is
    begin
       null;
    end;
-   procedure Test_Wait_For_Replies_For_Related_Request (Test : in out Aunit.Test_Cases.Test_Case'Class) is
+
+   procedure Test_Recieve_requests_1 (Test : in out Aunit.Test_Cases.Test_Case'Class) is
+      T    : Test_Case renames Test_Case(Test);
+
+      procedure Reqest_handler (Requester : not null access DDS.Request_Reply.Unittest.Replier.Ref;
+                                Request   : DDS.String;
+                                Info      : DDS.SampleInfo) is
+         reply : DDS.String := DDS.To_DDS_String("In reply to:");
+      begin
+         reply.append(Request);
+         Requester.send_reply(reply,Info);
+         reply.finalize;
+      end;
+      procedure Reply_handler (Requester : not null access DDS.Request_Reply.Unittest.Requester.Ref;
+                               data : DDS.String) is
+         pragma Unreferenced (Requester);
+      begin
+         put_line(data.to_standard_STring);
+      end;
    begin
-      null;
+      T.Requester.Send_Request(Test_Data);
+      T.Replier.Receive_Requests(Reqest_handler'Access);
+      --  T.Requester.Wait_For_Replies(1,DDS.To_Duration_T(1.0));
+      T.Requester.Receive_Reply
+        (Handler         => Reply_handler'Access,
+         Min_Reply_Count => 1,
+         Max_Reply_Count => 1,
+         Timeout         => DDS.To_Duration_T(1.0));
+
    end;
 
    procedure Test_Wait_For_Replies (Test : in out Aunit.Test_Cases.Test_Case'Class) is
@@ -61,7 +88,7 @@ package body DDS.Request_Reply.Requester.Impl.Unittest is
       end sender;
       task body sender is
       begin
-         delay 1.0;
+         delay 0.1;
          T.Requester.Send_Request(Test_Data);
       end sender;
       use type Ada.calendar.time;
@@ -73,21 +100,11 @@ package body DDS.Request_Reply.Requester.Impl.Unittest is
       T.Replier.Wait_for_requests(1,DDS.To_Duration_t(10.0));
       T1 := Ada.calendar.Clock;
       delta_t := T1 - T0;
-      Assert (delta_t > 0.9 and delta_t < 1.1, "Dit not wait for request");
+      Assert (delta_t > 0.09 and delta_t < 0.11, "Did not wait for request");
       T.Replier.Receive_Request(Data,Info);
 
-      -- T.Requester.Read_Reply(
    end;
 
-   procedure Test_Wait_For_Replies2 (Test : in out Aunit.Test_Cases.Test_Case'Class) is
-   begin
-      null;
-   end;
-
-   procedure Test_Get_Reply_Loaned (Test : in out Aunit.Test_Cases.Test_Case'Class) is
-   begin
-      null;
-   end;
 
    procedure Test_Tear_Down (Test : in out Aunit.Test_Cases.Test_Case'Class) is
       T : Test_Case renames Test_Case(Test);

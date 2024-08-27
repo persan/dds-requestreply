@@ -10,10 +10,8 @@ begin
    Register_Routine (Test, Test_Create'Access, "Test_Create");
    Register_Routine (Test, Test_Create_Query_Expression_For_Correlation_Sequence_Number'Access, "Test_Create_Query_Expression_For_Correlation_Sequence_Number");
    Register_Routine (Test, Test_Create_Correlation_Condition'Access, "Test_Create_Correlation_Condition");
-   Register_Routine (Test, Test_Wait_For_Replies_For_Related_Request'Access, "Test_Wait_For_Replies_For_Related_Request");
+   Register_Routine (Test, Test_Recieve_requests_1'Access, "Test_Recieve_requests_1");
    Register_Routine (Test, Test_Wait_For_Replies'Access, "Test_Wait_For_Replies");
-   Register_Routine (Test, Test_Wait_For_Replies2'Access, "Test_Wait_For_Replies2");
-   Register_Routine (Test, Test_Get_Reply_Loaned'Access, "Test_Get_Reply_Loaned");
    Register_Routine (Test, Test_Tear_Down'Access, "Test_Tear_Down");
 end Register_Tests;
 --  end read only

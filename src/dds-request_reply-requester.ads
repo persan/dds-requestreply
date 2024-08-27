@@ -28,20 +28,10 @@
 -- ---------------------------------------------------------------------
 
 with DDS.ReadCondition;
-with DDS.DataReader;
-with DDS.DataWriter;
 package DDS.Request_Reply.Requester is
    type Ref is limited interface and DDS.Request_Reply.Ref;
    type Ref_Access is access all Ref'Class;
 
-
-   function Get_Request_Data_Writer
-     (Self : not null access Ref)
-      return not null DDS.DataWriter.Ref_Access is abstract;
-
-   function Get_Reply_Data_Reader
-     (Self : not null access Ref)
-      return not null DDS.DataReader.Ref_Access is abstract;
 
    function Touch_Samples
      (Self           : not null access Ref;
